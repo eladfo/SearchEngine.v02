@@ -84,7 +84,7 @@ public class Controller extends Component
             Optional<ButtonType> result = alert.showAndWait();
         }
         else
-        {
+        {//
             Path_name = txtfld_posting_path.getText();
             Stage stage = new Stage();
             FXMLLoader fxmlLoader = new FXMLLoader();
