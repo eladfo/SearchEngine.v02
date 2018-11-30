@@ -17,7 +17,7 @@ public class ReadFile {
         folder = new File(corpusPath);
         listOfFiles = folder.listFiles();
         docSet = new HashSet<>();
-        doc = new Doc();
+        doc=null ;
         docFlag = 0;
 //        chunk = listOfFiles.length/partitions;
         chunk = 50;

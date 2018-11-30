@@ -39,17 +39,19 @@ public class Indexer {
 
     public void createInvertedIndex() throws IOException {
         mergeTermsPostings();
-        mergePostings_city();
+        //mergePostings_city();
         createFinalTermsPostings();
         printFinalDic();
     }
 
-    public void addParsedDoc(ParsedDoc pd) {
+    public void addParsedDoc(ParsedDoc pd)
+    {
         tmpDocsDic.add(pd);
         StringBuilder docID = pd.getDocID();
         HashMap<String, StringBuilder> terms = pd.getTerms();
         int maxTF = 0;
-        for (Map.Entry<String, StringBuilder> entry : terms.entrySet()) {
+        for (Map.Entry<String, StringBuilder> entry : terms.entrySet())
+        {
             String termID = entry.getKey();
             StringBuilder termPositions = entry.getValue();
             updateTmpTermsDic(termID, termPositions, docID);
@@ -58,7 +60,7 @@ public class Indexer {
         }
         if(pd.getCity().toString().length()>0){
             if (tmpCityDic.containsKey(upperCase(pd.getCity().toString())))
-                tmpCityDic.get(upperCase(pd.getCity().toString())).append(pd.getDocID().append(':').append(pd.get_pos_city(upperCase(pd.getCity().toString()))).append(" "));
+                tmpCityDic.get(upperCase(pd.getCity().toString())).append(pd.getDocID()).append(':').append(pd.get_pos_city(upperCase(pd.getCity().toString()))).append(" "));
 
             else {
                 if(pd.getInfo_city().toString().length()>0)
@@ -78,10 +80,13 @@ public class Indexer {
     }
 
     public void updateTmpTermsDic(String termID, StringBuilder tPositions, StringBuilder docID) {
-        if (tmpTermsDic.containsKey(termID)) {
-            Term t = tmpTermsDic.get(termID);
+        if (tmpTermsDic.containsKey(lowerCase(termID)))
+        {
+            Term t = tmpTermsDic.get(lowerCase(termID));
             t.addDoc(docID.toString(), tPositions);
-        } else {
+            tmpTermsDic.put(lowerCase(termID),t);
+        } else
+            {
             char c = termID.charAt(0);
             int flag = isUpperCase(c);
             Term t = new Term(docID.toString(), tPositions, flag);
@@ -110,11 +115,13 @@ public class Indexer {
             StringBuilder sb = termDocInfo.from_term_to_string();
             if(termDocInfo.flag == 0)
                 bw.write("*" + termID + "\n");
-            else
+            else {
                 bw.write("#" + termID + "\n");
+            }
             bw.write(sb.toString());
         }
         bw.flush();
+        bw.close();
     }
 
     public void mergeTermsPostings() throws IOException {
@@ -158,7 +165,8 @@ public class Indexer {
                 }
             }
         }
-        bw.flush();
+        //bw.flush();
+        bw.close();
         for (int i=0 ; i<brArray.length;i++)
             brArray[i].close();
     }

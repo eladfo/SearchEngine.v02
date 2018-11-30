@@ -23,18 +23,24 @@ public class ParsedDoc {
 
     public void addTerm(String str, int position){
         String tmp;
+
         if( (str.charAt(0) <= '0' || str.charAt(0) >= '9') && str.charAt(0) == Character.toUpperCase(str.charAt(0)) )
             tmp = upperCase(str);
         else
             tmp = lowerCase(str);
 
-        if (terms.containsKey(tmp)) {
-            terms.get(tmp).append(",").append(String.valueOf(position));
+        if (terms.containsKey(tmp))
+        {
+            StringBuilder t = terms.get(tmp);
+            t.append(",").append(String.valueOf(position));
+            terms.put(tmp,t);
+            //terms.get(tmp).append(",").append(String.valueOf(position));
         }
         else {
             StringBuilder sbTmp = new StringBuilder(String.valueOf(position));
             terms.put(tmp, sbTmp);
         }
+
     }
 
     public void resetTerms() {

@@ -17,7 +17,10 @@ public class Term {
     }
 
     public void addDoc(String s, StringBuilder count){
-        docList.put(s, count);
+       // if(s.compareToIgnoreCase("ZHUHAI")==0) {
+       //     System.out.println(s + "    " + count.toString());
+     //   }
+        docList.put(s, new StringBuilder(count.toString()) );
     }
 
     public StringBuilder from_term_to_string()
@@ -25,8 +28,7 @@ public class Term {
         StringBuilder s = new StringBuilder();
         for(Map.Entry<String,StringBuilder> entry : docList.entrySet())
         {
-
-            s.append(entry.getKey()).append(",").append(entry.getValue().append("~"));
+            s.append(entry.getKey()).append(",").append(entry.getValue().toString()).append("~");
         }
         s.append("\n");
         return s;
