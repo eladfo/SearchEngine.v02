@@ -8,7 +8,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 
-
+//yiuh
 public class Control_Show_Dic extends Component implements Initializable
 {
     public javafx.scene.control.TextArea  txt_area;
