@@ -2,100 +2,116 @@ package Model;
 
 import java.io.*;
 import java.util.*;
-
 import static java.lang.Character.toLowerCase;
 import static java.lang.Character.toUpperCase;
 import static org.apache.commons.lang3.StringUtils.*;
 
-
 public class Indexer {
     public TreeMap<String, Term> tmpTermsDic;
+    public TreeSet<ParsedDoc> tmpDocsDic;
     public TreeMap<String, StringBuilder> tmpCityDic;
-    public HashSet<ParsedDoc> tmpDocsDic;
     public TreeMap<String, int[]> finalTermsDic;
     public int partitions;
     public String postingsPath;
     public Boolean isStemm;
 
-//    String eladMainPost = "C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v01\\src\\main\\resources\\MergedPosting_NoStemmer";
-//    String eladFinalPath = "C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v01\\src\\main\\resources\\";
-//    String eladTmpTermPost = "C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v01\\src\\main\\resources\\termPosting";
-//    String eladTmpDocPost = "C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v01\\src\\main\\resources\\docPosting";
-//    String alon = "C:\\Users\\A\\Downloads\\corpus_cheak";
-
+    /**
+     * Index's_Constructor
+     */
     public Indexer(String postPath, int partitions, Boolean isStemm) throws IOException {
         tmpTermsDic = new TreeMap<>();
-        tmpDocsDic = new HashSet<>();
+        tmpDocsDic = new TreeSet<>(new Comparator<ParsedDoc>() {
+            @Override
+            public int compare(ParsedDoc o1, ParsedDoc o2) {
+                return o1.getDocID().toString().compareTo(o2.getDocID().toString());
+            }
+        });
         tmpCityDic = new TreeMap<>();
-        finalTermsDic = new TreeMap<>(); //the dic save prt to the first line in the posting.
-        postingsPath = postPath + "\\";
+        finalTermsDic = new TreeMap<>();
+        this.postingsPath = postPath;
         this.partitions = partitions;
         this.isStemm = isStemm;
+        createPostingsDir();
     }
 
-    public TreeMap<String, Term> getDic() {
-        return tmpTermsDic;
+    private void createPostingsDir() {
+        File dir;
+        if(isStemm)
+            postingsPath += "\\With_Stemmer";
+        else
+            postingsPath += "\\Without_Stemmer";
+
+        dir = new File(postingsPath);
+        if(!dir.exists())
+            dir.mkdir();
+        postingsPath += "\\";
     }
 
     public void createInvertedIndex() throws IOException {
         mergeTermsPostings();
-        //mergePostings_city();
+        mergePostings_city();
+        mergeDocsPostings();
         createFinalTermsPostings();
-        printFinalDic();
+        createFinalTermsDic();
+        deleteTmpFiles();
     }
 
-    public void addParsedDoc(ParsedDoc pd)
-    {
+    private void deleteTmpFiles() {
+        File directory = new File(substring(postingsPath, 0,postingsPath.length()-1));
+        if(directory.listFiles() != null) {
+            for (File f : directory.listFiles()) {
+                if (f.getName().startsWith("_")) {
+                    f.delete();
+                    System.out.println(f + " deleted");
+                }
+            }
+        }
+    }
+
+    public void createTmpPosting(int i) throws IOException {
+        createTmpTermPosting(i);
+        createTmpDocPosting(i);
+        createTmpCityPosting(i);
+    }
+
+    public void resetIndex(){
+        tmpTermsDic.clear();
+        tmpDocsDic.clear();
+        tmpCityDic.clear();
+    }
+
+    public void addParsedDoc(ParsedDoc pd) {
         tmpDocsDic.add(pd);
         StringBuilder docID = pd.getDocID();
         HashMap<String, StringBuilder> terms = pd.getTerms();
-        int maxTF = 0;
-        for (Map.Entry<String, StringBuilder> entry : terms.entrySet())
-        {
+        for (Map.Entry<String, StringBuilder> entry : terms.entrySet()) {
             String termID = entry.getKey();
             StringBuilder termPositions = entry.getValue();
             updateTmpTermsDic(termID, termPositions, docID);
-            //if(value.size() > maxTF)
-            //maxTF = value.size();
         }
-        if(pd.getCity().toString().length()>0){
-            if (tmpCityDic.containsKey(upperCase(pd.getCity().toString())))
-                tmpCityDic.get(upperCase(pd.getCity().toString())).append(pd.getDocID()).append(':').append(pd.get_pos_city(upperCase(pd.getCity().toString()))).append(" "));
 
-            else {
-                if(pd.getInfo_city().toString().length()>0)
-                    tmpCityDic.put(upperCase(pd.getCity().toString()), pd.getInfo_city().append("\n").append(pd.getDocID()).append(":").append(pd.get_pos_city(upperCase(pd.getCity().toString()))).append(" "));
-                else
-                    tmpCityDic.put(upperCase(pd.getCity().toString()),pd.getDocID().append(":").append(pd.get_pos_city(upperCase(pd.getCity().toString()))).append(" "));
-            }
-        }
-        int max_tf = pd.getMaxTF();
-        int docTermsSize = terms.size();
-        StringBuilder city;
+        updateTmpDocsDic(pd);
+        updateTmpCityDic(pd, docID);
         pd.resetTerms();
     }
 
-    public void setDic(TreeMap<String, Term> dic) {
-        this.tmpTermsDic = dic;
-    }
 
+    /**
+     Terms_Index
+     */
     public void updateTmpTermsDic(String termID, StringBuilder tPositions, StringBuilder docID) {
-        if (tmpTermsDic.containsKey(lowerCase(termID)))
-        {
-            Term t = tmpTermsDic.get(lowerCase(termID));
-            t.addDoc(docID.toString(), tPositions);
-            tmpTermsDic.put(lowerCase(termID),t);
-        } else
-            {
-            char c = termID.charAt(0);
-            int flag = isUpperCase(c);
-            Term t = new Term(docID.toString(), tPositions, flag);
-            tmpTermsDic.put(lowerCase(termID), t);
-        }
-    }
-
-    public void updateTmpDocsDic() {
-
+         if (tmpTermsDic.containsKey(lowerCase(termID))) {
+             Term t = tmpTermsDic.get(lowerCase(termID));
+             if (t.flag == 1 && (isUpperCase(termID.charAt(0)) == 0))
+                 t.flag = 0;
+             t.addDoc(docID.toString(), tPositions);
+//                t.docList.put(docID.toString(), tPositions);
+         } else {
+             char c = termID.charAt(0);
+             int flag = isUpperCase(c);
+             Term t = new Term(docID.toString(), tPositions, flag);
+             tmpTermsDic.put(lowerCase(termID), t);
+         }
     }
 
     public int isUpperCase(char c){
@@ -105,9 +121,8 @@ public class Indexer {
             return 0;
     }
 
-    public void createTermTmpPosting(int idx) throws IOException {
-        FileWriter fw = null;
-        fw = new FileWriter(postingsPath + "termTmpPost" + idx);
+    public void createTmpTermPosting(int idx) throws IOException {
+        FileWriter fw = new FileWriter(postingsPath + "_tmpTermPost" + idx);
         BufferedWriter bw = new BufferedWriter(fw);
         for (Map.Entry<String, Term> entry : tmpTermsDic.entrySet()) {
             String termID = entry.getKey();
@@ -115,24 +130,22 @@ public class Indexer {
             StringBuilder sb = termDocInfo.from_term_to_string();
             if(termDocInfo.flag == 0)
                 bw.write("*" + termID + "\n");
-            else {
+            else
                 bw.write("#" + termID + "\n");
-            }
             bw.write(sb.toString());
         }
         bw.flush();
-        bw.close();
     }
 
     public void mergeTermsPostings() throws IOException {
-        FileWriter fw = new FileWriter(postingsPath + "mergedTermPost");
+        FileWriter fw = new FileWriter(postingsPath + "mergedTermPosting");
         BufferedWriter bw = new BufferedWriter(fw);
         BufferedReader[] brArray = new BufferedReader[partitions];
         String[] termsArray = new String[partitions];
         int flag=0;
         for(int i=0; i<partitions ; i++)
         {
-            File file = new File(postingsPath + "termTmpPost" +i);
+            File file = new File(postingsPath + "_tmpTermPost" +i);
             brArray[i] = new BufferedReader(new FileReader(file));
             termsArray[i] = brArray[i].readLine();
             if(termsArray[i].charAt(0) == '#') {flag = 1;}
@@ -165,8 +178,7 @@ public class Indexer {
                 }
             }
         }
-        //bw.flush();
-        bw.close();
+        bw.flush();
         for (int i=0 ; i<brArray.length;i++)
             brArray[i].close();
     }
@@ -180,7 +192,7 @@ public class Indexer {
         return false;
     }
 
-    public boolean stopCondition(int partitions, String[] brArr) {
+    private boolean stopCondition(int partitions, String[] brArr) {
         for(int i=0; i<partitions; i++)
         {
             if(brArr[i] != null)
@@ -189,7 +201,7 @@ public class Indexer {
         return false;
     }
 
-    public int termsCompare(String[] strArray) {
+    private int termsCompare(String[] strArray) {
         String minValue = null;
         int index_min=0;
         for(int i=0 ; i<strArray.length ; i++) {
@@ -211,7 +223,7 @@ public class Indexer {
     public void createFinalTermsPostings() throws IOException {
         String[] posts = {"NUM","A","B","C","D","E","F","G","H","I","J","K","L","M",
                             "N","O","P","Q","R","S","T","U","V","W","X","Y","Z"};
-        File file = new File(postingsPath + "mergedTermPost");
+        File file = new File(postingsPath + "mergedTermPosting");
         BufferedReader br = new BufferedReader(new FileReader(file));
         BufferedWriter bw = new BufferedWriter(new FileWriter(postingsPath + posts[0]));
         String line = br.readLine();
@@ -258,16 +270,50 @@ public class Indexer {
         return termData;
     }
 
-    public void resetIndex(){
-        tmpTermsDic.clear();
-        tmpDocsDic.clear();
-        tmpCityDic.clear();
+    public void createFinalTermsDic() throws IOException {
+        BufferedWriter bw = new BufferedWriter(new FileWriter(postingsPath + "Final_Terms_Dic"));
+        long p0 = System.currentTimeMillis();
+        for (Map.Entry<String, int[]> entry : finalTermsDic.entrySet()) {
+            String termID = entry.getKey();
+            int[] termData = entry.getValue();
+//            StringBuilder sb = new StringBuilder();
+//            sb.append(termID).append(" ").append(termData[0]).append(" ").append(termData[1])
+//                    .append(" ").append(termData[2]).append("\n");
+//            bw.write(sb.toString());
+            bw.write(termID + " " + termData[0] + " " + termData[1] + " " + termData[2] + "\n");
+        }
+        long p1 = System.currentTimeMillis();
+//        System.out.println("----- " + (p1 - p0));
+        bw.flush();
+    }
+
+    /**
+     City_Index
+     */
+    private void updateTmpCityDic(ParsedDoc pd, StringBuilder docID) {
+        String cityID = pd.getCity().toString();
+        if(cityID.length()>0){
+            if (tmpCityDic.containsKey(upperCase(cityID))) {
+                StringBuilder cityData = tmpCityDic.get(upperCase(cityID));
+                cityData.append(docID).append(':').append(pd.get_pos_city(upperCase(cityID)).append(" "));
+            } else {
+                if(pd.getInfo_city().toString().length()>0) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(pd.getInfo_city()).append("\n").append(docID).append(":").append(pd.get_pos_city(upperCase(cityID))).append(" ");
+                    tmpCityDic.put(upperCase(cityID), sb);
+                }else {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(docID).append(":").append(pd.get_pos_city(upperCase(cityID))).append(" ");
+                    tmpCityDic.put(upperCase(cityID), sb);
+                }
+            }
+        }
     }
 
     public void createTmpCityPosting(int idx) throws IOException
     {
         FileWriter fw = null;
-        fw = new FileWriter(postingsPath+"City"+idx);
+        fw = new FileWriter(postingsPath+"_tmpCityPost"+idx);
         BufferedWriter bw = new BufferedWriter(fw);
         for (Map.Entry<String, StringBuilder> entry : tmpCityDic.entrySet())
         {
@@ -281,14 +327,14 @@ public class Indexer {
 
     public void mergePostings_city( ) throws IOException
     {
-        FileWriter fw = new FileWriter(postingsPath+"City_final");
+        FileWriter fw = new FileWriter(postingsPath+"mergedCityPosting");
         BufferedWriter bw = new BufferedWriter(fw);
         BufferedReader[] brArray = new BufferedReader[partitions];
         String[] strArray = new String[partitions];
         String last_city = "";
 
         for(int i=0; i<partitions ; i++) {
-            File file = new File(postingsPath+"City"+i);
+            File file = new File(postingsPath+"_tmpCityPost"+i);
             brArray[i] = new BufferedReader(new FileReader(file));
             strArray[i] = brArray[i].readLine();
             strArray[i] = strArray[i].substring(1);
@@ -313,25 +359,54 @@ public class Indexer {
             }
         }
         bw.flush();
-        for (int i=0 ; i<brArray.length;i++)
-            brArray[i].close();
     }
 
+    public void createFinalCityDic() throws IOException {
 
-    public void printFinalDic() throws IOException {
-        BufferedWriter bw = new BufferedWriter(new FileWriter(postingsPath + "FinalTermsDic_NoStemmer"));
-        long p0 = System.currentTimeMillis();
-        for (Map.Entry<String, int[]> entry : finalTermsDic.entrySet()) {
-            String termID = entry.getKey();
-            int[] termData = entry.getValue();
-//            StringBuilder sb = new StringBuilder();
-//            sb.append(termID).append(" ").append(termData[0]).append(" ").append(termData[1])
-//                    .append(" ").append(termData[2]).append("\n");
-//            bw.write(sb.toString());
-            bw.write(termID + " " + termData[0] + " " + termData[1] + " " + termData[2] + "\n");
+    }
+
+    /**
+     Docs_Index
+     */
+    public void updateTmpDocsDic(ParsedDoc pd) {
+        HashMap<String, StringBuilder> terms = pd.getTerms();
+        pd.calcMaxTF();
+        pd.setNumOfTerms(terms.size());
+    }
+
+    public void createTmpDocPosting(int idx) throws IOException {
+        FileWriter fw = new FileWriter(postingsPath + "_tmpDocPost" + idx);
+        BufferedWriter bw = new BufferedWriter(fw);
+        for (ParsedDoc pd : tmpDocsDic) {
+            int maxTF = pd.getMaxTF();
+            StringBuilder city = pd.getCity();
+            int totalTerms = pd.getNumOfTerms();
+            StringBuilder docid = pd.getDocID();
+            bw.write(docid.toString()+"~"+maxTF+"~"+totalTerms+"~"+upperCase(city.toString())+"\n");
         }
-        long p1 = System.currentTimeMillis();
-        System.out.println("----- " + (p1 - p0));
         bw.flush();
+    }
+
+    public void mergeDocsPostings() throws IOException {
+        BufferedWriter bw = new BufferedWriter(new FileWriter(postingsPath + "mergedDocsPosting"));
+        BufferedWriter bwDic = new BufferedWriter(new FileWriter(postingsPath + "Final_Docs_Dic"));
+        int pointer = 0;
+        for(int i=0; i<partitions ; i++) {
+            BufferedReader br = new BufferedReader(new FileReader(new File(postingsPath + "_tmpDocPost" + i)));
+            String line;
+            while ((line = br.readLine()) != null) {
+                bw.write(line + "\n");
+                createFinalDocsDic(bwDic, line ,pointer);
+                pointer++;
+            }
+            br.close();
+        }
+        bw.flush();
+        bwDic.flush();
+    }
+
+    public void createFinalDocsDic(BufferedWriter bwDic, String line, int pointer) throws IOException {
+        String[] tokens = split(line, "~");
+        bwDic.write(tokens[0] + " " + pointer + "\n");
     }
 }

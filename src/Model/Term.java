@@ -17,10 +17,7 @@ public class Term {
     }
 
     public void addDoc(String s, StringBuilder count){
-       // if(s.compareToIgnoreCase("ZHUHAI")==0) {
-       //     System.out.println(s + "    " + count.toString());
-     //   }
-        docList.put(s, new StringBuilder(count.toString()) );
+      docList.put(s, new StringBuilder(count.toString()) );
     }
 
     public StringBuilder from_term_to_string()

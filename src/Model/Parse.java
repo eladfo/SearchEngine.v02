@@ -13,7 +13,7 @@ public class Parse
 {
     private String[] stk;
     private int index;
-    private ParsedDoc parsedDoc;
+    private ParsedDoc parsedDoc = new ParsedDoc();
     private StringBuilder strb = new StringBuilder();
     private HashMap<String,String> month = new HashMap<>() ;
     private HashSet<String> stop_words = new HashSet<>();
@@ -34,7 +34,7 @@ public class Parse
                 stop_words.add(st);
         }
         Capital_City = new TreeMap<>();
-        //Create_City_Map();
+        Create_City_Map();
         stemmer = new Stemmer();
     }
 
@@ -90,8 +90,7 @@ public class Parse
 //        System.out.println("");
 //
 ////        need to get a flag that say if the we want to use in stemmer or not!
-      //System.out.println(sb);
-
+//        System.out.println(sb);
         parsedDoc.addTerm(sb.toString(), pos);
         position_of_word++;
     }
@@ -100,11 +99,10 @@ public class Parse
             parsedDoc = new ParsedDoc();
             parsedDoc.setDocID(it.getDocID());
             stk = split(it.getDocText().toString(), "[ ():[];?/-]=");
-        //stk = split(it.getDocText().toString(), " ");
             index = 0;                 // index of word in file include stop words!
             position_of_word = 1;      // index of word in file without stop words!
+
         while (index < stk.length) {
-            //System.out.println(stk[index]);
                 String s = initialParse(stk[index]);
                 //String s = stk[index];
                 if (s.length() == 0 || stop_words.contains(lowerCase(s))) {
@@ -132,7 +130,7 @@ public class Parse
                 }
                 index++;
             }
-        //Create_City_Posting(it.getDocCity());
+        Create_City_Posting(it.getDocCity());
         return parsedDoc;
     }
 
@@ -143,16 +141,10 @@ public class Parse
     }
 
     private String initialParse(String s) {
-      //  s=replaceChars(s,"#+<>|~,!'--�","");
-       // char tmp = '"';
-       //s= replaceChars(s,tmp,'#');
         char tmp = '"';
-        s= replaceChars(s,"--�","");
 
-
-        s= replaceChars(s,tmp,'#');
-        s=replaceChars(s,"#+<>|~,!'","");
-
+       s= replaceChars(s,tmp,'#');
+        s=replaceChars(s,"#+<>|~,!'--�","");
         if (org.apache.commons.lang3.StringUtils.contains(s,".") && !s.equals("U.S.") && !Character.isDigit(s.charAt(0)) && s.charAt(0)!='$')
           s=  replaceChars(s,".","");
         else if (s.length()>0 && s.charAt(s.length()-1)  == '.' && !s.equals("U.S.") )
@@ -345,8 +337,9 @@ public class Parse
         else
             return Float.toString(f);
     }
-/*
-    public void Create_City_Map() throws IOException {
+
+    public void Create_City_Map() throws IOException
+    {
         URL url = new URL("https://restcountries.eu/rest/v2/all?fields=name;capital;population;currencies");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
@@ -462,5 +455,4 @@ public class Parse
                 return from_number_to_string(f) + "B";
             }
     }
-*/
 }

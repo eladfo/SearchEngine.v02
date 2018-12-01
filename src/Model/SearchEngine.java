@@ -11,48 +11,52 @@ public class SearchEngine {
     int partiotions;
     String corpusPath;
     String postPath;
+    int indexedDocs;
+    int uniqueTerms;
+    double totalRunTime;
 
     public SearchEngine(String corpusPath, String postPath, Boolean isStemm) throws IOException {
         this.corpusPath = corpusPath;
         this.postPath = postPath;
-        partiotions = 20;
+        partiotions = 2;
         rf = new ReadFile(corpusPath);
+//        partiotions = (int) Math.ceil(rf.getListOfFiles().length/50.0);
         idx = new Indexer(postPath, partiotions, isStemm);
-        docs=null;
-        //partiotions = rf.getListOfFiles().length/50;
         parse = new Parse(isStemm);
+        docs = new HashSet<>();
     }
 
     public void createSearchEngine() throws IOException {
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < partiotions; i++) {
             long p0 = System.currentTimeMillis();
-            //docs.clear();
+            docs.clear();
             docs = rf.readLines(i);
-            int j=0;
-            for (Doc d : docs)
-            {
+            indexedDocs += docs.size();
+            for (Doc d : docs) {
                 ParsedDoc pd = parse.run(d);
                 idx.addParsedDoc(pd);
                 d.docText.setLength(0);
             }
-           // idx.createTmpCityPosting(i);
-            idx.createTermTmpPosting(i);
-            docs.clear();
+            idx.createTmpPosting(i);
             idx.resetIndex();
-            //            long p0 = System.currentTimeMillis();
+
             long p1 = System.currentTimeMillis();
             System.out.println(p1 - p0);
         }
         idx.createInvertedIndex();
-
         long endTime = System.currentTimeMillis();
-        System.out.println("***********");
-        System.out.println(endTime - startTime);
-        System.out.println("***********");
+        totalRunTime = (endTime - startTime)/1000;
+
+        uniqueTerms = idx.finalTermsDic.size();
+        printResults();
     }
-public String getpath()
-{
-    return corpusPath;
-}
+
+    public void printResults(){
+        System.out.println("*~*~*~*~*~*~*~*~*~*~*");
+        System.out.println(indexedDocs + " :: Docs");
+        System.out.println(uniqueTerms + " :: Terms");
+        System.out.println(totalRunTime + " :: Total RT");
+        System.out.println("*~*~*~*~*~*~*~*~*~*~*");
+    }
 }

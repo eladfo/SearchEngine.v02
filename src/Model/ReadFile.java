@@ -38,16 +38,21 @@ public class ReadFile {
     }
 
     public void stringBuild(String st) {
+        if(st.equals("<P>") || st.equals("</P>"))
+            return;
         if (st.length()>7 && st.length()<50 && st.substring(0, 7).equals("<DOCNO>")) {
             st = st.replaceAll(" ", "");
+//            String st2 = new String(st);
             st = st.substring(7, st.length() - 8);
+//            doc.update(st + ""+ s, 1);
+//            if(st.equals("FBIS3-1"))
+//                System.out.println("bbababa");
             doc.update(st, 1);
             return;
         } else if (st.length()>9 && st.substring(0, 9).equals("<F P=104>")) {
             find_city(st);
             return;
-        }
-        else if (st.length()>9 && st.substring(0, 9).equals("<F P=105>")) {
+        }else if (st.length()>9 && st.substring(0, 9).equals("<F P=105>")) {
             //System.out.println("langgg" + st);
             return;
         }else if (st.equals("<HEADER>")) {

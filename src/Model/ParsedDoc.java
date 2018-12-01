@@ -2,7 +2,6 @@ package Model;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import static org.apache.commons.lang3.StringUtils.*;
 
 public class ParsedDoc {
@@ -10,25 +9,21 @@ public class ParsedDoc {
     private HashMap<String,StringBuilder> terms;
     private int maxTF;
     private int numOfTerms;
-    private StringBuilder docCity;
+    private StringBuilder cityID;
     private StringBuilder info_city;
 
     public ParsedDoc() {
         terms = new HashMap<>();
-        docCity = new StringBuilder();
+        cityID = new StringBuilder();
         info_city=new StringBuilder();
     }
 
-
-
     public void addTerm(String str, int position){
         String tmp;
-
         if( (str.charAt(0) <= '0' || str.charAt(0) >= '9') && str.charAt(0) == Character.toUpperCase(str.charAt(0)) )
             tmp = upperCase(str);
         else
             tmp = lowerCase(str);
-
         if (terms.containsKey(tmp))
         {
             StringBuilder t = terms.get(tmp);
@@ -40,14 +35,13 @@ public class ParsedDoc {
             StringBuilder sbTmp = new StringBuilder(String.valueOf(position));
             terms.put(tmp, sbTmp);
         }
-
     }
 
     public void resetTerms() {
         terms.clear();
     }
 
-    public int getMaxTF() {
+    public void calcMaxTF(){
         maxTF = 0;
         for (Map.Entry<String, StringBuilder> entry : terms.entrySet()) {
             StringBuilder termPositions = entry.getValue();
@@ -55,8 +49,9 @@ public class ParsedDoc {
             if(pos.length > maxTF)
                 maxTF = pos.length;
         }
-        return maxTF;
     }
+
+    public int getMaxTF() { return maxTF; }
 
     public void setMaxTF(int maxTF) {
         this.maxTF = maxTF;
@@ -79,11 +74,11 @@ public class ParsedDoc {
     }
 
     public StringBuilder getCity() {
-        return docCity;
+        return cityID;
     }
 
     public void setCity(String city) {
-        this.docCity.append(city);
+        this.cityID.append(city);
     }
 
     public StringBuilder getInfo_city() {
@@ -97,12 +92,17 @@ public class ParsedDoc {
     public int getNumOfTerms() {
         return numOfTerms;
     }
+
     public void setNumOfTerms(int numOfTerms) {
         this.numOfTerms = numOfTerms;
     }
 
     public StringBuilder get_pos_city(String s)
     {
-        return terms.get(s);
+        StringBuilder res =  terms.get(s);
+        if(res == null)
+            return (new StringBuilder("0"));
+        else
+            return res;
     }
 }
