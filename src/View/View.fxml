@@ -8,6 +8,8 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.Controller">
    <children>
       <TextField fx:id="txtfld_corpus_path" layoutX="183.0" layoutY="120.0" prefHeight="25.0" prefWidth="363.0" />
@@ -39,7 +41,72 @@
       </Label>
       <Button layoutX="446.0" layoutY="288.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="126.0" text="Show dictionary" onMouseClicked="#Show_dic"/>
       <Button layoutX="233.0" layoutY="285.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="141.0" text="Upload dictionary" />
-      <Button layoutX="60.0" layoutY="288.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="104.0" text="Reset" />
-      <ChoiceBox layoutX="155.0" layoutY="209.0" prefHeight="25.0" prefWidth="166.0" />
+      <Button layoutX="60.0" layoutY="288.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="104.0" text="Reset" onMouseClicked="#Reset"/>
+      <ChoiceBox   layoutX="155.0" layoutY="209.0" prefHeight="25.0" prefWidth="166.0" value="Select"  >
+      <items>
+         <FXCollections fx:factory="observableArrayList">
+            <String fx:value="Select" />
+            <String fx:value="German" />
+            <String fx:value="Spanish" />
+            <String fx:value="English" />
+            <String fx:value="French" />
+            <String fx:value="Dutch" />
+            <String fx:value="Italian" />
+            <String fx:value="Hungarian" />
+            <String fx:value="Latvian" />
+            <String fx:value="Turkish" />
+            <String fx:value="Greek" />
+            <String fx:value="Finnish" />
+            <String fx:value="Swedish" />
+            <String fx:value="Norwegian" />
+            <String fx:value="Portuguese" />
+            <String fx:value="Japanese" />
+            <String fx:value="Serbo-Croatian" />
+            <String fx:value="Danish" />
+            <String fx:value="Hebrew" />
+            <String fx:value="Slovak" />
+            <String fx:value="Arabic" />
+            <String fx:value="Albanian" />
+            <String fx:value="Bulgarian" />
+            <String fx:value="Russian" />
+            <String fx:value="Ukrainian" />
+            <String fx:value="Polish" />
+            <String fx:value="Georgian" />
+            <String fx:value="Armenian" />
+            <String fx:value="Tajik" />
+            <String fx:value="Belarusian" />
+            <String fx:value="Lithuanian" />
+            <String fx:value="Latvian" />
+            <String fx:value="Estonian" />
+            <String fx:value="Kazakh" />
+            <String fx:value="Korean" />
+            <String fx:value="Azeri" />
+            <String fx:value="Kyrgyz" />
+            <String fx:value="Mandarin" />
+            <String fx:value="Urdu" />
+            <String fx:value="ים Estonian" />
+            <String fx:value="Persian" />
+            <String fx:value="Pashto" />
+            <String fx:value="Dari" />
+            <String fx:value="Slovene" />
+            <String fx:value="Macedonian" />
+            <String fx:value="Slovene" />
+            <String fx:value="Czech" />
+            <String fx:value="Romanian" />
+            <String fx:value="Vietnamese" />
+            <String fx:value="Burmese" />
+            <String fx:value="Thai" />
+            <String fx:value="Cambodian" />
+            <String fx:value="Malay" />
+            <String fx:value="Chinese" />
+            <String fx:value="Indonesian" />
+            <String fx:value="Afrikaans" />
+            <String fx:value="Kinyarwanda" />
+            <String fx:value="Swahili" />
+            <String fx:value="Somali" />
+            <String fx:value="Tigrinya" />
+         </FXCollections>
+      </items>
+      </ChoiceBox>
    </children>
 </AnchorPane>

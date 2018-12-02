@@ -53,17 +53,21 @@ public class Indexer {
         mergeDocsPostings();
         createFinalTermsPostings();
         createFinalTermsDic();
-        deleteTmpFiles();
+        deleteTmpFiles(1);
     }
 
-    private void deleteTmpFiles() {
+    public void deleteTmpFiles(int flag)
+    {
+        // "1" -- remove only the temp files
+        // "0" -- remove all the files
+
         File directory = new File(substring(postingsPath, 0,postingsPath.length()-1));
         if(directory.listFiles() != null) {
             for (File f : directory.listFiles()) {
-                if (f.getName().startsWith("_")) {
+                if (f.getName().startsWith("_") && flag==1)
                     f.delete();
-                    System.out.println(f + " deleted");
-                }
+                else if(flag== 0)
+                    f.delete();
             }
         }
     }
@@ -333,10 +337,12 @@ public class Indexer {
         String[] strArray = new String[partitions];
         String last_city = "";
 
-        for(int i=0; i<partitions ; i++) {
+        for(int i=0; i<partitions ; i++)
+        {
             File file = new File(postingsPath+"_tmpCityPost"+i);
             brArray[i] = new BufferedReader(new FileReader(file));
             strArray[i] = brArray[i].readLine();
+            if(strArray[i] != null)
             strArray[i] = strArray[i].substring(1);
         }
         int res=0;

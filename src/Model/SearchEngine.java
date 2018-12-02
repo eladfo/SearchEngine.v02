@@ -18,7 +18,7 @@ public class SearchEngine {
     public SearchEngine(String corpusPath, String postPath, Boolean isStemm) throws IOException {
         this.corpusPath = corpusPath;
         this.postPath = postPath;
-        partiotions = 2;
+        partiotions = 10;
         rf = new ReadFile(corpusPath);
 //        partiotions = (int) Math.ceil(rf.getListOfFiles().length/50.0);
         idx = new Indexer(postPath, partiotions, isStemm);
@@ -59,4 +59,19 @@ public class SearchEngine {
         System.out.println(totalRunTime + " :: Total RT");
         System.out.println("*~*~*~*~*~*~*~*~*~*~*");
     }
+
+    public String get_num_term(){return String.valueOf(uniqueTerms); }
+    public String get_num_doc(){return String.valueOf(indexedDocs);}
+    public String get_num_rt(){return String.valueOf(totalRunTime);}
+
+    public void Reset()
+    {
+        rf.Reset();
+        parse.resetParse();
+        idx.resetIndex();
+        idx.deleteTmpFiles(0);
+        docs.clear();
+    }
+
+
 }

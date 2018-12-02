@@ -24,6 +24,7 @@ public class ParsedDoc {
             tmp = upperCase(str);
         else
             tmp = lowerCase(str);
+
         if (terms.containsKey(tmp))
         {
             StringBuilder t = terms.get(tmp);

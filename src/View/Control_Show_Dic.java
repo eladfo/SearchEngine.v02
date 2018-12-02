@@ -6,6 +6,7 @@ import java.awt.*;
 import java.io.*;
 import java.net.URL;
 import java.util.ResourceBundle;
+import static org.apache.commons.lang3.StringUtils.*;
 
 
 //yiuh
@@ -16,14 +17,16 @@ public class Control_Show_Dic extends Component implements Initializable
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        File file = new File(Controller.Path_name + "\\FinalTermsDic_NoStemmer");
+        File file = new File(Controller.Path_name + "\\Without_Stemmer\\Final_Terms_Dic");
         String st;
+        String[] arr_str;
         StringBuilder s = new StringBuilder();
         try {
             BufferedReader  br = new BufferedReader(new FileReader(file));
             while((st = br.readLine()) !=null)
             {
-                s.append(st).append("\n");
+                arr_str = splitByWholeSeparator(st," ");
+                s.append(arr_str[0]+"    "+arr_str[2]+"\n");
             }
             txt_area.setText(s.toString());
             txt_area.scrollLeftProperty();

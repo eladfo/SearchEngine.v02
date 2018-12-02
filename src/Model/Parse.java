@@ -13,6 +13,7 @@ public class Parse
 {
     private String[] stk;
     private int index;
+    private  boolean isStem;
     private ParsedDoc parsedDoc = new ParsedDoc();
     private StringBuilder strb = new StringBuilder();
     private HashMap<String,String> month = new HashMap<>() ;
@@ -23,7 +24,8 @@ public class Parse
 
     public Stemmer stemmer;
 
-    public Parse(Boolean isStemm) throws IOException {
+    public Parse(Boolean is) throws IOException {
+        isStem = is;
         set_month();
         set_tmp_word();
         File file = new File(getClass().getClassLoader().getResource("./stop_words.txt").getFile());
@@ -31,7 +33,7 @@ public class Parse
         String st;
         while ((st = br.readLine()) != null) {
             if (!st.isEmpty())
-                stop_words.add(st);
+                stop_words.add(lowerCase(initialParse(st)));
         }
         Capital_City = new TreeMap<>();
         Create_City_Map();
@@ -39,13 +41,13 @@ public class Parse
     }
 
     private void set_tmp_word() {
-        tmp_word.add("Thousand");
-        tmp_word.add("Million");
-       // tmp_word.add("Trillion");
-        tmp_word.add("Billion");
+        tmp_word.add("thousand");
+        tmp_word.add("million");
+        tmp_word.add("trillion");
+        tmp_word.add("billion");
         tmp_word.add("percent");
         tmp_word.add("percentage");
-        tmp_word.add("Dollars");
+        tmp_word.add("dollars");
         tmp_word.add("m");
         tmp_word.add("bn");
         tmp_word.add("billion");
@@ -54,56 +56,46 @@ public class Parse
     }
 
     private void set_month() {
-        month.put("January","01");
-        month.put("February","02");
-        month.put("March","03");
-        month.put("April","04");
-        month.put("May","05");
-        month.put("June","06");
-        month.put("July","07");
-        month.put("August","08");
-        month.put("September","09");
-        month.put("October","10");
-        month.put("November","11");
-        month.put("December","12");
-
-
-        month.put("JANUARY","01");
-        month.put("FEBRUARY","02");
-        month.put("MARCH","03");
-        month.put("APRIL","04");
-        month.put("MAY","05");
-        month.put("JUNE","06");
-        month.put("JULY","07");
-        month.put("AUGUST","08");
-        month.put("SEPTEMBER","09");
-        month.put("OCTOBER","10");
-        month.put("NOVEMBER","11");
-        month.put("DECEMBER","12");
-
-
+        month.put("january","01");
+        month.put("february","02");
+        month.put("march","03");
+        month.put("april","04");
+        month.put("may","05");
+        month.put("june","06");
+        month.put("july","07");
+        month.put("august","08");
+        month.put("september","09");
+        month.put("october","10");
+        month.put("november","11");
+        month.put("december","12");
     }
 
     public void Add_term(StringBuilder sb, int pos) {
-//       System.out.println("Before steam:     "+sb);
-//        System.out.println("After steam:     "+stemmer.stem(sb.toString()));
-//        System.out.println("");
-//
-////        need to get a flag that say if the we want to use in stemmer or not!
-//        System.out.println(sb);
-        parsedDoc.addTerm(sb.toString(), pos);
+
+        if(equalsIgnoreCase(sb.toString(),"sabotagingprivatisation") == true)
+            System.out.println("parseeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+        if(isStem)
+            parsedDoc.addTerm(stemmer.stem(sb.toString()), pos);
+        else
+            parsedDoc.addTerm(sb.toString(), pos);
         position_of_word++;
     }
 
-    public ParsedDoc run(Doc it) throws IOException {
+    public ParsedDoc run(Doc it) throws IOException
+    {
             parsedDoc = new ParsedDoc();
             parsedDoc.setDocID(it.getDocID());
-            stk = split(it.getDocText().toString(), "[ ():[];?/-]=");
+
+            stk = split(it.getDocText().toString(), " ():[];?/]=");
             index = 0;                 // index of word in file include stop words!
             position_of_word = 1;      // index of word in file without stop words!
 
         while (index < stk.length) {
                 String s = initialParse(stk[index]);
+            if(equalsIgnoreCase(s,"sabotagingprivatisation") == true) {
+                System.out.println("inital not goooodddddddddddddddddddddd");
+                System.out.println(stk[index]);
+            }
                 //String s = stk[index];
                 if (s.length() == 0 || stop_words.contains(lowerCase(s))) {
                     index++;
@@ -116,18 +108,32 @@ public class Parse
                         Add_term(strb.append(s), position_of_word);
                     } else if (!is_fraction(s)) {
                         tokenIsNum(s);
-                    } else if (index + 1 < stk.length && equalsIgnoreCase(stk[index + 1], " Dollars")) {
+                    } else if (index + 1 < stk.length && equalsIgnoreCase(stk[index + 1], "Dollars")) {
                         Add_term(strb.append(s).append(" Dollars"), position_of_word);
                     }
                 } else if (Character.isLetter(s.charAt(0))) {
-                    if (index + 1 < stk.length && month.containsKey(s) && isNumeric(stk[index + 1])) {
-                        Add_term(strb.append(month.get(s)).append("-").append(is_under_10(initialParse(stk[index + 1]))), position_of_word);
+                    if (index + 1 < stk.length && month.containsKey(lowerCase(s)) && isNumeric(stk[index + 1])) {
+                        Add_term(strb.append(month.get(lowerCase(s))).append("-").append(is_under_10(initialParse(stk[index + 1]))), position_of_word);
                         index++;
                         continue;
                     }
-                    Add_term(strb.append(s), position_of_word);
+                    else
+                    {
+                        if(contains(s,"--"))
+                        {
+                            String[] tmp =split(s, "--");
+                            for(int j=0 ; j<tmp.length;j++)
+                            if(stop_words.contains(lowerCase(tmp[j])))
+                                continue;
+
+                        }
+                        else
+                            Add_term(strb.append(s), position_of_word);
+                    }
+                    //Add_term(strb.append(s), position_of_word);
 
                 }
+                strb.setLength(0);
                 index++;
             }
         Create_City_Posting(it.getDocCity());
@@ -142,9 +148,13 @@ public class Parse
 
     private String initialParse(String s) {
         char tmp = '"';
-
+String ttt=s;
        s= replaceChars(s,tmp,'#');
-        s=replaceChars(s,"#+<>|~,!'--�","");
+        s=replaceChars(s,"'#+<>|~,!�","");
+        if(equalsIgnoreCase(s,"sabotagingprivatisation") == true) {
+            System.out.println("The word:      "+ttt);
+            System.out.println(stk[index]);
+        }
         if (org.apache.commons.lang3.StringUtils.contains(s,".") && !s.equals("U.S.") && !Character.isDigit(s.charAt(0)) && s.charAt(0)!='$')
           s=  replaceChars(s,".","");
         else if (s.length()>0 && s.charAt(s.length()-1)  == '.' && !s.equals("U.S.") )
@@ -169,6 +179,7 @@ public class Parse
            f = Float.parseFloat(s);
         else
        {
+           /*
            int j;
            for (j = 0 ; j < s.length() && !(Character.isLetter(s.charAt(j))) ;j++);
           // System.out.println(substring(s,j,s.length()));
@@ -181,11 +192,13 @@ public class Parse
            }
            else
            Add_term(strb.append(s),position_of_word);
+           */
            return;
+
        }
 
         Boolean flag = false;
-        if (index + 1 < stk.length && tmp_word.contains(stk[index + 1])) {
+        if (index + 1 < stk.length && tmp_word.contains(lowerCase(stk[index + 1]))) {
             String nextTkn = stk[index + 1];
             flag = checkNextTkn(f, nextTkn);
         }
@@ -250,7 +263,7 @@ public class Parse
         }
         else if (is_fraction(nextTkn)) {
             if (index + 2 < stk.length && stk[index + 2].equals("Dollars")) {
-                Add_term(strb.append(from_number_to_string(f)).append(" ").append(nextTkn).append(" Dollars"),position_of_word);
+                Add_term(strb.append(from_number_to_string(f)).append(" ").append(nextTkn).append("Dollars"),position_of_word);
                 index = index + 2;
                 return true;
             }
@@ -268,10 +281,10 @@ public class Parse
 
         if(f>31 || f<1)
             return null;
-        if(! month.containsKey(nextTkn))
+        if(! month.containsKey(lowerCase(nextTkn)))
             return null;
         else
-              return month.get(nextTkn);
+              return month.get(lowerCase(nextTkn));
     }
 
     private Boolean is_price_bigger_then_million(float f) {
@@ -333,9 +346,10 @@ public class Parse
     {
         double x = f - Math.floor(f);
         if(x == 0.)
-            return (Integer.toString(((int)f)));
+            return (Integer.toString(((int) f)));
         else
-            return Float.toString(f);
+            return String.format("%.2f", f);
+
     }
 
     public void Create_City_Map() throws IOException
@@ -454,5 +468,14 @@ public class Parse
                 f = f / 1000000000;
                 return from_number_to_string(f) + "B";
             }
+    }
+
+    public void resetParse()
+    {
+        month.clear();
+        stop_words.clear();
+        tmp_word.clear();
+        Capital_City.clear();
+        stemmer =null ;
     }
 }

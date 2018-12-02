@@ -19,7 +19,7 @@ public class Doc {
                     break;
             case 3: docHeader.append(st); //Might worth change to append().append()
                     break;
-            case 4: docText.append(st);
+            case 4: docText.append(st).append(" ");
                     break;
         }
     }

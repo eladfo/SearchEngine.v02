@@ -14,7 +14,9 @@ import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 import Model.*;
 import javafx.stage.Modality;
@@ -27,8 +29,11 @@ public class Controller extends Component
     public  javafx.scene.control.TextField txtfld_posting_path ;
     public javafx.scene.control.CheckBox steam;
 
-    public SearchEngine serch ;
+    public static SearchEngine serch ;
     public static String Path_name="";
+
+
+
     public Controller() throws IOException {
     }
 
@@ -69,12 +74,25 @@ public class Controller extends Component
         {
             serch = new SearchEngine(txtfld_corpus_path.getText(), txtfld_posting_path.getText(), steam.isSelected());
             serch.createSearchEngine();
+            open_window_details();
         }
         else
         {
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Enter All The fields!");
             Optional<ButtonType> result = alert.showAndWait();
         }
+    }
+
+    private void open_window_details() throws IOException {
+        Stage stage = new Stage();
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        Parent root = fxmlLoader.load(getClass().getResource("Show_dietels.fxml").openStream());
+        Scene scene = new Scene(root, 400, 300);
+        scene.getStylesheets().add(getClass().getResource("/ViewStyle.css").toExternalForm());
+        stage.setScene(scene);
+        stage.setResizable(false);
+        stage.initModality(Modality.APPLICATION_MODAL); //Lock the window until it closes
+        stage.show();
     }
 
     public void Show_dic() throws IOException {
@@ -84,7 +102,7 @@ public class Controller extends Component
             Optional<ButtonType> result = alert.showAndWait();
         }
         else
-        {//
+        {
             Path_name = txtfld_posting_path.getText();
             Stage stage = new Stage();
             FXMLLoader fxmlLoader = new FXMLLoader();
@@ -92,6 +110,7 @@ public class Controller extends Component
             Scene scene = new Scene(root, 400, 670);
             scene.getStylesheets().add(getClass().getResource("/ViewStyle.css").toExternalForm());
             stage.setScene(scene);
+            stage.setResizable(false);
             stage.initModality(Modality.APPLICATION_MODAL); //Lock the window until it closes
             stage.show();
         }
@@ -100,4 +119,10 @@ public class Controller extends Component
 
     }
 
+
+    public void Reset()
+    {
+        if(serch != null)
+            serch.Reset();
+    }
 }

@@ -85,4 +85,9 @@ public class ReadFile {
     public File[] getListOfFiles() {
         return listOfFiles;
     }
+
+    public void Reset()
+    {
+        docSet.clear();
+    }
 }

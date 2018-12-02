@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.Control_Show_Dietels">
+   <children>
+      <Label layoutX="87.0" layoutY="130.0" prefHeight="26.0" prefWidth="119.0" text="Number od Docs:">
+         <font>
+            <Font name="System Bold Italic" size="12.0" />
+         </font></Label>
+      <Label layoutX="87.0" layoutY="86.0" prefHeight="26.0" prefWidth="149.0" text="Number of unique terms:">
+          <font>
+              <Font name="System Bold Italic" size="12.0" />
+          </font></Label>
+      <Label layoutX="87.0" layoutY="183.0" prefHeight="17.0" prefWidth="107.0" text="Total run time:">
+         <font>
+            <Font name="System Bold Italic" size="12.0" />
+         </font></Label>
+      <Label layoutX="90.0" layoutY="22.0" prefHeight="42.0" prefWidth="208.0" text="Retrieval Information">
+         <font>
+            <Font name="System Bold Italic" size="20.0" />
+         </font>
+      </Label>
+      <Label fx:id="Num_term" layoutX="300.0" layoutY="91.0" prefHeight="17.0" prefWidth="107.0" text="Label" />
+      <Label fx:id="Num_doc" layoutX="300.0" layoutY="135.0" prefHeight="17.0" prefWidth="85.0" text="Labe2" />
+      <Label fx:id="total_rt" layoutX="300.0" layoutY="183.0" prefHeight="17.0" prefWidth="67.0" text="Labe3" />
+   </children>
+</AnchorPane>

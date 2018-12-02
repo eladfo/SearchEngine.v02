@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/SearchEngine.v02.iml" filepath="$PROJECT_DIR$/SearchEngine.v02.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SearchEngine.v03.iml" filepath="$PROJECT_DIR$/SearchEngine.v03.iml" />
     </modules>
   </component>
 </project>
