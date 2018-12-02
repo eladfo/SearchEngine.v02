@@ -18,9 +18,9 @@ public class SearchEngine {
     public SearchEngine(String corpusPath, String postPath, Boolean isStemm) throws IOException {
         this.corpusPath = corpusPath;
         this.postPath = postPath;
-        partiotions = 10;
+//        partiotions = 3;
         rf = new ReadFile(corpusPath);
-//        partiotions = (int) Math.ceil(rf.getListOfFiles().length/50.0);
+        partiotions = (int) Math.ceil(rf.getListOfFiles().length/50.0);
         idx = new Indexer(postPath, partiotions, isStemm);
         parse = new Parse(isStemm);
         docs = new HashSet<>();

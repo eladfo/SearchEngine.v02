@@ -142,7 +142,7 @@ public class Indexer {
     }
 
     public void mergeTermsPostings() throws IOException {
-        FileWriter fw = new FileWriter(postingsPath + "mergedTermPosting");
+        FileWriter fw = new FileWriter(postingsPath + "_mergedTermPosting");
         BufferedWriter bw = new BufferedWriter(fw);
         BufferedReader[] brArray = new BufferedReader[partitions];
         String[] termsArray = new String[partitions];
@@ -183,6 +183,7 @@ public class Indexer {
             }
         }
         bw.flush();
+        bw.close();
         for (int i=0 ; i<brArray.length;i++)
             brArray[i].close();
     }
@@ -227,7 +228,7 @@ public class Indexer {
     public void createFinalTermsPostings() throws IOException {
         String[] posts = {"NUM","A","B","C","D","E","F","G","H","I","J","K","L","M",
                             "N","O","P","Q","R","S","T","U","V","W","X","Y","Z"};
-        File file = new File(postingsPath + "mergedTermPosting");
+        File file = new File(postingsPath + "_mergedTermPosting");
         BufferedReader br = new BufferedReader(new FileReader(file));
         BufferedWriter bw = new BufferedWriter(new FileWriter(postingsPath + posts[0]));
         String line = br.readLine();
@@ -258,6 +259,7 @@ public class Indexer {
             if(i < posts.length)
                 bw = new BufferedWriter(new FileWriter(postingsPath + posts[i]));
         }
+        br.close();
     }
 
     private String updateFinalDic(BufferedReader br, String line, int ptr) throws IOException {
