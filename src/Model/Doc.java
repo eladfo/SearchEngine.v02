@@ -1,11 +1,11 @@
 package Model;
 
 public class Doc {
-    private StringBuilder docID = new StringBuilder();
-    private StringBuilder docDate = new StringBuilder();
-    private StringBuilder docHeader = new StringBuilder();
+    public StringBuilder docID = new StringBuilder();
+    public StringBuilder docDate = new StringBuilder();
+    public String docFile;
     public StringBuilder docText = new StringBuilder();
-    private StringBuilder docCity = new StringBuilder();
+    public StringBuilder docCity = new StringBuilder();
 
 
     public void update(String st, int flag)
@@ -17,8 +17,6 @@ public class Doc {
                     break;
             case 2: docCity.append(st); //Might worth change to append().append()
                     break;
-            case 3: docHeader.append(st); //Might worth change to append().append()
-                    break;
             case 4: docText.append(st).append(" ");
                     break;
         }
@@ -28,27 +26,14 @@ public class Doc {
         return docID;
     }
 
-    public StringBuilder getDocDate() {
-        return docDate;
-    }
-
-    public StringBuilder getDocHeader() {
-        return docHeader;
-    }
-
     public StringBuilder getDocText() {
         return docText;
-    }
-
-    public void setDocText(StringBuilder docText) {
-        this.docText = docText;
     }
 
     public void resetDoc()
     {
         docID.setLength(0);
         docDate.setLength(0);
-        docHeader.setLength(0);
         docText.setLength(0);
         docCity.setLength(0);
     }

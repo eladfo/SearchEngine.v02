@@ -1,32 +1,34 @@
 package Model;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
+
+import static org.apache.commons.lang3.StringUtils.substring;
 
 public class SearchEngine {
     ReadFile rf;
     Parse parse;
-    Indexer idx;
+    public Indexer idx;
     HashSet<Doc> docs;
     int partiotions;
-    String corpusPath;
-    String postPath;
     int indexedDocs;
     int uniqueTerms;
     double totalRunTime;
+    String pp;
 
     public SearchEngine(String corpusPath, String postPath, Boolean isStemm) throws IOException {
-        this.corpusPath = corpusPath;
-        this.postPath = postPath;
-//        partiotions = 3;
+        pp = postPath;
+        partiotions = 2;
         rf = new ReadFile(corpusPath);
-        partiotions = (int) Math.ceil(rf.getListOfFiles().length/50.0);
+//        partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
         idx = new Indexer(postPath, partiotions, isStemm);
-        parse = new Parse(isStemm);
+        parse = new Parse(corpusPath, isStemm);
         docs = new HashSet<>();
     }
 
-    public void createSearchEngine() throws IOException {
+
+    public void runSearchEngine() throws IOException {
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < partiotions; i++) {
             long p0 = System.currentTimeMillis();
@@ -46,13 +48,13 @@ public class SearchEngine {
         }
         idx.createInvertedIndex();
         long endTime = System.currentTimeMillis();
-        totalRunTime = (endTime - startTime)/1000;
+        totalRunTime = (endTime - startTime) / 1000;
 
         uniqueTerms = idx.finalTermsDic.size();
         printResults();
     }
 
-    public void printResults(){
+    public void printResults() {
         System.out.println("*~*~*~*~*~*~*~*~*~*~*");
         System.out.println(indexedDocs + " :: Docs");
         System.out.println(uniqueTerms + " :: Terms");
@@ -60,18 +62,33 @@ public class SearchEngine {
         System.out.println("*~*~*~*~*~*~*~*~*~*~*");
     }
 
-    public String get_num_term(){return String.valueOf(uniqueTerms); }
-    public String get_num_doc(){return String.valueOf(indexedDocs);}
-    public String get_num_rt(){return String.valueOf(totalRunTime);}
+    public String get_num_term() {
+        return String.valueOf(uniqueTerms);
+    }
 
-    public void Reset()
-    {
-        rf.Reset();
+    public String get_num_doc() {
+        return String.valueOf(indexedDocs);
+    }
+
+    public String get_num_rt() {
+        return String.valueOf(totalRunTime);
+    }
+
+    public void Reset(String path) {
+        rf.resetDocSet();
         parse.resetParse();
         idx.resetIndex();
-        idx.deleteTmpFiles(0);
+        deleteAll(path);
         docs.clear();
     }
 
+    private void deleteAll(String path){
 
+        File directory = new File(path);
+        if(directory.listFiles() != null) {
+            for (File f : directory.listFiles()) {
+               f.delete();
+            }
+        }
+    }
 }

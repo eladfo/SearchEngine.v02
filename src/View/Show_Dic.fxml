@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="651.0" prefWidth="613.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.Controller_Show_Dic">
+   <children>
+      <TextArea fx:id="txt_area" layoutX="117.0" layoutY="96.0" prefHeight="540.0" prefWidth="370.0" />
+      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="201.0" layoutY="32.0" prefHeight="54.0" prefWidth="202.0" text="The Dictionary:" textAlignment="CENTER">
+         <font>
+            <Font name="System Bold Italic" size="23.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>

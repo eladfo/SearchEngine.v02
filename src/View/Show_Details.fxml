@@ -4,9 +4,9 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.Control_Show_Dietels">
+<AnchorPane prefHeight="280.0" prefWidth="397.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.Controller_Show_Details">
    <children>
-      <Label layoutX="87.0" layoutY="130.0" prefHeight="26.0" prefWidth="119.0" text="Number od Docs:">
+      <Label layoutX="87.0" layoutY="130.0" prefHeight="26.0" prefWidth="119.0" text="Number of Docs:">
          <font>
             <Font name="System Bold Italic" size="12.0" />
          </font></Label>
@@ -14,11 +14,11 @@
           <font>
               <Font name="System Bold Italic" size="12.0" />
           </font></Label>
-      <Label layoutX="87.0" layoutY="183.0" prefHeight="17.0" prefWidth="107.0" text="Total run time:">
+      <Label layoutX="87.0" layoutY="183.0" prefHeight="17.0" prefWidth="149.0" text="Total run time (secondes):">
          <font>
             <Font name="System Bold Italic" size="12.0" />
          </font></Label>
-      <Label layoutX="90.0" layoutY="22.0" prefHeight="42.0" prefWidth="208.0" text="Retrieval Information">
+      <Label layoutX="100.0" layoutY="26.0" prefHeight="42.0" prefWidth="208.0" text="Summary Information">
          <font>
             <Font name="System Bold Italic" size="20.0" />
          </font>

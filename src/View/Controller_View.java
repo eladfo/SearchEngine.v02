@@ -4,41 +4,28 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
-import javafx.stage.FileChooser;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.util.Optional;
-import java.util.ResourceBundle;
 
 import Model.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class Controller extends Component
+public class Controller_View extends Component
 {
 
     public  javafx.scene.control.TextField txtfld_corpus_path ;
     public  javafx.scene.control.TextField txtfld_posting_path ;
     public javafx.scene.control.CheckBox steam;
 
-    public static SearchEngine serch ;
-    public static String Path_name="";
+    public static String postingPath ="";
 
-
-
-    public Controller() throws IOException {
+    public Controller_View() throws IOException {
     }
 
-
-    public void Browse_corpus_path()
+    public void setCorpusPath()
     {
         JFileChooser  chooser = new JFileChooser();
         chooser.setCurrentDirectory(new java.io.File("."));
@@ -55,7 +42,7 @@ public class Controller extends Component
         }
 
     }
-    public void Browse_posting_path()
+    public void setPostingsPath()
     {
         JFileChooser  chooser = new JFileChooser();
         chooser.setCurrentDirectory(new java.io.File("."));
@@ -64,30 +51,30 @@ public class Controller extends Component
         chooser.setAcceptAllFileFilterUsed(false);
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             txtfld_posting_path.setText(chooser.getSelectedFile().toString());
-            Path_name = txtfld_posting_path.getText();
+            postingPath = txtfld_posting_path.getText();
         }
     }
 
-    public void Start() throws IOException
+    public void startButton() throws IOException
     {
         if(!txtfld_corpus_path.getText().isEmpty() && !txtfld_posting_path.getText().isEmpty())
         {
-            serch = new SearchEngine(txtfld_corpus_path.getText(), txtfld_posting_path.getText(), steam.isSelected());
-            serch.createSearchEngine();
-            open_window_details();
+            Main.google = new SearchEngine(txtfld_corpus_path.getText(), txtfld_posting_path.getText(), steam.isSelected());
+            Main.google.runSearchEngine();
+            openDetailsWindow();
         }
         else
         {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Enter All The fields!");
-            Optional<ButtonType> result = alert.showAndWait();
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Please enter corpus&postings paths");
+            alert.showAndWait();
         }
     }
 
-    private void open_window_details() throws IOException {
+    private void openDetailsWindow() throws IOException {
         Stage stage = new Stage();
         FXMLLoader fxmlLoader = new FXMLLoader();
-        Parent root = fxmlLoader.load(getClass().getResource("Show_dietels.fxml").openStream());
-        Scene scene = new Scene(root, 400, 300);
+        Parent root = fxmlLoader.load(getClass().getResource("Show_Details.fxml").openStream());
+        Scene scene = new Scene(root, 397, 280);
         scene.getStylesheets().add(getClass().getResource("/ViewStyle.css").toExternalForm());
         stage.setScene(scene);
         stage.setResizable(false);
@@ -95,34 +82,54 @@ public class Controller extends Component
         stage.show();
     }
 
-    public void Show_dic() throws IOException {
-        if( Path_name.equals("")|| Path_name.isEmpty()  )
+    public void showDicButton() throws IOException {
+        if( postingPath.equals("")|| postingPath.isEmpty()  )
         {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Enter All The fields!");
-            Optional<ButtonType> result = alert.showAndWait();
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Please enter posting's path");
+            alert.showAndWait();
         }
         else
         {
-            Path_name = txtfld_posting_path.getText();
+            postingPath = txtfld_posting_path.getText();
             Stage stage = new Stage();
             FXMLLoader fxmlLoader = new FXMLLoader();
-            Parent root = fxmlLoader.load(getClass().getResource("Show_Dictonary.fxml").openStream());
-            Scene scene = new Scene(root, 400, 670);
+            Parent root = fxmlLoader.load(getClass().getResource("Show_Dic.fxml").openStream());
+            Scene scene = new Scene(root, 613, 651);
             scene.getStylesheets().add(getClass().getResource("/ViewStyle.css").toExternalForm());
             stage.setScene(scene);
             stage.setResizable(false);
             stage.initModality(Modality.APPLICATION_MODAL); //Lock the window until it closes
             stage.show();
         }
-
-
-
     }
 
-
-    public void Reset()
+    public void resetIndex()
     {
-        if(serch != null)
-            serch.Reset();
+        if(Main.google != null){
+            if(postingPath != "") {
+                Main.google.Reset(postingPath);
+                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Index successfully reset");
+                alert.showAndWait();
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Please enter posting's path");
+                alert.showAndWait();
+            }
+        }
+    }
+
+    public void loadDics() throws IOException {
+        if( postingPath.equals("")|| postingPath.isEmpty())
+        {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Please enter posting's path");
+            alert.showAndWait();
+        }
+        else
+        {
+            Main.google.idx.loadDics(txtfld_posting_path.getText(), steam.isSelected());
+            Alert alert = new Alert(Alert.AlertType.INFORMATION,
+                        "All dictionaries successfully loaded to memory");
+            alert.showAndWait();
+        }
+
     }
 }

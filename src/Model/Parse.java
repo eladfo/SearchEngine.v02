@@ -21,19 +21,19 @@ public class Parse
     private HashSet<String> tmp_word = new HashSet<>();
     public int position_of_word;
     public TreeMap<String, StringBuilder> Capital_City;
-
     public Stemmer stemmer;
 
-    public Parse(Boolean is) throws IOException {
-        isStem = is;
+    public Parse(String corpusPath, Boolean stemm) throws IOException {
+        isStem = stemm;
         set_month();
         set_tmp_word();
-        File file = new File(getClass().getClassLoader().getResource("./stop_words.txt").getFile());
-        BufferedReader br = new BufferedReader(new FileReader(file));
-        String st;
-        while ((st = br.readLine()) != null) {
-            if (!st.isEmpty())
-                stop_words.add(lowerCase(initialParse(st)));
+        if(corpusPath != "") {
+            BufferedReader br = new BufferedReader(new FileReader(corpusPath + "\\stop_words.txt"));
+            String st;
+            while ((st = br.readLine()) != null) {
+                if (!st.isEmpty())
+                    stop_words.add(lowerCase(initialParse(st)));
+            }
         }
         Capital_City = new TreeMap<>();
         Create_City_Map();
@@ -72,8 +72,6 @@ public class Parse
 
     public void Add_term(StringBuilder sb, int pos) {
 
-        if(equalsIgnoreCase(sb.toString(),"sabotagingprivatisation") == true)
-            System.out.println("parseeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
         if(isStem)
             parsedDoc.addTerm(stemmer.stem(sb.toString()), pos);
         else
@@ -81,22 +79,16 @@ public class Parse
         position_of_word++;
     }
 
-    public ParsedDoc run(Doc it) throws IOException
+    public ParsedDoc run(Doc doc) throws IOException
     {
             parsedDoc = new ParsedDoc();
-            parsedDoc.setDocID(it.getDocID());
-
-            stk = split(it.getDocText().toString(), " ():[];?/]=");
+            parsedDoc.setDocID(doc.getDocID());
+            stk = split(doc.getDocText().toString(), " ():[];?/]=");
             index = 0;                 // index of word in file include stop words!
             position_of_word = 1;      // index of word in file without stop words!
 
         while (index < stk.length) {
                 String s = initialParse(stk[index]);
-            if(equalsIgnoreCase(s,"sabotagingprivatisation") == true) {
-                System.out.println("inital not goooodddddddddddddddddddddd");
-                System.out.println(stk[index]);
-            }
-                //String s = stk[index];
                 if (s.length() == 0 || stop_words.contains(lowerCase(s))) {
                     index++;
                     continue;
@@ -125,18 +117,27 @@ public class Parse
                             for(int j=0 ; j<tmp.length;j++)
                             if(stop_words.contains(lowerCase(tmp[j])))
                                 continue;
-
-                        }
-                        else
+                        /**
+                         StringIndexOutOfBoundsException* }
+                        else if(contains(s,"-")) {
+                            Add_term(strb.append(s), position_of_word);
+                            String[] tmp = split(s, "-");
+                            for(String ss : tmp)
+                            {
+                                position_of_word--;
+                                strb.setLength(0);
+                                Add_term(strb.append(initialParse(ss)), position_of_word);
+                            }
+                         */
+                        } else
                             Add_term(strb.append(s), position_of_word);
                     }
-                    //Add_term(strb.append(s), position_of_word);
-
                 }
                 strb.setLength(0);
                 index++;
             }
-        Create_City_Posting(it.getDocCity());
+        Create_City_Posting(doc.getDocCity());
+        parsedDoc.fileID = doc.docFile;
         return parsedDoc;
     }
 
@@ -148,13 +149,9 @@ public class Parse
 
     private String initialParse(String s) {
         char tmp = '"';
-String ttt=s;
-       s= replaceChars(s,tmp,'#');
+        s= replaceChars(s,tmp,'#');
         s=replaceChars(s,"'#+<>|~,!�","");
-        if(equalsIgnoreCase(s,"sabotagingprivatisation") == true) {
-            System.out.println("The word:      "+ttt);
-            System.out.println(stk[index]);
-        }
+
         if (org.apache.commons.lang3.StringUtils.contains(s,".") && !s.equals("U.S.") && !Character.isDigit(s.charAt(0)) && s.charAt(0)!='$')
           s=  replaceChars(s,".","");
         else if (s.length()>0 && s.charAt(s.length()-1)  == '.' && !s.equals("U.S.") )
@@ -388,7 +385,6 @@ String ttt=s;
                         parse_info_city(stk1[3],stk1[stk1.length - 3],stk1[stk1.length-2],stk1[0]);
                 }
             }
-
         }
         in.close();
         con.disconnect();
@@ -411,7 +407,6 @@ String ttt=s;
                     parsedDoc.setCity(tmp.append(s[0]).toString());
             }
             sb.setLength(0);
-
     }
 
     private void parse_info_city(String country , String city,String population , String currency)
@@ -444,11 +439,8 @@ String ttt=s;
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append(stk1[1]).append("-").append(stk4[1]).append("-").append(cheak_size_pupolation(stk3[1]));
+        sb.append(";").append(stk1[1]).append(";").append(stk4[1]).append(";").append(cheak_size_pupolation(stk3[1]));
         Capital_City.put(stk2[1],sb);
-
-        //System.out.println(stk1[1]+","+stk2[1] + ","+stk3[1]+","+stk4[1]);
-
     }
 
     public String cheak_size_pupolation(String sb)

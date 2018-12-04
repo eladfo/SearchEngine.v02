@@ -11,6 +11,7 @@ public class ParsedDoc {
     private int numOfTerms;
     private StringBuilder cityID;
     private StringBuilder info_city;
+    public String fileID;
 
     public ParsedDoc() {
         terms = new HashMap<>();
@@ -20,7 +21,9 @@ public class ParsedDoc {
 
     public void addTerm(String str, int position){
         String tmp;
-        if( (str.charAt(0) <= '0' || str.charAt(0) >= '9') && str.charAt(0) == Character.toUpperCase(str.charAt(0)) )
+        char c = str.charAt(0);
+
+        if( (c <= '0' || c >= '9') && c == Character.toUpperCase(c) )
             tmp = upperCase(str);
         else
             tmp = lowerCase(str);
