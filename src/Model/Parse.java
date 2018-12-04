@@ -28,7 +28,7 @@ public class Parse
         set_month();
         set_tmp_word();
         if(corpusPath != "") {
-            BufferedReader br = new BufferedReader(new FileReader(corpusPath + "\\stop_words.txt"));
+            BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\resources" + "\\stop_words.txt"));
             String st;
             while ((st = br.readLine()) != null) {
                 if (!st.isEmpty())

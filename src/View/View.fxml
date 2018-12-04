@@ -12,49 +12,48 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="650.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.Controller_View">
    <children>
-      <TextField fx:id="txtfld_corpus_path" layoutX="144.0" layoutY="120.0" prefHeight="25.0" prefWidth="363.0" />
-      <Label layoutX="218.0" layoutY="40.0" prefHeight="47.0" prefWidth="215.0" text="The Searcher" textFill="#2d11dd">
+      <TextField fx:id="txtfld_corpus_path" layoutX="144.0" layoutY="100.0" prefHeight="25.0" prefWidth="363.0" />
+      <Label layoutX="218.0" layoutY="30.0" prefHeight="47.0" prefWidth="215.0" text="The Searcher" textFill="#2d11dd">
          <font>
             <Font name="System Bold Italic" size="32.0" />
          </font>
       </Label>
-      <Label layoutX="33.0" layoutY="160.0" prefHeight="25.0" prefWidth="94.0" text="Posting's Path">
+      <Label layoutX="33.0" layoutY="140.0" prefHeight="25.0" prefWidth="94.0" text="Posting Path">
          <font>
-            <Font name="System Bold Italic" size="12.0" />
+            <Font name="System Bold Italic" size="13.0" />
          </font></Label>
-      <Button layoutX="536.0" layoutY="160.0" mnemonicParsing="false" onMouseClicked="#setPostingsPath" prefHeight="25.0" prefWidth="85.0" text="Browse" />
-      <TextField fx:id="txtfld_posting_path" layoutX="144.0" layoutY="160.0" prefHeight="25.0" prefWidth="363.0" />
-      <Button layoutX="536.0" layoutY="120.0" mnemonicParsing="false" onMouseClicked="#setCorpusPath" prefHeight="25.0" prefWidth="85.0" text="Browse" />
-      <Button layoutX="190.0" layoutY="238.0" mnemonicParsing="false" onMouseClicked="#startButton" prefHeight="47.0" prefWidth="272.0" text="let's search!">
+      <Button layoutX="536.0" layoutY="140.0" mnemonicParsing="false" onMouseClicked="#setPostingsPath" prefHeight="25.0" prefWidth="85.0" text="Browse" />
+      <TextField fx:id="txtfld_posting_path" layoutX="144.0" layoutY="140.0" prefHeight="25.0" prefWidth="363.0" />
+      <Button layoutX="536.0" layoutY="100.0" mnemonicParsing="false" onMouseClicked="#setCorpusPath" prefHeight="25.0" prefWidth="85.0" text="Browse" />
+      <Button layoutX="150.0" layoutY="244.0" mnemonicParsing="false" onMouseClicked="#startButton" prefHeight="31.0" prefWidth="237.0" text="Create Inverted Index">
          <font>
-            <Font name="System Bold Italic" size="19.0" />
+            <Font name="System Bold Italic" size="15.0" />
          </font></Button>
-      <CheckBox fx:id="steam" contentDisplay="RIGHT" layoutX="383.0" layoutY="307.0" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" prefHeight="25.0" prefWidth="126.0" text="Stemmer">
+      <CheckBox fx:id="steam" contentDisplay="RIGHT" layoutX="383.0" layoutY="247.0" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" prefHeight="25.0" prefWidth="126.0" text="Stemmer">
          <font>
             <Font name="System Bold Italic" size="14.0" />
          </font>
       </CheckBox>
-      <Label layoutX="33.0" layoutY="120.0" prefHeight="25.0" prefWidth="94.0" text="Corpus Path">
+      <Label layoutX="33.0" layoutY="100.0" prefHeight="25.0" prefWidth="94.0" text="Corpus Path">
          <font>
-            <Font name="System Bold Italic" size="12.0" />
+            <Font name="System Bold Italic" size="13.0" />
          </font>
       </Label>
-      <Button layoutX="446.0" layoutY="371.0" mnemonicParsing="false" onMouseClicked="#showDicButton" prefHeight="31.0" prefWidth="126.0" text="Show Dictionary">
+      <Button layoutX="361.0" layoutY="331.0" mnemonicParsing="false" onMouseClicked="#showDicButton" prefHeight="28.0" prefWidth="125.0" text="Show Dictionary">
          <font>
             <Font name="System Bold" size="12.0" />
          </font></Button>
-      <Button layoutX="231.0" layoutY="371.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="141.0" text="Load Dictionary" onMouseClicked="#loadDics">
+      <Button layoutX="361.0" layoutY="381.0" mnemonicParsing="false" onMouseClicked="#loadDics" prefHeight="28.0" prefWidth="125.0" text="Load Dictionary">
          <font>
             <Font name="System Bold" size="12.0" />
          </font></Button>
-      <Button layoutX="55.0" layoutY="371.0" mnemonicParsing="false" onMouseClicked="#resetIndex" prefHeight="31.0" prefWidth="104.0" text="Reset">
+      <Button layoutX="135.0" layoutY="331.0" mnemonicParsing="false" onMouseClicked="#resetIndex" prefHeight="28.0" prefWidth="125.0" text="Reset">
          <font>
             <Font name="System Bold" size="12.0" />
          </font></Button>
-      <ChoiceBox layoutX="135.0" layoutY="307.0" prefHeight="25.0" prefWidth="166.0" value="Select">
+      <ChoiceBox layoutX="133.0" layoutY="397.0" prefHeight="25.0" prefWidth="154.0" value="Select">
       <items>
          <FXCollections fx:factory="observableArrayList">
-            <String fx:value="Select" />
             <String fx:value="Afrikaans" />
             <String fx:value="Albanian" />
             <String fx:value="Arabic" />
@@ -115,5 +114,17 @@
          </FXCollections>
       </items>
       </ChoiceBox>
+      <Label layoutX="133.0" layoutY="370.0" prefHeight="25.0" prefWidth="114.0" text="Select Language">
+         <font>
+            <Font name="System Bold Italic" size="13.0" />
+         </font>
+      </Label>
+      <Label layoutX="20.0" layoutY="180.0" prefHeight="25.0" prefWidth="107.0" text="Stop-Words Path">
+         <font>
+            <Font name="System Bold Italic" size="13.0" />
+         </font>
+      </Label>
+      <Button layoutX="536.0" layoutY="180.0" mnemonicParsing="false" onMouseClicked="#setPostingsPath" prefHeight="25.0" prefWidth="85.0" text="Browse" />
+      <TextField fx:id="txtfld_posting_path1" layoutX="144.0" layoutY="180.0" prefHeight="25.0" prefWidth="363.0" />
    </children>
 </AnchorPane>

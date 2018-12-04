@@ -83,11 +83,15 @@ public class SearchEngine {
     }
 
     private void deleteAll(String path){
-
         File directory = new File(path);
         if(directory.listFiles() != null) {
-            for (File f : directory.listFiles()) {
-               f.delete();
+            for (File dir : directory.listFiles()) {
+                File innerDir = new File(dir.getPath());
+                if(innerDir.listFiles() != null) {
+                    for (File file : innerDir.listFiles()) {
+                        file.delete();
+                    }
+                }
             }
         }
     }

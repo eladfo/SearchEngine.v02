@@ -57,10 +57,6 @@ public class ParsedDoc {
 
     public int getMaxTF() { return maxTF; }
 
-    public void setMaxTF(int maxTF) {
-        this.maxTF = maxTF;
-    }
-
     public StringBuilder getDocID() {
         return docID;
     }
@@ -71,10 +67,6 @@ public class ParsedDoc {
 
     public HashMap<String,StringBuilder> getTerms() {
         return terms;
-    }
-
-    public void setTerms(HashMap<String, StringBuilder> terms) {
-        this.terms = terms;
     }
 
     public StringBuilder getCity() {

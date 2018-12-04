@@ -130,6 +130,5 @@ public class Controller_View extends Component
                         "All dictionaries successfully loaded to memory");
             alert.showAndWait();
         }
-
     }
 }
