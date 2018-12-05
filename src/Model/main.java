@@ -7,7 +7,7 @@ public class main {
     {
         SearchEngine searcher = new SearchEngine("C:\\Users\\e-pc\\IdeaProjects\\corpus\\corpus",
                                                    "C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\Postingsss",
-                                                    false);
+                                                    false,"");
         searcher.runSearchEngine();
 
     }

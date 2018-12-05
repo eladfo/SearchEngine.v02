@@ -17,13 +17,13 @@ public class SearchEngine {
     double totalRunTime;
     String pp;
 
-    public SearchEngine(String corpusPath, String postPath, Boolean isStemm) throws IOException {
+    public SearchEngine(String corpusPath, String postPath, Boolean isStemm, String stopwordsPath) throws IOException {
         pp = postPath;
-        partiotions = 2;
+       // partiotions = 2;
         rf = new ReadFile(corpusPath);
-//        partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
+        partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
         idx = new Indexer(postPath, partiotions, isStemm);
-        parse = new Parse(corpusPath, isStemm);
+        parse = new Parse(corpusPath, isStemm,stopwordsPath);
         docs = new HashSet<>();
     }
 

@@ -23,12 +23,12 @@ public class Parse
     public TreeMap<String, StringBuilder> Capital_City;
     public Stemmer stemmer;
 
-    public Parse(String corpusPath, Boolean stemm) throws IOException {
+    public Parse(String corpusPath, Boolean stemm , String stopwordPath) throws IOException {
         isStem = stemm;
         set_month();
         set_tmp_word();
         if(corpusPath != "") {
-            BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\resources" + "\\stop_words.txt"));
+            BufferedReader br = new BufferedReader(new FileReader(stopwordPath+"\\stop_words.txt"));
             String st;
             while ((st = br.readLine()) != null) {
                 if (!st.isEmpty())

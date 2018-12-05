@@ -18,6 +18,7 @@ public class Controller_View extends Component
 
     public  javafx.scene.control.TextField txtfld_corpus_path ;
     public  javafx.scene.control.TextField txtfld_posting_path ;
+    public  javafx.scene.control.TextField txtfld_path_stopwords;
     public javafx.scene.control.CheckBox steam;
 
     public static String postingPath ="";
@@ -55,11 +56,23 @@ public class Controller_View extends Component
         }
     }
 
+    public void setstopwordsPath()
+    {
+        JFileChooser  chooser = new JFileChooser();
+        chooser.setCurrentDirectory(new java.io.File("."));
+        chooser.setDialogTitle("");
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setAcceptAllFileFilterUsed(false);
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            txtfld_path_stopwords.setText(chooser.getSelectedFile().toString());
+        }
+    }
+
     public void startButton() throws IOException
     {
         if(!txtfld_corpus_path.getText().isEmpty() && !txtfld_posting_path.getText().isEmpty())
         {
-            Main.google = new SearchEngine(txtfld_corpus_path.getText(), txtfld_posting_path.getText(), steam.isSelected());
+            Main.google = new SearchEngine(txtfld_corpus_path.getText(), txtfld_posting_path.getText(), steam.isSelected() , txtfld_path_stopwords.getText());
             Main.google.runSearchEngine();
             openDetailsWindow();
         }

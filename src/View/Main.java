@@ -15,7 +15,7 @@ public class Main extends Application
 
     static {
         try {
-            google = new SearchEngine("","", true);
+            google = new SearchEngine("","", true , "");
         } catch (IOException e) {
             e.printStackTrace();
         }

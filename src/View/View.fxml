@@ -124,7 +124,7 @@
             <Font name="System Bold Italic" size="13.0" />
          </font>
       </Label>
-      <Button layoutX="536.0" layoutY="180.0" mnemonicParsing="false" onMouseClicked="#setPostingsPath" prefHeight="25.0" prefWidth="85.0" text="Browse" />
-      <TextField fx:id="txtfld_posting_path1" layoutX="144.0" layoutY="180.0" prefHeight="25.0" prefWidth="363.0" />
+      <Button layoutX="536.0" layoutY="180.0" mnemonicParsing="false" onMouseClicked="#setstopwordsPath" prefHeight="25.0" prefWidth="85.0" text="Browse" />
+      <TextField fx:id="txtfld_path_stopwords" layoutX="144.0" layoutY="180.0" prefHeight="25.0" prefWidth="363.0" />
    </children>
 </AnchorPane>
