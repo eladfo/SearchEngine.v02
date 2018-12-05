@@ -59,8 +59,7 @@ public class Indexer {
         deleteTmpFiles(1);
     }
 
-    public void deleteTmpFiles(int flag)
-    {
+    public void deleteTmpFiles(int flag) {
         // "1" -- remove only the temp files
         // "0" -- remove all the files
 
@@ -184,7 +183,7 @@ public class Indexer {
     }
 
     public void mergeTermsPostings() throws IOException {
-        FileWriter fw = new FileWriter(postingsPath + "mergedTermPosting");
+        FileWriter fw = new FileWriter(postingsPath + "_mergedTermPosting");
         BufferedWriter bw = new BufferedWriter(fw);
         BufferedReader[] brArray = new BufferedReader[partitions];
         String[] termsArray = new String[partitions];
@@ -269,7 +268,7 @@ public class Indexer {
     public void createFinalTermsPostings() throws IOException {
         String[] posts = {"NUM","A","B","C","D","E","F","G","H","I","J","K","L","M",
                             "N","O","P","Q","R","S","T","U","V","W","X","Y","Z"};
-        File file = new File(postingsPath + "mergedTermPosting");
+        File file = new File(postingsPath + "_mergedTermPosting");
         BufferedReader br = new BufferedReader(new FileReader(file));
         BufferedWriter bw = new BufferedWriter(new FileWriter(postingsPath + posts[0]));
         String line = br.readLine();
@@ -278,8 +277,8 @@ public class Indexer {
         while ((line = br.readLine()) != null) {
             cLine = line.charAt(1);
             if(Character.isDigit(cLine)) {
-                bw.write(line + "\n");
-                bw.write(updateFinalTermDic(br, line,rowPtr+=2) + "\n");
+                bw.write(upperCase(line) + "\n");
+                bw.write(updateFinalTermDic(br, upperCase(line),rowPtr+=2) + "\n");
             } else break;
         }
         bw.flush();
@@ -352,8 +351,7 @@ public class Indexer {
         }
     }
 
-    public void createTmpCityPosting(int idx) throws IOException
-    {
+    public void createTmpCityPosting(int idx) throws IOException {
         FileWriter fw = null;
         fw = new FileWriter(postingsPath+"_tmpCityPost"+idx);
         BufferedWriter bw = new BufferedWriter(fw);
@@ -368,8 +366,7 @@ public class Indexer {
         bw.close();
     }
 
-    public void mergeCityPostings( ) throws IOException
-    {
+    public void mergeCityPostings( ) throws IOException {
         FileWriter fw = new FileWriter(postingsPath+"mergedCityPosting");
         BufferedWriter bw = new BufferedWriter(fw);
         BufferedReader[] brArray = new BufferedReader[partitions];

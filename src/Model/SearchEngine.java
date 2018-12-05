@@ -36,7 +36,7 @@ public class SearchEngine {
             docs = rf.readLines(i);
             indexedDocs += docs.size();
             for (Doc d : docs) {
-                ParsedDoc pd = parse.run(d);
+                ParsedDoc pd = parse.runParser(d);
                 idx.addParsedDoc(pd);
                 d.docText.setLength(0);
             }

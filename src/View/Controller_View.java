@@ -6,10 +6,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 
 import Model.*;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -22,6 +25,7 @@ public class Controller_View extends Component
     public javafx.scene.control.CheckBox steam;
 
     public static String postingPath ="";
+    public static boolean is_steam =false;
 
     public Controller_View() throws IOException {
     }
@@ -30,7 +34,7 @@ public class Controller_View extends Component
     {
         JFileChooser  chooser = new JFileChooser();
         chooser.setCurrentDirectory(new java.io.File("."));
-        chooser.setDialogTitle("");
+        chooser.setDialogTitle("Corpus Path");
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         //
         // disable the "All files" option.
@@ -47,7 +51,7 @@ public class Controller_View extends Component
     {
         JFileChooser  chooser = new JFileChooser();
         chooser.setCurrentDirectory(new java.io.File("."));
-        chooser.setDialogTitle("");
+        chooser.setDialogTitle("Posting Path");
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         chooser.setAcceptAllFileFilterUsed(false);
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -56,12 +60,13 @@ public class Controller_View extends Component
         }
     }
 
-    public void setstopwordsPath()
+    public void setStopWordsPath()
     {
         JFileChooser  chooser = new JFileChooser();
         chooser.setCurrentDirectory(new java.io.File("."));
-        chooser.setDialogTitle("");
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setDialogTitle("StopWords Path");
+        FileNameExtensionFilter fne = new FileNameExtensionFilter("*.txt", "txt");
+        chooser.setFileFilter(fne);
         chooser.setAcceptAllFileFilterUsed(false);
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             txtfld_path_stopwords.setText(chooser.getSelectedFile().toString());
@@ -103,6 +108,7 @@ public class Controller_View extends Component
         }
         else
         {
+            is_steam = steam.isSelected();
             postingPath = txtfld_posting_path.getText();
             Stage stage = new Stage();
             FXMLLoader fxmlLoader = new FXMLLoader();

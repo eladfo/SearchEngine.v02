@@ -1,4 +1,4 @@
-package Model;//package Model;
+package Model;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -6,107 +6,118 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.TreeMap;
-
 import static org.apache.commons.lang3.StringUtils.*;
 
 public class Parse
 {
     private String[] stk;
-    private int index;
-    private  boolean isStem;
+    private boolean isStem;
     private ParsedDoc parsedDoc = new ParsedDoc();
     private StringBuilder strb = new StringBuilder();
-    private HashMap<String,String> month = new HashMap<>() ;
-    private HashSet<String> stop_words = new HashSet<>();
-    private HashSet<String> tmp_word = new HashSet<>();
-    public int position_of_word;
-    public TreeMap<String, StringBuilder> Capital_City;
+    private HashMap<String,String> monthInfo = new HashMap<>() ;
+    private HashSet<String> stopWords = new HashSet<>();
+    private HashSet<String> suffixWords = new HashSet<>();
+    public int wordPosition;
+    private int rowCounter;
+    public TreeMap<String, StringBuilder> capitalCityAPI;
     public Stemmer stemmer;
 
-    public Parse(String corpusPath, Boolean stemm , String stopwordPath) throws IOException {
+    /**
+     * Constructor
+     */
+    public Parse(String corpusPath, Boolean stemm , String stopWordPath) throws IOException {
         isStem = stemm;
-        set_month();
-        set_tmp_word();
+        setMonthMap();
+        setSuffixWords();
         if(corpusPath != "") {
-            BufferedReader br = new BufferedReader(new FileReader(stopwordPath+"\\stop_words.txt"));
+            BufferedReader br = new BufferedReader(new FileReader(stopWordPath));
             String st;
             while ((st = br.readLine()) != null) {
                 if (!st.isEmpty())
-                    stop_words.add(lowerCase(initialParse(st)));
+                    stopWords.add(lowerCase(initialParse(st)));
             }
         }
-        Capital_City = new TreeMap<>();
-        Create_City_Map();
+        capitalCityAPI = new TreeMap<>();
+        createCityMap();
         stemmer = new Stemmer();
     }
 
-    private void set_tmp_word() {
-        tmp_word.add("thousand");
-        tmp_word.add("million");
-        tmp_word.add("trillion");
-        tmp_word.add("billion");
-        tmp_word.add("percent");
-        tmp_word.add("percentage");
-        tmp_word.add("dollars");
-        tmp_word.add("m");
-        tmp_word.add("bn");
-        tmp_word.add("billion");
-        tmp_word.add("million");
-        tmp_word.add("trillion");
+    /**
+     * Initialize suffix words's HshSet
+     */
+    private void setSuffixWords() {
+        suffixWords.add("thousand");
+        suffixWords.add("million");
+        suffixWords.add("trillion");
+        suffixWords.add("billion");
+        suffixWords.add("percent");
+        suffixWords.add("percentage");
+        suffixWords.add("dollars");
+        suffixWords.add("m");
+        suffixWords.add("bn");
+        suffixWords.add("billion");
+        suffixWords.add("million");
+        suffixWords.add("trillion");
     }
 
-    private void set_month() {
-        month.put("january","01");
-        month.put("february","02");
-        month.put("march","03");
-        month.put("april","04");
-        month.put("may","05");
-        month.put("june","06");
-        month.put("july","07");
-        month.put("august","08");
-        month.put("september","09");
-        month.put("october","10");
-        month.put("november","11");
-        month.put("december","12");
+    /**
+     * Initialize month info HashMap
+     */
+    private void setMonthMap() {
+        monthInfo.put("january","01");
+        monthInfo.put("february","02");
+        monthInfo.put("march","03");
+        monthInfo.put("april","04");
+        monthInfo.put("may","05");
+        monthInfo.put("june","06");
+        monthInfo.put("july","07");
+        monthInfo.put("august","08");
+        monthInfo.put("september","09");
+        monthInfo.put("october","10");
+        monthInfo.put("november","11");
+        monthInfo.put("december","12");
     }
 
-    public void Add_term(StringBuilder sb, int pos) {
+    public void addTermToParsedDoc(StringBuilder sb, int pos) {
 
         if(isStem)
             parsedDoc.addTerm(stemmer.stem(sb.toString()), pos);
         else
             parsedDoc.addTerm(sb.toString(), pos);
-        position_of_word++;
+        wordPosition++;
     }
 
-    public ParsedDoc run(Doc doc) throws IOException
-    {
-            parsedDoc = new ParsedDoc();
-            parsedDoc.setDocID(doc.getDocID());
-            stk = split(doc.getDocText().toString(), " ():[];?/]=");
-            index = 0;                 // index of word in file include stop words!
-            position_of_word = 1;      // index of word in file without stop words!
-
-        while (index < stk.length) {
-                String s = initialParse(stk[index]);
-                if (s.length() == 0 || stop_words.contains(lowerCase(s))) {
-                    index++;
+    /**
+     * Received object with original text,
+     * @return  return object with parsed words.
+     */
+    public ParsedDoc runParser(Doc doc) {
+        parsedDoc = new ParsedDoc();
+        parsedDoc.setDocID(doc.getDocID());
+        stk = split(doc.getDocText().toString(), " ():[];?/]=");
+        rowCounter = 0;                 // rowCounter of word in file include stop words!
+        wordPosition = 1;      // rowCounter of word in file without stop words!
+        while (rowCounter < stk.length) {
+                String s = initialParse(stk[rowCounter]);
+                if (s.length() == 0 || stopWords.contains(lowerCase(s))) {
+                    rowCounter++;
                     continue;
                 }
                 strb.setLength(0);
                 if (s.charAt(0) >= '0' && s.charAt(0) <= '9')
                 {
                     if (s.charAt(s.length() - 1) == '%') {
-                        Add_term(strb.append(s), position_of_word);
-                    } else if (!is_fraction(s)) {
+                        addTermToParsedDoc(strb.append(s), wordPosition);
+                    } else if (!isFraction(s)) {
                         tokenIsNum(s);
-                    } else if (index + 1 < stk.length && equalsIgnoreCase(stk[index + 1], "Dollars")) {
-                        Add_term(strb.append(s).append(" Dollars"), position_of_word);
+                    } else if (rowCounter + 1 < stk.length && equalsIgnoreCase(stk[rowCounter + 1], "Dollars")) {
+                        addTermToParsedDoc(strb.append(s).append(" Dollars"), wordPosition);
                     }
                 } else if (Character.isLetter(s.charAt(0))) {
-                    if (index + 1 < stk.length && month.containsKey(lowerCase(s)) && isNumeric(stk[index + 1])) {
-                        Add_term(strb.append(month.get(lowerCase(s))).append("-").append(is_under_10(initialParse(stk[index + 1]))), position_of_word);
-                        index++;
+                    if (rowCounter + 1 < stk.length && monthInfo.containsKey(lowerCase(s)) && isNumeric(stk[rowCounter + 1])) {
+                        addTermToParsedDoc(strb.append(monthInfo.get(lowerCase(s))).append("-")
+                                                        .append(isNumUnder10(initialParse(stk[rowCounter + 1]))), wordPosition);
+                        rowCounter++;
                         continue;
                     }
                     else
@@ -115,44 +126,40 @@ public class Parse
                         {
                             String[] tmp =split(s, "--");
                             for(int j=0 ; j<tmp.length;j++)
-                            if(stop_words.contains(lowerCase(tmp[j])))
+                            if(stopWords.contains(lowerCase(tmp[j])))
                                 continue;
-                        /**
-                         StringIndexOutOfBoundsException* }
-                        else if(contains(s,"-")) {
-                            Add_term(strb.append(s), position_of_word);
-                            String[] tmp = split(s, "-");
-                            for(String ss : tmp)
-                            {
-                                position_of_word--;
-                                strb.setLength(0);
-                                Add_term(strb.append(initialParse(ss)), position_of_word);
-                            }
-                         */
                         } else
-                            Add_term(strb.append(s), position_of_word);
+                            addTermToParsedDoc(strb.append(s), wordPosition);
                     }
                 }
                 strb.setLength(0);
-                index++;
+                rowCounter++;
             }
-        Create_City_Posting(doc.getDocCity());
+        updateCityInfo(doc.getDocCity());
         parsedDoc.fileID = doc.docFile;
         return parsedDoc;
     }
 
-    private String is_under_10(String s)    {
-        if( !is_float(s)&& Integer.parseInt(s)<10)
+    /**
+     * Received numbers smaller then 10, and link 0 to their beginning.
+     */
+    private String isNumUnder10(String s) {
+        if( !isTokenFloat(s)&& Integer.parseInt(s)<10)
             return ("0"+s) ;
         return s;
     }
 
+    /**
+     * Initial Parsing.
+     * @param s - term's token
+     * @return term without special symbols
+     */
     private String initialParse(String s) {
         char tmp = '"';
         s= replaceChars(s,tmp,'#');
         s=replaceChars(s,"'#+<>|~,!�","");
-
-        if (org.apache.commons.lang3.StringUtils.contains(s,".") && !s.equals("U.S.") && !Character.isDigit(s.charAt(0)) && s.charAt(0)!='$')
+        if (org.apache.commons.lang3.StringUtils.contains(s,".") && !s.equals("U.S.")
+                                            && !Character.isDigit(s.charAt(0)) && s.charAt(0)!='$')
           s=  replaceChars(s,".","");
         else if (s.length()>0 && s.charAt(s.length()-1)  == '.' && !s.equals("U.S.") )
             s=replaceChars(s,".","");
@@ -167,56 +174,38 @@ public class Parse
 
     private void tokenIsNum(String s) {
         if(contains(s,"-")) {
-            Add_term(strb.append(s),position_of_word);
+            addTermToParsedDoc(strb.append(s), wordPosition);
             return;
         }
-
         float f;
-       if(isNumeric(s)||is_float(s))
+       if(isNumeric(s)|| isTokenFloat(s))
            f = Float.parseFloat(s);
         else
        {
-           /*
-           int j;
-           for (j = 0 ; j < s.length() && !(Character.isLetter(s.charAt(j))) ;j++);
-          // System.out.println(substring(s,j,s.length()));
-           if(j<s.length()-1)
-           {
-               Add_term(strb.append(substring(s,0,j)),position_of_word);
-               strb.setLength(0);
-               Add_term(strb.append(substring(s,j,s.length())),position_of_word+1);
-               position_of_word++;
-           }
-           else
-           Add_term(strb.append(s),position_of_word);
-           */
            return;
-
        }
-
         Boolean flag = false;
-        if (index + 1 < stk.length && tmp_word.contains(lowerCase(stk[index + 1]))) {
-            String nextTkn = stk[index + 1];
+        if (rowCounter + 1 < stk.length && suffixWords.contains(lowerCase(stk[rowCounter + 1]))) {
+            String nextTkn = stk[rowCounter + 1];
             flag = checkNextTkn(f, nextTkn);
         }
-
         if (!flag) {
             if (f < 1000) {
-                Add_term(strb.append(is_under_10(from_number_to_string(f))),position_of_word);
+                addTermToParsedDoc(strb.append(isNumUnder10(fromNumToString(f))), wordPosition);
             } else if (f < 1000000 && f >= 1000) {
                 f = f / 1000;
-                Add_term(strb.append(from_number_to_string(f)).append("k"),position_of_word);
+                addTermToParsedDoc(strb.append(fromNumToString(f)).append("K"), wordPosition);
             } else if (f < 1000000000 && f >= 1000000) {
                 f = f / 1000000;
-                Add_term(strb.append(from_number_to_string(f)).append("M"),position_of_word);
+                addTermToParsedDoc(strb.append(fromNumToString(f)).append("M"), wordPosition);
             } else if (f >= 1000000000) {
                 f = f / 1000000000;
-                Add_term(strb.append(from_number_to_string(f)).append("B"),position_of_word);
+                addTermToParsedDoc(strb.append(fromNumToString(f)).append("B"), wordPosition);
             }
         }
     }
 
-    private boolean is_float(String s)    {
+    private boolean isTokenFloat(String s) {
         try {
             float f = Float.parseFloat(s);
             return true;
@@ -225,112 +214,118 @@ public class Parse
         }
     }
 
+    /**
+     * Checks is there is a connection between a float number to the word after it.
+     * @param f - float Token
+     * @param nextTkn - after f
+     * @return True if succeed to find and combine them together. else False.
+     */
     private Boolean checkNextTkn(float f, String nextTkn) {
 
         if (equalsIgnoreCase(nextTkn,"Thousand")) {
-            Add_term(strb.append(from_number_to_string(f)).append("k"),position_of_word);
-            index++;
+            addTermToParsedDoc(strb.append(fromNumToString(f)).append("K"), wordPosition);
+            rowCounter++;
             return true;
         }
-        else if (is_Date(f,nextTkn) != null) {
-            Add_term(strb.append(is_Date(f,nextTkn)).append("-").append(from_number_to_string(f)),position_of_word);
-            index++;
+        else if (isNumDate(f,nextTkn) != null) {
+            addTermToParsedDoc(strb.append(isNumDate(f,nextTkn)).append("-").append(fromNumToString(f)), wordPosition);
+            rowCounter++;
             return true;
         }else if (equalsIgnoreCase(nextTkn,"Million")) {
-            Add_term(strb.append(from_number_to_string(f)).append("M"),position_of_word);
-            index++;
+            addTermToParsedDoc(strb.append(fromNumToString(f)).append("M"), wordPosition);
+            rowCounter++;
             return true;
         } else if (equalsIgnoreCase(nextTkn,"Billion")) {
-            Add_term(strb.append(from_number_to_string(f)).append("B"),position_of_word);
-            index++;
+            addTermToParsedDoc(strb.append(fromNumToString(f)).append("B"), wordPosition);
+            rowCounter++;
             return true;
         } else if (equalsIgnoreCase(nextTkn,"Trillion")) {
-            Add_term(strb.append(from_number_to_string(f*1000)).append("B"),position_of_word);
-            index++;
+            addTermToParsedDoc(strb.append(fromNumToString(f*1000)).append("B"), wordPosition);
+            rowCounter++;
             return true;
         } else if (equalsIgnoreCase(nextTkn,"percent") || nextTkn.equals("percentage")) {
-            Add_term(strb.append(from_number_to_string(f)).append("%"),position_of_word);
-            index++;
+            addTermToParsedDoc(strb.append(fromNumToString(f)).append("%"), wordPosition);
+            rowCounter++;
             return true;
         }
         else if (f < 1000000 && equalsIgnoreCase(nextTkn,"Dollars")) {
-            Add_term(strb.append(from_number_to_string(f)).append(" ").append(nextTkn),position_of_word);
-                index++;
+            addTermToParsedDoc(strb.append(fromNumToString(f)).append(" ").append(nextTkn), wordPosition);
+                rowCounter++;
                 return true;
         }
-        else if (is_fraction(nextTkn)) {
-            if (index + 2 < stk.length && stk[index + 2].equals("Dollars")) {
-                Add_term(strb.append(from_number_to_string(f)).append(" ").append(nextTkn).append("Dollars"),position_of_word);
-                index = index + 2;
+        else if (isFraction(nextTkn)) {
+            if (rowCounter + 2 < stk.length && stk[rowCounter + 2].equals("Dollars")) {
+                addTermToParsedDoc(strb.append(fromNumToString(f)).append(" ").append(nextTkn).append("Dollars"), wordPosition);
+                rowCounter = rowCounter + 2;
                 return true;
             }
-            Add_term(strb.append(from_number_to_string(f)).append(" ").append(nextTkn),position_of_word);
-            index++;
+            addTermToParsedDoc(strb.append(fromNumToString(f)).append(" ").append(nextTkn), wordPosition);
+            rowCounter++;
             return true;
         }
-        else if (is_price_bigger_then_million(f))
+        else if (isPriceBiggerThenMillion(f))
             return true;
         return false;
     }
 
-    private String is_Date(float f, String nextTkn)
-    {
-
+    private String isNumDate(float f, String nextTkn) {
         if(f>31 || f<1)
             return null;
-        if(! month.containsKey(lowerCase(nextTkn)))
+        if(! monthInfo.containsKey(lowerCase(nextTkn)))
             return null;
         else
-              return month.get(lowerCase(nextTkn));
+              return monthInfo.get(lowerCase(nextTkn));
     }
 
-    private Boolean is_price_bigger_then_million(float f) {
-        if(index +3 < stk.length && equalsIgnoreCase(stk[index+2],"U.S.") && equalsIgnoreCase(stk[index+3],"dollars"))
+    private Boolean isPriceBiggerThenMillion(float f) {
+        if(rowCounter +3 < stk.length && equalsIgnoreCase(stk[rowCounter +2],"U.S.") && equalsIgnoreCase(stk[rowCounter +3],"dollars"))
         {
-            if (equalsIgnoreCase(stk[index + 1],"billion"))
+            if (equalsIgnoreCase(stk[rowCounter + 1],"billion"))
             {
-                Add_term(strb.append(from_number_to_string(f*1000)).append(" M Dollars "),position_of_word);
-                index = index + 3;
+                addTermToParsedDoc(strb.append(fromNumToString(f*1000)).append(" M Dollars "), wordPosition);
+                rowCounter = rowCounter + 3;
                 return true;
             }
-            else if(equalsIgnoreCase(stk[index + 1],"million"))
+            else if(equalsIgnoreCase(stk[rowCounter + 1],"million"))
             {
-                Add_term(strb.append(from_number_to_string(f)).append(" M Dollars "),position_of_word);
-                index = index + 3;
+                addTermToParsedDoc(strb.append(fromNumToString(f)).append(" M Dollars "), wordPosition);
+                rowCounter = rowCounter + 3;
                 return true;
             }
-            else if(equalsIgnoreCase(stk[index + 1],"trillion"))
+            else if(equalsIgnoreCase(stk[rowCounter + 1],"trillion"))
             {
-                Add_term(strb.append(from_number_to_string(f*1000000)).append(" M Dollars "),position_of_word);
-                index = index + 3;
+                addTermToParsedDoc(strb.append(fromNumToString(f*1000000)).append(" M Dollars "), wordPosition);
+                rowCounter = rowCounter + 3;
                 return true;
             }
         }
-        else if (index +2 < stk.length && equalsIgnoreCase(stk[index+2],"Dollars") ){
-            if(stk[index + 1].equals("m"))
+        else if (rowCounter +2 < stk.length && equalsIgnoreCase(stk[rowCounter +2],"Dollars") ){
+            if(stk[rowCounter + 1].equals("m"))
             {
-                Add_term(strb.append(from_number_to_string(f)).append(" M Dollars"),position_of_word);
-                index = index + 2;
+                addTermToParsedDoc(strb.append(fromNumToString(f)).append(" M Dollars"), wordPosition);
+                rowCounter = rowCounter + 2;
                 return true;
             }
-            else if(equalsIgnoreCase(stk[index + 1],"bn"))
+            else if(equalsIgnoreCase(stk[rowCounter + 1],"bn"))
             {
-                Add_term(strb.append(from_number_to_string(f*1000)).append(" M Dollars"),position_of_word);
-                index = index + 2;
+                addTermToParsedDoc(strb.append(fromNumToString(f*1000)).append(" M Dollars"), wordPosition);
+                rowCounter = rowCounter + 2;
                 return true;
             }
         }
-        else if(equalsIgnoreCase(stk[index+1],"Dollars"))
+        else if(equalsIgnoreCase(stk[rowCounter +1],"Dollars"))
         {
-            Add_term(strb.append(from_number_to_string(f)).append(" M Dollars"),position_of_word);
-            index = index + 1;
+            addTermToParsedDoc(strb.append(fromNumToString(f)).append(" M Dollars"), wordPosition);
+            rowCounter = rowCounter + 1;
             return true;
         }
         return false;
     }
 
-    private boolean is_fraction(String nextTkn)
-    {
+    /**
+     * Checks if token is fraction number.
+     */
+    private boolean isFraction(String nextTkn) {
         if (contains(nextTkn,"/")) {
             String[] rat = splitByWholeSeparator(nextTkn,"/");
             if(rat.length == 2 && isNumeric(rat[0]))
@@ -339,24 +334,22 @@ public class Parse
         return false;
     }
 
-    private String from_number_to_string(float f)
-    {
+    private String fromNumToString(float f) {
         double x = f - Math.floor(f);
         if(x == 0.)
             return (Integer.toString(((int) f)));
         else
             return String.format("%.2f", f);
-
     }
 
-    public void Create_City_Map() throws IOException
-    {
+    /**
+     * Loading the whole city's data from an external API.
+     */
+    public void createCityMap() throws IOException {
         URL url = new URL("https://restcountries.eu/rest/v2/all?fields=name;capital;population;currencies");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
-
         InputStreamReader input_stem =  new InputStreamReader(con.getInputStream());
-
         BufferedReader in = new BufferedReader(input_stem);
         String inputLine;
         StringBuffer content = new StringBuffer();
@@ -364,6 +357,17 @@ public class Parse
         {
             content.append(inputLine);
         }
+        cityDataToLines(content);
+        in.close();
+        con.disconnect();
+    }
+
+    /**
+     * Parse and Disassemble the city's info into lines - Currency, Country, Population size,
+     * and send it to the main City's info parser.
+     * @param content - City's Info from API
+     */
+    public void cityDataToLines(StringBuffer content){
         String[] stk;
         String[] stk1;
         stk= splitByWholeSeparator(content.toString(),"{\"currencies\"");
@@ -371,46 +375,26 @@ public class Parse
             stk[i]=replace(stk[i],":","");
             stk[i]=replace(stk[i],"[","");
             stk[i]=replace(stk[i],"{","");
-
             stk1 = splitByWholeSeparator(stk[i],",");
-
             if(stk1.length>4) {
                 if(stk1.length!=8) {
-                    parse_info_city(stk1[stk1.length - 7 + 3],stk1[stk1.length - 3],stk1[stk1.length - 2],stk1[0]);
+                    parseCityInfo(stk1[stk1.length - 7 + 3],stk1[stk1.length - 3],stk1[stk1.length - 2],stk1[0]);
                 }
                 else {
                     if(stk1[3].charAt(0) == '}')
-                        parse_info_city(stk1[4],stk1[stk1.length - 3],stk1[stk1.length-2],stk1[0]);
+                        parseCityInfo(stk1[4],stk1[stk1.length - 3],stk1[stk1.length-2],stk1[0]);
                     else
-                        parse_info_city(stk1[3],stk1[stk1.length - 3],stk1[stk1.length-2],stk1[0]);
+                        parseCityInfo(stk1[3],stk1[stk1.length - 3],stk1[stk1.length-2],stk1[0]);
                 }
             }
         }
-        in.close();
-        con.disconnect();
     }
 
-    public void Create_City_Posting(StringBuilder sb) throws IOException
-    {
-        StringBuilder tmp = new StringBuilder();
-            if (sb.toString().length() > 0) {
-                String[] s = split(sb.toString(), " ");
-                if (Capital_City.containsKey(sb.toString())) {
-                    parsedDoc.setCity(sb.toString());
-                    parsedDoc.setInfo_city(tmp.append(Capital_City.get(sb.toString()).toString()).toString());
-                }
-                else if(Capital_City.containsKey(s[0])) {
-                    parsedDoc.setCity(s[0]);
-                    parsedDoc.setInfo_city(tmp.append(Capital_City.get(s[0]).toString()).toString());
-                }
-                else if(Character.isLetter(s[0].charAt(0))&& s[0].length()>0)
-                    parsedDoc.setCity(tmp.append(s[0]).toString());
-            }
-            sb.setLength(0);
-    }
-
-    private void parse_info_city(String country , String city,String population , String currency)
-    {
+    /**
+     * Create a StringBuilder that contain the final city's data(city, country, currency, population)
+     * and enter it to capitalCityAPI.
+     */
+    private void parseCityInfo(String country , String city, String population , String currency) {
         String[] stk1;
         String[] stk2;
         String[] stk3;
@@ -420,16 +404,13 @@ public class Parse
         stk2 = splitByWholeSeparator(city,"\"");
         stk3 = splitByWholeSeparator(population,"\"");
         stk4 = splitByWholeSeparator(currency,"\"");
-
         if(stk2[1].length() == 0)
             if(stk1[1].equals("United States of America"))
                 stk2[1] = "Washington D.C.";
             else
                 stk2[1] = "(None)";
-
         if(stk4[1].equals("(none)") || stk4[1].equals("D]"))
             stk4[1] = "USD";
-
         if(stk2[1].equals("Zimbabwe"))
         {
             stk1[1]= "Zimbabwe";
@@ -437,37 +418,64 @@ public class Parse
             stk3[1]="14240168";
             stk4[1]="GBP";
         }
-
         StringBuilder sb = new StringBuilder();
-        sb.append(";").append(stk1[1]).append(";").append(stk4[1]).append(";").append(cheak_size_pupolation(stk3[1]));
-        Capital_City.put(stk2[1],sb);
+        sb.append(";").append(stk1[1]).append(";").append(stk4[1]).append(";").append(convertPopulationSize(stk3[1]));
+        capitalCityAPI.put(stk2[1],sb);
     }
 
-    public String cheak_size_pupolation(String sb)
-    {
+    /**
+     * Link K,M,B to the correct number.
+     * @param sb - Population size
+     */
+    public String convertPopulationSize(String sb) {
        float f = Float.parseFloat(sb);
             if (f < 1000)
-               return is_under_10(from_number_to_string(f));
+               return isNumUnder10(fromNumToString(f));
             else if (f < 1000000 && f >= 1000) {
                 f = f / 1000;
-                return from_number_to_string(f) + "k";
+                return fromNumToString(f) + "K";
             }
             else if (f < 1000000000 && f >= 1000000) {
                 f = f / 1000000;
-                return from_number_to_string(f) + "M";
+                return fromNumToString(f) + "M";
             }
                  else {
                 f = f / 1000000000;
-                return from_number_to_string(f) + "B";
+                return fromNumToString(f) + "B";
             }
     }
 
-    public void resetParse()
-    {
-        month.clear();
-        stop_words.clear();
-        tmp_word.clear();
-        Capital_City.clear();
+    /**
+     * Update the parsedDoc with the data from capitalCityAPI, about the city.
+     * @param sb - whole line of <F P=104>
+     * @throws IOException
+     */
+    public void updateCityInfo(StringBuilder sb){
+        StringBuilder tmp = new StringBuilder();
+        if (sb.toString().length() > 0) {
+            String[] s = split(sb.toString(), " ");
+            if (capitalCityAPI.containsKey(sb.toString())) {
+                parsedDoc.setCity(sb.toString());
+                parsedDoc.setInfo_city(tmp.append(capitalCityAPI.get(sb.toString()).toString()).toString());
+            }
+            else if(capitalCityAPI.containsKey(s[0])) {
+                parsedDoc.setCity(s[0]);
+                parsedDoc.setInfo_city(tmp.append(capitalCityAPI.get(s[0]).toString()).toString());
+            }
+            else if(Character.isLetter(s[0].charAt(0))&& s[0].length()>0)
+                parsedDoc.setCity(tmp.append(s[0]).toString());
+        }
+        sb.setLength(0);
+    }
+
+    /**
+     * Resetting all data structures of object Parse.
+     */
+    public void resetParse() {
+        monthInfo.clear();
+        stopWords.clear();
+        suffixWords.clear();
+        capitalCityAPI.clear();
         stemmer =null ;
     }
 }
