@@ -13,6 +13,10 @@ public class SearchEngine {
     int uniqueTerms;
     double totalRunTime;
 
+    /**
+     * Constructor. Initialize 3 paths for corpus, posting and stopwords.
+     * Calculate the partition amount, by dividing the corpus size by 50.
+     */
     public SearchEngine(String corpusPath, String postPath, Boolean isStemm, String stopwordsPath) throws IOException {
 //        partiotions = 2;
         rf = new ReadFile(corpusPath);
@@ -22,6 +26,12 @@ public class SearchEngine {
         docs = new HashSet<>();
     }
 
+    /**
+     * Core function that control the whole program,
+     * and navigating the data from the disk into ReadFile obj,
+     * to the parser and finally to the indexer.
+     * For each partition of 50 files, created a tmp posting file.
+     */
     public void runSearchEngine() throws IOException {
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < partiotions; i++) {
@@ -36,7 +46,6 @@ public class SearchEngine {
             }
             idx.createTmpPosting(i);
             idx.resetIndex();
-
             long p1 = System.currentTimeMillis();
             System.out.println(p1 - p0);
         }
@@ -44,15 +53,6 @@ public class SearchEngine {
         long endTime = System.currentTimeMillis();
         totalRunTime = (endTime - startTime) / 1000;
         uniqueTerms = idx.finalTermsDic.size();
-        printResults();
-    }
-
-    public void printResults() {
-        System.out.println("*~*~*~*~*~*~*~*~*~*~*");
-        System.out.println(indexedDocs + " :: Docs");
-        System.out.println(uniqueTerms + " :: Terms");
-        System.out.println(totalRunTime + " :: Total RT");
-        System.out.println("*~*~*~*~*~*~*~*~*~*~*");
     }
 
     public String getTermsNum() {
