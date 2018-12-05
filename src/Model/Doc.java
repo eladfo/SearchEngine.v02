@@ -1,8 +1,6 @@
 package Model;
-
 public class Doc {
     private StringBuilder docID = new StringBuilder();
-    //public StringBuilder docDate = new StringBuilder();
     private String docFile;
     private StringBuilder docText = new StringBuilder();
     private StringBuilder docCity = new StringBuilder();

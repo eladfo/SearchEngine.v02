@@ -1,5 +1,4 @@
 package Model;
-
 import java.io.*;
 import java.util.*;
 import static java.lang.Character.toLowerCase;
@@ -20,7 +19,7 @@ public class Indexer {
     /**
      * Index's_Constructor
      */
-    public Indexer(String postPath, int partitions, Boolean isStemm) throws IOException {
+    public Indexer(String postPath, int partitions, Boolean isStemm) {
         tmpTermsDic = new TreeMap<>();
         tmpDocsDic = new TreeSet<>(new Comparator<ParsedDoc>() {
             @Override
@@ -38,6 +37,10 @@ public class Indexer {
         createPostingsDir();
     }
 
+    /**
+     * Create directory which in it, the program save all the postings files and the dictionaries,
+     * according to the GUI choice(with or without stemming).
+     */
     private void createPostingsDir() {
         File dir;
         if(isStemm)
@@ -50,30 +53,36 @@ public class Indexer {
         postingsPath += "\\";
     }
 
+    /**
+     * Charge on calling all the essentials functions that create the Inverted Index.
+     */
     public void createInvertedIndex() throws IOException {
         mergeTermsPostings();
         mergeCityPostings();
         mergeDocsPostings();
         createFinalTermsPostings();
         createFinalTermsDic();
-        deleteTmpFiles(1);
+        deleteTmpFiles();
     }
 
-    public void deleteTmpFiles(int flag) {
-        // "1" -- remove only the temp files
-        // "0" -- remove all the files
-
+    /**
+     * Deleting all temp postings files, which we tagged with a prefix '_'.
+     */
+    private void deleteTmpFiles() {
         File directory = new File(substring(postingsPath, 0,postingsPath.length()-1));
         if(directory.listFiles() != null) {
             for (File f : directory.listFiles()) {
-                if (f.getName().startsWith("_") && flag==1)
-                    f.delete();
-                else if(flag== 0)
+                if (f.getName().startsWith("_"))
                     f.delete();
             }
         }
     }
 
+    /**
+     * Calling 3 functions, that creating tmp posting files, each for different index.
+     * Term, Doc, City indexes.
+     * @param i - partition's index
+     */
     public void createTmpPosting(int i) throws IOException {
         createTmpTermPosting(i);
         createTmpDocPosting(i);
@@ -86,6 +95,12 @@ public class Indexer {
         tmpCityDic.clear();
     }
 
+    /**
+     * Loading the 3 dictionaries from the disk to the memory,
+     * and storing them to the proper data structures.
+     * @param path - posting path which the user chose
+     * @param stemm - stemming flag from GUI
+     */
     public void loadDics(String path, boolean stemm) throws IOException {
         BufferedReader[] brs = new BufferedReader[3];
         String dicPath = "";
@@ -103,6 +118,9 @@ public class Indexer {
             br.close();
     }
 
+    /**
+     * Inserting the terms's data, from the disc, into a dic on a memory.
+     */
     private void setFinalTermsDic(BufferedReader br) throws IOException {
         String line;
         String[] s;
@@ -113,6 +131,9 @@ public class Indexer {
         }
     }
 
+    /**
+     * Inserting all the city and doc's data, from the disk, to their dics on the memory.
+     */
     private void setFinalDocsAndCityDic(BufferedReader br, int i) throws IOException {
         String line;
         TreeMap<String, Integer> dic;
@@ -127,6 +148,11 @@ public class Indexer {
         }
     }
 
+    /**
+     * The first Indexer's function, that received a ParsedDoc object from the parser,
+     * take care of the data, send it to 3 update functions to temp dics.
+     * @param pd - parsed doc.
+     */
     public void addParsedDoc(ParsedDoc pd) {
         tmpDocsDic.add(pd);
         StringBuilder docID = pd.getDocID();
@@ -143,7 +169,10 @@ public class Indexer {
 
 
     /**
-     Terms_Index
+     Received term's data, and add it to a temp terms dic.
+     Create a new Term object if the dic is not containing the term,
+     else adding the docID and the positions which the term found in that docID,
+     to the docs list. (which Term object have)
      */
     public void updateTmpTermsDic(String termID, StringBuilder tPositions, StringBuilder docID) {
          if (tmpTermsDic.containsKey(lowerCase(termID))) {
@@ -159,6 +188,9 @@ public class Indexer {
          }
     }
 
+    /**
+     * @return 1 if c is capital letter, else 0.
+     */
     public int isUpperCase(char c){
         if(!Character.isDigit(c) && c == toUpperCase(c))
             return 1;
@@ -182,6 +214,10 @@ public class Indexer {
         bw.close();
     }
 
+    /**
+     * Read all the tmp term posting files, one foe each partition, and merged into a final big one.
+     * Of course saved to the disk and not to the memory.
+     */
     public void mergeTermsPostings() throws IOException {
         FileWriter fw = new FileWriter(postingsPath + "_mergedTermPosting");
         BufferedWriter bw = new BufferedWriter(fw);
@@ -230,6 +266,12 @@ public class Indexer {
             br.close();
     }
 
+    /**
+     * Checks the 'res' term has other term equal to him in termsArray.
+     * @param termsArray - containing terms, one from each tmp term file.
+     * @param res - the current biggest term by the string sort.
+     * @return
+     */
     private boolean isDuplicate(String[] termsArray, int res) {
         String s = termsArray[res];
         for (int i = 0; i < termsArray.length ; i++) {
@@ -239,6 +281,10 @@ public class Indexer {
         return false;
     }
 
+    /**
+     * Checks if all buffer readers finished to read all tmp term files.
+     * Return true if not, and false if all the buffers are done.
+     */
     private boolean stopCondition(int partitions, String[] brArr) {
         for(int i=0; i<partitions; i++)
         {
@@ -267,6 +313,9 @@ public class Indexer {
         return index_min;
     }
 
+    /**
+     * Read from _mergedTermPosting file, and split it into 27 different final posting files.
+     */
     public void createFinalTermsPostings() throws IOException {
         String[] posts = {"NUM","A","B","C","D","E","F","G","H","I","J","K","L","M",
                             "N","O","P","Q","R","S","T","U","V","W","X","Y","Z"};
@@ -305,6 +354,16 @@ public class Indexer {
         bw.close();
     }
 
+    /**
+     * While creating the final post files, before writing a term to the disk,
+     * getting a line, containing term plus its data which is doc list and the positions where the term was shown.
+     * From the line, calculating the DF and TTF.
+     * Updating the final terms dic with this data, plus the row pointer to the posting file.
+     * @param br - BufferedReader reading from the merge term post
+     * @param line - term + term data
+     * @param ptr - row index
+     * @return
+     */
     private String updateFinalTermDic(BufferedReader br, String line, int ptr) throws IOException {
         int ttf=0;
         String termID = substring(line, 1);
@@ -319,6 +378,9 @@ public class Indexer {
         return termData;
     }
 
+    /**
+     * From the final terms dic which locate on the memory, create one on the disk.
+     */
     public void createFinalTermsDic() throws IOException {
         BufferedWriter bw = new BufferedWriter(new FileWriter(postingsPath + "Final_Terms_Dic"));
         for (Map.Entry<String, int[]> entry : finalTermsDic.entrySet()) {
@@ -368,6 +430,11 @@ public class Indexer {
         bw.close();
     }
 
+    /**
+     * The merging process works identical to the terms's merging process,
+     * ONLY difference is in this case, while we merging all the temp city files,
+     * in the same time creating the final city dic to the disk.
+     */
     public void mergeCityPostings( ) throws IOException {
         FileWriter fw = new FileWriter(postingsPath+"mergedCityPosting");
         BufferedWriter bw = new BufferedWriter(fw);
@@ -414,7 +481,8 @@ public class Indexer {
 
 
     /**
-     Docs_Index
+     Creating doc tmp files, merging it to a big final one, and creating the final docs dic,
+     works all the same as the process of Terms and Cities.
      */
     public void updateTmpDocsDic(ParsedDoc pd) {
         HashMap<String, StringBuilder> terms = pd.getTerms();
@@ -430,9 +498,6 @@ public class Indexer {
             StringBuilder city = pd.getCity();
             int totalTerms = pd.getNumOfTerms();
             StringBuilder docid = pd.getDocID();
-            /**
-             check with StringBuilder
-             */
             bw.write(docid.toString()+"~"+maxTF+"~"+totalTerms
                         +"~"+upperCase(city.toString())+"~"+pd.getFileID()+"\n");
         }

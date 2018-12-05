@@ -12,13 +12,11 @@ public class SearchEngine {
     int indexedDocs;
     int uniqueTerms;
     double totalRunTime;
-    String pp;
 
     public SearchEngine(String corpusPath, String postPath, Boolean isStemm, String stopwordsPath) throws IOException {
-        pp = postPath;
-        partiotions = 2;
+//        partiotions = 2;
         rf = new ReadFile(corpusPath);
-//        partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
+        partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
         idx = new Indexer(postPath, partiotions, isStemm);
         parse = new Parse(corpusPath, isStemm,stopwordsPath);
         docs = new HashSet<>();
@@ -45,7 +43,6 @@ public class SearchEngine {
         idx.createInvertedIndex();
         long endTime = System.currentTimeMillis();
         totalRunTime = (endTime - startTime) / 1000;
-
         uniqueTerms = idx.finalTermsDic.size();
         printResults();
     }
