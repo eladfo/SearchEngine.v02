@@ -1,5 +1,4 @@
 package Model;
-
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -136,7 +135,7 @@ public class Parse
                 rowCounter++;
             }
         updateCityInfo(doc.getDocCity());
-        parsedDoc.fileID = doc.docFile;
+        parsedDoc.setFileID(doc.getDocFile());
         return parsedDoc;
     }
 
@@ -456,11 +455,11 @@ public class Parse
             String[] s = split(sb.toString(), " ");
             if (capitalCityAPI.containsKey(sb.toString())) {
                 parsedDoc.setCity(sb.toString());
-                parsedDoc.setInfo_city(tmp.append(capitalCityAPI.get(sb.toString()).toString()).toString());
+                parsedDoc.setCityInfo(tmp.append(capitalCityAPI.get(sb.toString()).toString()).toString());
             }
             else if(capitalCityAPI.containsKey(s[0])) {
                 parsedDoc.setCity(s[0]);
-                parsedDoc.setInfo_city(tmp.append(capitalCityAPI.get(s[0]).toString()).toString());
+                parsedDoc.setCityInfo(tmp.append(capitalCityAPI.get(s[0]).toString()).toString());
             }
             else if(Character.isLetter(s[0].charAt(0))&& s[0].length()>0)
                 parsedDoc.setCity(tmp.append(s[0]).toString());

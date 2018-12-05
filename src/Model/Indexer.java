@@ -172,7 +172,7 @@ public class Indexer {
         for (Map.Entry<String, Term> entry : tmpTermsDic.entrySet()) {
             String termID = entry.getKey();
             Term termDocInfo = entry.getValue();
-            StringBuilder sb = termDocInfo.from_term_to_string();
+            StringBuilder sb = termDocInfo.getTermDocList();
             if(termDocInfo.flag == 0)
                 bw.write("*" + termID + "\n");
             else
@@ -201,6 +201,8 @@ public class Indexer {
         while(stopCondition(partitions, termsArray))
         {
             res = termsCompare(termsArray);
+            if(Character.isDigit(termsArray[res].charAt(0)))
+                termsArray[res] = upperCase(termsArray[res]);
             if (!finalTermsDic.containsKey(termsArray[res])) {
                 if (flag == 1 && !isDuplicate(termsArray, res))
                     termsArray[res] = upperCase(termsArray[res]);
@@ -304,11 +306,11 @@ public class Indexer {
     }
 
     private String updateFinalTermDic(BufferedReader br, String line, int ptr) throws IOException {
-        int ttf=0; int df=0; int rowPtr=0;
+        int ttf=0;
         String termID = substring(line, 1);
         String termData = br.readLine();
         String[] docs = split(termData, "~");
-        df = docs.length;
+        int df = docs.length;
         for (String s : docs) {
             String[] tfd = split(s, ",");
             ttf += tfd.length - 1;
@@ -336,15 +338,15 @@ public class Indexer {
         if(cityID.length()>0){
             if (tmpCityDic.containsKey(upperCase(cityID))) {
                 StringBuilder cityData = tmpCityDic.get(upperCase(cityID));
-                cityData.append(docID).append(':').append(pd.get_pos_city(upperCase(cityID)).append(" "));
+                cityData.append(docID).append(':').append(pd.getCityPos(upperCase(cityID)).append(" "));
             } else {
-                if(pd.getInfo_city().toString().length()>0) {
+                if(pd.getCityInfo().toString().length()>0) {
                     StringBuilder sb = new StringBuilder();
-                    sb.append(pd.getInfo_city()).append("\n").append(docID).append(":").append(pd.get_pos_city(upperCase(cityID))).append(" ");
+                    sb.append(pd.getCityInfo()).append("\n").append(docID).append(":").append(pd.getCityPos(upperCase(cityID))).append(" ");
                     tmpCityDic.put(upperCase(cityID), sb);
                 }else {
                     StringBuilder sb = new StringBuilder();
-                    sb.append(docID).append(":").append(pd.get_pos_city(upperCase(cityID))).append(" ");
+                    sb.append(docID).append(":").append(pd.getCityPos(upperCase(cityID))).append(" ");
                     tmpCityDic.put(upperCase(cityID), sb);
                 }
             }
@@ -432,7 +434,7 @@ public class Indexer {
              check with StringBuilder
              */
             bw.write(docid.toString()+"~"+maxTF+"~"+totalTerms
-                        +"~"+upperCase(city.toString())+"~"+pd.fileID+"\n");
+                        +"~"+upperCase(city.toString())+"~"+pd.getFileID()+"\n");
         }
         bw.close();
     }

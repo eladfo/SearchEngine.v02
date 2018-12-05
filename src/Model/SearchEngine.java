@@ -1,10 +1,7 @@
 package Model;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
-
-import static org.apache.commons.lang3.StringUtils.substring;
 
 public class SearchEngine {
     ReadFile rf;
@@ -19,14 +16,13 @@ public class SearchEngine {
 
     public SearchEngine(String corpusPath, String postPath, Boolean isStemm, String stopwordsPath) throws IOException {
         pp = postPath;
-       // partiotions = 2;
+        partiotions = 2;
         rf = new ReadFile(corpusPath);
-        partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
+//        partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
         idx = new Indexer(postPath, partiotions, isStemm);
         parse = new Parse(corpusPath, isStemm,stopwordsPath);
         docs = new HashSet<>();
     }
-
 
     public void runSearchEngine() throws IOException {
         long startTime = System.currentTimeMillis();
@@ -38,7 +34,7 @@ public class SearchEngine {
             for (Doc d : docs) {
                 ParsedDoc pd = parse.runParser(d);
                 idx.addParsedDoc(pd);
-                d.docText.setLength(0);
+                d.getDocText().setLength(0);
             }
             idx.createTmpPosting(i);
             idx.resetIndex();
@@ -62,15 +58,15 @@ public class SearchEngine {
         System.out.println("*~*~*~*~*~*~*~*~*~*~*");
     }
 
-    public String get_num_term() {
+    public String getTermsNum() {
         return String.valueOf(uniqueTerms);
     }
 
-    public String get_num_doc() {
+    public String getDocsNum() {
         return String.valueOf(indexedDocs);
     }
 
-    public String get_num_rt() {
+    public String getRunningTime() {
         return String.valueOf(totalRunTime);
     }
 
@@ -78,11 +74,11 @@ public class SearchEngine {
         rf.resetDocSet();
         parse.resetParse();
         idx.resetIndex();
-        deleteAll(path);
+        deleteAllFiles(path);
         docs.clear();
     }
 
-    private void deleteAll(String path){
+    private void deleteAllFiles(String path){
         File directory = new File(path);
         if(directory.listFiles() != null) {
             for (File dir : directory.listFiles()) {

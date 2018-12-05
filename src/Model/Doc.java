@@ -1,13 +1,17 @@
 package Model;
 
 public class Doc {
-    public StringBuilder docID = new StringBuilder();
-    public StringBuilder docDate = new StringBuilder();
-    public String docFile;
-    public StringBuilder docText = new StringBuilder();
-    public StringBuilder docCity = new StringBuilder();
+    private StringBuilder docID = new StringBuilder();
+    //public StringBuilder docDate = new StringBuilder();
+    private String docFile;
+    private StringBuilder docText = new StringBuilder();
+    private StringBuilder docCity = new StringBuilder();
 
-
+    /**
+     * Insert the line to the specific field depends on the flag.
+     * @param st - line of text
+     * @param flag - switch case
+     */
     public void update(String st, int flag)
     {
         switch (flag) {
@@ -15,7 +19,7 @@ public class Doc {
                     break;
             case 1: docID.append(st);
                     break;
-            case 2: docCity.append(st); //Might worth change to append().append()
+            case 2: docCity.append(st);
                     break;
             case 4: docText.append(st).append(" ");
                     break;
@@ -30,16 +34,16 @@ public class Doc {
         return docText;
     }
 
-    public void resetDoc()
-    {
-        docID.setLength(0);
-        docDate.setLength(0);
-        docText.setLength(0);
-        docCity.setLength(0);
-    }
-
     public StringBuilder getDocCity()
     {
         return docCity;
+    }
+
+    public String getDocFile() {
+        return docFile;
+    }
+
+    public void setDocFile(String docFile) {
+        this.docFile = docFile;
     }
 }

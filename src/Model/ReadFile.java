@@ -4,29 +4,31 @@ import java.util.HashSet;
 import static org.apache.commons.lang3.StringUtils.contains;
 import static org.apache.commons.lang3.StringUtils.split;
 
-
 public class ReadFile {
     private File folder;
     private File[] listOfFiles;
     private Doc doc;
     private HashSet<Doc> docSet;
     private int docFlag;
-    private int chunk;
+    private int chunkSize;
     private String fileID;
-    private String corpusPath;
 
-    public ReadFile(String corpusPath) throws IOException {
-        this.corpusPath = corpusPath;
+    public ReadFile(String corpusPath) {
         folder = new File(corpusPath);
         listOfFiles = folder.listFiles();
         docSet = new HashSet<>();
         doc=null ;
         docFlag = 0;
-        chunk = 50;
+        chunkSize = 50;
     }
 
+    /**
+     * Read 'chunkSize' number of files, divide the file data into docs and specified groups in Doc object.
+     * @param extIdx - chunkSize's index.
+     * @return Doc's set.
+     */
     public HashSet<Doc> readLines(int extIdx) throws IOException {
-            for (int i = extIdx*chunk; i<listOfFiles.length && i<chunk*(extIdx+1); i++){
+            for (int i = extIdx* chunkSize; i<listOfFiles.length && i< chunkSize *(extIdx+1); i++){
                 doc = new Doc();
                 File innerFolder = new File(listOfFiles[i].getPath());
                 File[] innerFiles = innerFolder.listFiles();
@@ -42,6 +44,11 @@ public class ReadFile {
         return docSet;
     }
 
+    /**
+     * Insert a line, into the right group of the Doc object.
+     * When reached to an end of a doc, enter it to the docSet and create a new Doc object.
+     * @param st - A line from file
+     */
     public void stringBuild(String st) {
         if (contains(st,"<DOCNO>")) {
             st = st.replaceAll(" ", "");
@@ -58,17 +65,22 @@ public class ReadFile {
             docFlag = 4;
             return;
         } else if (st.equals("</DOC>")){
-            doc.docFile = fileID;
+            doc.setDocFile(fileID);
             docSet.add(doc);
             doc = new Doc();
             docFlag = 0;
             return;
-        } else if (st.equals("<P>") || st.equals("</P>") || contains(st,"<F P=105>")|| contains(st,"Article Type"))
+        } else if (st.equals("<P>") || st.equals("</P>") ||
+                        contains(st,"<F P=105>")|| contains(st,"Article Type"))
             return;
 
         doc.update(st, docFlag);
     }
 
+    /**
+     * Find within the line the specific cityID.
+     * @param st - The line contain <F P=104>, and the city ID.
+     */
     private void findCityID(String st) {
         String [] array = split(st," ");
         StringBuilder tmp = new StringBuilder();
@@ -87,6 +99,7 @@ public class ReadFile {
         if(listOfFiles == null)
             return 0;
         else
-            return listOfFiles.length;};
+            return listOfFiles.length;
+    }
 
 }

@@ -11,6 +11,9 @@ import java.io.IOException;
 
 public class Main extends Application
 {
+    /**
+     * Create SearchEngine object.
+     */
     public static SearchEngine google;
 
     static {
@@ -21,6 +24,9 @@ public class Main extends Application
         }
     }
 
+    /**
+     *  Open a primaryStage of the program.
+     */
     @Override
     public void start(Stage primaryStage) throws Exception{
         FXMLLoader fxmlLoader = new FXMLLoader();
@@ -33,6 +39,9 @@ public class Main extends Application
         primaryStage.show();
     }
 
+    /**
+     * Main class.
+     */
     public static void main(String[] args) {
         launch(args);
     }

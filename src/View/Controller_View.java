@@ -4,34 +4,32 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
-
 import Model.*;
-import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class Controller_View extends Component
 {
-
     public  javafx.scene.control.TextField txtfld_corpus_path ;
     public  javafx.scene.control.TextField txtfld_posting_path ;
     public  javafx.scene.control.TextField txtfld_path_stopwords;
     public javafx.scene.control.CheckBox steam;
-
     public static String postingPath ="";
     public static boolean is_steam =false;
 
-    public Controller_View() throws IOException {
-    }
+    /**
+     * Controller of primaryStage.
+     */
+    public Controller_View() {}
 
-    public void setCorpusPath()
-    {
+    /**
+     * Open File chooser to chose the path of Corpus files.
+     */
+    public void setCorpusPath() {
         JFileChooser  chooser = new JFileChooser();
         chooser.setCurrentDirectory(new java.io.File("."));
         chooser.setDialogTitle("Corpus Path");
@@ -47,8 +45,11 @@ public class Controller_View extends Component
         }
 
     }
-    public void setPostingsPath()
-    {
+
+    /**
+     * Open File chooser to chose the path that will save all posting files.
+     */
+    public void setPostingsPath() {
         JFileChooser  chooser = new JFileChooser();
         chooser.setCurrentDirectory(new java.io.File("."));
         chooser.setDialogTitle("Posting Path");
@@ -60,8 +61,10 @@ public class Controller_View extends Component
         }
     }
 
-    public void setStopWordsPath()
-    {
+    /**
+     * Open File chooser to chose the path of stop word txt file.
+     */
+    public void setStopWordsPath() {
         JFileChooser  chooser = new JFileChooser();
         chooser.setCurrentDirectory(new java.io.File("."));
         chooser.setDialogTitle("StopWords Path");
@@ -73,8 +76,10 @@ public class Controller_View extends Component
         }
     }
 
-    public void startButton() throws IOException
-    {
+    /**
+     * Start the create inverted files process.
+     */
+    public void startButton() throws IOException {
         if(!txtfld_corpus_path.getText().isEmpty() && !txtfld_posting_path.getText().isEmpty())
         {
             Main.google = new SearchEngine(txtfld_corpus_path.getText(), txtfld_posting_path.getText(), steam.isSelected() , txtfld_path_stopwords.getText());
@@ -88,6 +93,9 @@ public class Controller_View extends Component
         }
     }
 
+    /**
+     * Open a stage that showing info about inverted files process (the stage show in the end of the process).
+     */
     private void openDetailsWindow() throws IOException {
         Stage stage = new Stage();
         FXMLLoader fxmlLoader = new FXMLLoader();
@@ -100,6 +108,9 @@ public class Controller_View extends Component
         stage.show();
     }
 
+    /**
+     * Open a stage that showing terms dictionary info.
+     */
     public void showDicButton() throws IOException {
         if( postingPath.equals("")|| postingPath.isEmpty()  )
         {
@@ -122,8 +133,10 @@ public class Controller_View extends Component
         }
     }
 
-    public void resetIndex()
-    {
+    /**
+     * Resetting all data structures in project and delete all inverted files that create in the program.
+     */
+    public void totalIndexReset() {
         if(Main.google != null){
             if(postingPath != "") {
                 Main.google.Reset(postingPath);
@@ -136,7 +149,10 @@ public class Controller_View extends Component
         }
     }
 
-    public void loadDics() throws IOException {
+    /**
+     * Load the terms dictionary to java memory.
+     */
+    public void loadDicsToMemory() throws IOException {
         if( postingPath.equals("")|| postingPath.isEmpty())
         {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Please enter posting's path");

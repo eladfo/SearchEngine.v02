@@ -43,11 +43,11 @@
          <font>
             <Font name="System Bold" size="12.0" />
          </font></Button>
-      <Button layoutX="361.0" layoutY="381.0" mnemonicParsing="false" onMouseClicked="#loadDics" prefHeight="28.0" prefWidth="125.0" text="Load Dictionary">
+      <Button layoutX="361.0" layoutY="381.0" mnemonicParsing="false" onMouseClicked="#loadDicsToMemory" prefHeight="28.0" prefWidth="125.0" text="Load Dictionary">
          <font>
             <Font name="System Bold" size="12.0" />
          </font></Button>
-      <Button layoutX="135.0" layoutY="331.0" mnemonicParsing="false" onMouseClicked="#resetIndex" prefHeight="28.0" prefWidth="125.0" text="Reset">
+      <Button layoutX="135.0" layoutY="331.0" mnemonicParsing="false" onMouseClicked="#totalIndexReset" prefHeight="28.0" prefWidth="125.0" text="Reset">
          <font>
             <Font name="System Bold" size="12.0" />
          </font></Button>

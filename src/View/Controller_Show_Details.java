@@ -14,9 +14,9 @@ public class Controller_Show_Details extends Component implements Initializable
     @Override
     public void initialize(URL location, ResourceBundle resources)
     {
-        Num_term.setText(Main.google.get_num_term());
-        Num_doc.setText(Main.google.get_num_doc());
-        total_rt.setText(Main.google.get_num_rt());
+        Num_term.setText(Main.google.getTermsNum());
+        Num_doc.setText(Main.google.getDocsNum());
+        total_rt.setText(Main.google.getRunningTime());
     }
 
 }

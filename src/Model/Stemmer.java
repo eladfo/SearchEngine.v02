@@ -1,15 +1,14 @@
 package Model;
-
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 
 public class Stemmer
 {
     /**
-     * using snowball stemmer we stem the words
+     * Using SnowBall stemmer (v.1.3.0.581).
      */
-
     SnowballStemmer ps;
+
     public Stemmer() {
         ps = new englishStemmer();
     }
