@@ -112,7 +112,8 @@ public class Parse
                     } else if (rowCounter + 1 < stk.length && equalsIgnoreCase(stk[rowCounter + 1], "Dollars")) {
                         addTermToParsedDoc(strb.append(s).append(" Dollars"), wordPosition);
                     }
-                } else if (Character.isLetter(s.charAt(0))) {
+                } else if (Character.isLetter(s.charAt(0)))    //word!!
+                {
                     if (rowCounter + 1 < stk.length && monthInfo.containsKey(lowerCase(s)) && isNumeric(stk[rowCounter + 1])) {
                         addTermToParsedDoc(strb.append(monthInfo.get(lowerCase(s))).append("-")
                                                         .append(isNumUnder10(initialParse(stk[rowCounter + 1]))), wordPosition);
@@ -127,13 +128,43 @@ public class Parse
                             for(int j=0 ; j<tmp.length;j++)
                             if(stopWords.contains(lowerCase(tmp[j])))
                                 continue;
-                        } else
+                            for(int j=0 ; j<tmp.length-1;j++)
+                                strb.append(tmp[j]).append("-");
+                            strb.append(tmp[tmp.length-1]);
+                            s = strb.toString();
+                        }
+                        if(contains(s,"-"))
+                        {
                             addTermToParsedDoc(strb.append(s), wordPosition);
+                            strb.setLength(0);
+                            String[] tmp =split(s, "-");
+                            for(int j = 0 ; j<tmp.length ; j++)
+                            {
+                                tmp[j]= initialParse(tmp[j]);
+                                if(!stopWords.contains(tmp[j]))
+                                {
+                                    addTermToParsedDoc(strb.append(tmp[j]), wordPosition);
+                                }
+                                strb.setLength(0);
+                            }
+
+                        }
+                        else { //regular worddd
+                            if(Character.isUpperCase(s.charAt(0)) &&rowCounter+1<stk.length && Character.isUpperCase(stk[rowCounter+1].charAt(0)))
+                            {
+                                if(!stopWords.contains(lowerCase(s)) && !stopWords.contains(lowerCase(stk[rowCounter+1]))) {
+                                    strb.append(initialParse(s)).append(" ").append(initialParse(stk[rowCounter + 1]));
+                                    addTermToParsedDoc(strb.append(s), wordPosition);
+                                }
+                            }
+                            addTermToParsedDoc(strb.append(s), wordPosition);
+                        }
                     }
                 }
                 strb.setLength(0);
                 rowCounter++;
             }
+            parsedDoc.docLength = rowCounter;
         updateCityInfo(doc.getDocCity());
         parsedDoc.setFileID(doc.getDocFile());
         return parsedDoc;
