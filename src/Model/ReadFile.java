@@ -34,7 +34,7 @@ public class ReadFile {
                 File[] innerFiles = innerFolder.listFiles();
                 File file = new File(listOfFiles[i] + "\\" + innerFiles[0].getName());
                 fileID = innerFiles[0].getName();
-                BufferedReader br = new BufferedReader(new FileReader(file));
+                BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
                 String st;
                 while ((st = br.readLine()) != null)
                     if (!st.isEmpty()) {
@@ -50,31 +50,34 @@ public class ReadFile {
      * @param st - A line from file
      */
     public void stringBuild(String st) {
-        if (contains(st,"<DOCNO>")) {
-            st = st.replaceAll(" ", "");
-            st = st.substring(7, st.length() - 8);
-            doc.update(st, 1);
-            return;
-        } else if (contains(st,"<F P=104>")) {
-            findCityID(st);
-            return;
-        }else if (st.equals("<HEADER>") || st.equals("</TEXT>")) {
-            docFlag = 0;
-            return;
-        } else if (st.equals("<TEXT>")) {
-            docFlag = 4;
-            return;
-        } else if (st.equals("</DOC>")){
-            doc.setDocFile(fileID);
-            docSet.add(doc);
-            doc = new Doc();
-            docFlag = 0;
-            return;
-        } else if (st.equals("<P>") || st.equals("</P>") ||
-                        contains(st,"<F P=105>")|| contains(st,"Article Type"))
-            return;
-
-        doc.update(st, docFlag);
+        if(docFlag == 4) {
+            if (st.equals("</TEXT>")) {
+                docFlag = 0;
+                return;
+            }
+            if(st.charAt(0)=='<')
+                return;
+            doc.update(st, docFlag);
+        } else {
+            if (contains(st, "<DOCNO>")) {
+                st = st.replaceAll(" ", "");
+                st = st.substring(7, st.length() - 8);
+                doc.update(st, 1);
+                return;
+            } else if (contains(st, "<F P=104>")) {
+                findCityID(st);
+                return;
+            } else if (st.equals("<TEXT>")) {
+                docFlag = 4;
+                return;
+            } else if (st.equals("</DOC>")) {
+                doc.setDocFile(fileID);
+                docSet.add(doc);
+                doc = new Doc();
+                docFlag = 0;
+                return;
+            }
+        }
     }
 
     /**

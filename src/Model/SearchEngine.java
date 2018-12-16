@@ -18,7 +18,6 @@ public class SearchEngine {
      * Calculate the partition amount, by dividing the corpus size by 50.
      */
     public SearchEngine(String corpusPath, String postPath, Boolean isStemm, String stopwordsPath) throws IOException {
-//        partiotions = 2;
         rf = new ReadFile(corpusPath);
         partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
         idx = new Indexer(postPath, partiotions, isStemm);
@@ -47,7 +46,7 @@ public class SearchEngine {
             idx.createTmpPosting(i);
             idx.resetIndex();
             long p1 = System.currentTimeMillis();
-            System.out.println(p1 - p0);
+//            System.out.println(i + " "+ (p1 - p0));
         }
         idx.createInvertedIndex();
         long endTime = System.currentTimeMillis();
@@ -76,14 +75,21 @@ public class SearchEngine {
     }
 
     private void deleteAllFiles(String path){
-        File directory = new File(path);
-        if(directory.listFiles() != null) {
-            for (File dir : directory.listFiles()) {
-                File innerDir = new File(dir.getPath());
-                if(innerDir.listFiles() != null) {
-                    for (File file : innerDir.listFiles()) {
-                        file.delete();
-                    }
+        String s1 = path + "\\With_Stemmer";
+        String s2 = path + "\\Without_Stemmer";
+        File d1 = new File(s1);
+        File d2 = new File(s2);
+        if(d1.exists()){
+            if(d1.listFiles() != null) {
+                for (File file : d1.listFiles()) {
+                    file.delete();
+                }
+            }
+        }
+        if(d2.exists()){
+            if(d2.listFiles() != null) {
+                for (File file : d2.listFiles()) {
+                    file.delete();
                 }
             }
         }

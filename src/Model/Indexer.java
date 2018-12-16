@@ -332,7 +332,7 @@ public class Indexer {
                 bw.write(updateFinalTermDic(br, upperCase(line),rowPtr+=2) + "\n");
             } else break;
         }
-        bw.flush();
+        bw.close();
         bw = new BufferedWriter(new FileWriter(postingsPath + posts[1]));
         char c = 'a';
         cLine = line.charAt(1);
@@ -347,8 +347,11 @@ public class Indexer {
             bw.flush();
             c++;
             rowPtr = -1;
-            if(i < posts.length)
+            int tmp = posts.length;
+            if(i < posts.length) {
+                bw.close();
                 bw = new BufferedWriter(new FileWriter(postingsPath + posts[i]));
+            }
         }
         br.close();
         bw.close();
