@@ -8,6 +8,7 @@ public class ParsedDoc {
     private HashMap<String,StringBuilder> terms;
     private int maxTF;
     private int numOfTerms;
+    public int docLength;
     private StringBuilder cityID;
     private StringBuilder cityInfo;
     private String fileID;

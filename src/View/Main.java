@@ -43,6 +43,8 @@ public class Main extends Application
      * Main class.
      */
     public static void main(String[] args) {
-        launch(args);
+
+//        launch(args);
+
     }
 }

@@ -93,7 +93,7 @@ public class Parse
     public ParsedDoc runParser(Doc doc) {
         parsedDoc = new ParsedDoc();
         parsedDoc.setDocID(doc.getDocID());
-        stk = split(doc.getDocText().toString(), " ():[];?/]=");
+        stk = split(doc.getDocText().toString(), " ():[];?]=");
         rowCounter = 0;                 // rowCounter of word in file include stop words!
         wordPosition = 1;      // rowCounter of word in file without stop words!
         while (rowCounter < stk.length) {
