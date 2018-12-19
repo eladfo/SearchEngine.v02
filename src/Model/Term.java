@@ -16,7 +16,8 @@ public class Term {
     public Term(String str, StringBuilder count, int f) {
         docList = new TreeMap<>();
         flag = f;
-        addDoc(str, count);
+        if(str != null)
+            addDoc(str, count);
     }
 
     /**

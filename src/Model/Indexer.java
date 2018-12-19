@@ -1,8 +1,7 @@
 package Model;
 import java.io.*;
 import java.util.*;
-import static java.lang.Character.toLowerCase;
-import static java.lang.Character.toUpperCase;
+import static java.lang.Character.*;
 import static org.apache.commons.lang3.StringUtils.*;
 
 public class Indexer {
@@ -10,7 +9,7 @@ public class Indexer {
     public TreeSet<ParsedDoc> tmpDocsDic;
     public TreeMap<String, StringBuilder> tmpCityDic;
     public TreeMap<String, int[]> finalTermsDic;
-    public TreeMap<String, Integer> finalDocsDic;
+    public TreeMap<String, int[]> finalDocsDic;
     public TreeMap<String, Integer> finalCitiesDic;
     public int partitions;
     public String postingsPath;
@@ -59,7 +58,9 @@ public class Indexer {
     public void createInvertedIndex() throws IOException {
         mergeTermsPostings();
         mergeCityPostings();
+        tmpCityDic.clear();
         mergeDocsPostings();
+        tmpDocsDic.clear();
         createFinalTermsPostings();
         createFinalTermsDic();
         deleteTmpFiles();
@@ -112,8 +113,8 @@ public class Indexer {
         brs[1] = new BufferedReader(new FileReader(new File(dicPath + "\\Final_Docs_Dic")));
         brs[2] = new BufferedReader(new FileReader(new File(dicPath + "\\Final_Cities_Dic")));
         setFinalTermsDic(brs[0]);
-        setFinalDocsAndCityDic(brs[1], 1);
-        setFinalDocsAndCityDic(brs[2], 2);
+        setFinalDocsDic(brs[1]);
+        setFinalCityDic(brs[2]);
         for(BufferedReader br : brs)
             br.close();
     }
@@ -134,17 +135,20 @@ public class Indexer {
     /**
      * Inserting all the city and doc's data, from the disk, to their dics on the memory.
      */
-    private void setFinalDocsAndCityDic(BufferedReader br, int i) throws IOException {
+    private void setFinalCityDic(BufferedReader br) throws IOException {
         String line;
-        TreeMap<String, Integer> dic;
-        if(i==1)
-            dic = finalDocsDic;
-        else
-            dic = finalCitiesDic;
         String[] s;
         while(( line = br.readLine()) != null){
             s = split(line, ";");
-            dic.put(s[0], Integer.valueOf(s[1]));
+            finalCitiesDic.put(s[0], Integer.valueOf(s[1]));
+        }
+    }private void setFinalDocsDic(BufferedReader br) throws IOException {
+        String line;
+        String[] s;
+        while ((line = br.readLine()) != null){
+            s = split(line, ";");
+            finalDocsDic.put(
+                    s[0],new int[] {Integer.valueOf(s[1]),Integer.valueOf(s[2])});
         }
     }
 
@@ -389,7 +393,12 @@ public class Indexer {
         for (Map.Entry<String, int[]> entry : finalTermsDic.entrySet()) {
             String termID = entry.getKey();
             int[] termData = entry.getValue();
-            bw.write(termID + ";" + termData[0] + ";" + termData[1] + ";" + termData[2] + "\n");
+            try {
+                bw.write(termID + ";" + termData[0] + ";" + termData[1] + ";" + termData[2] + "\n");
+            } catch (NullPointerException e)
+            {
+                System.out.println("bkaka");
+            }
         }
         bw.close();
     }
@@ -501,8 +510,12 @@ public class Indexer {
             StringBuilder city = pd.getCity();
             int totalTerms = pd.getNumOfTerms();
             StringBuilder docid = pd.getDocID();
+            String[] topFifteen = pd.calcTop15Entity();
+            StringBuilder stb = new StringBuilder();
+            for(String s : topFifteen)
+                stb.append(s).append(",");
             bw.write(docid.toString()+"~"+maxTF+"~"+totalTerms
-                        +"~"+upperCase(city.toString())+"~"+pd.getFileID()+"\n");
+                        +"~"+upperCase(city.toString())+"~"+pd.getFileID()+"~"+pd.docLength+"~"+stb.toString()+"\n");
         }
         bw.close();
     }
@@ -515,8 +528,14 @@ public class Indexer {
             BufferedReader br = new BufferedReader(new FileReader(new File(postingsPath + "_tmpDocPost" + i)));
             String line;
             while ((line = br.readLine()) != null) {
-                bw.write(line + "\n");
-                createFinalDocsDic(bwDic, line ,pointer);
+                String[] tokens = split(line, "~");
+                StringBuilder topFive = calcTopFive(tokens[6]);
+                StringBuilder res = new StringBuilder();
+                for(int j=0; j<tokens.length-2; j++)
+                    res.append(tokens[j]).append("~");
+                res.append(topFive);
+                bw.write(res.toString() + "\n");
+                bwDic.write(tokens[0] + ";" + tokens[5] + ";" + pointer + "\n");
                 pointer++;
             }
             br.close();
@@ -525,8 +544,23 @@ public class Indexer {
         bwDic.close();
     }
 
-    public void createFinalDocsDic(BufferedWriter bwDic, String line, int pointer) throws IOException {
-        String[] tokens = split(line, "~");
-        bwDic.write(tokens[0] + ";" + pointer + "\n");
+    private StringBuilder calcTopFive(String line) {
+        StringBuilder res = new StringBuilder();
+        String[] entities = split(line, ",");
+        int i = 0;
+        for(String s : entities){
+            if(i==5)
+                return res;
+            else if(!s.equals("null") && finalTermsDic.containsKey(s)) {
+                res.append(s).append(",");
+                i++;
+            }
+        }
+        return res;
     }
+
+//    public void createFinalDocsDic(BufferedWriter bwDic, String[] tokens, int pointer) throws IOException {
+//        String[] tokens = split(line, "~");
+//        bwDic.write(tokens[0] + ";" + pointer + "\n");
+//    }
 }

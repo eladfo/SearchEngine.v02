@@ -160,7 +160,7 @@ public class Controller_View extends Component
         }
         else
         {
-            Main.google.idx.loadDics(txtfld_posting_path.getText(), steam.isSelected());
+            Main.google.index.loadDics(txtfld_posting_path.getText(), steam.isSelected());
             Alert alert = new Alert(Alert.AlertType.INFORMATION,
                         "All dictionaries successfully loaded to memory");
             alert.showAndWait();

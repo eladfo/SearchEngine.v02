@@ -1,17 +1,23 @@
 package Model;
-import java.io.File;
-import java.io.IOException;
-import java.util.HashSet;
+import java.io.*;
+import java.util.*;
+
+import static org.apache.commons.lang3.StringUtils.contains;
+import static org.apache.commons.lang3.StringUtils.substring;
 
 public class SearchEngine {
     ReadFile rf;
     Parse parse;
-    public Indexer idx;
+    Searcher search;
+    Ranker ranker;
+    public Indexer index;
     HashSet<Doc> docs;
     int partiotions;
     int indexedDocs;
     int uniqueTerms;
     double totalRunTime;
+    boolean stemmFlag;
+    String pp;
 
     /**
      * Constructor. Initialize 3 paths for corpus, posting and stopwords.
@@ -19,11 +25,14 @@ public class SearchEngine {
      */
     public SearchEngine(String corpusPath, String postPath, Boolean isStemm, String stopwordsPath) throws IOException {
         rf = new ReadFile(corpusPath);
-        //partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
-        partiotions=2;
-        idx = new Indexer(postPath, partiotions, isStemm);
-        parse = new Parse(corpusPath, isStemm,stopwordsPath);
+        pp = postPath;
+//        partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
+        partiotions=6;
+        stemmFlag = isStemm;
+        index = new Indexer(postPath, partiotions, stemmFlag);
+        parse = new Parse(corpusPath, stemmFlag, stopwordsPath);
         docs = new HashSet<>();
+        ranker = new Ranker();
     }
 
     /**
@@ -41,18 +50,18 @@ public class SearchEngine {
             indexedDocs += docs.size();
             for (Doc d : docs) {
                 ParsedDoc pd = parse.runParser(d);
-                idx.addParsedDoc(pd);
+                index.addParsedDoc(pd);
                 d.getDocText().setLength(0);
             }
-            idx.createTmpPosting(i);
-            idx.resetIndex();
+            index.createTmpPosting(i);
+            index.resetIndex();
             long p1 = System.currentTimeMillis();
-//            System.out.println(i + " "+ (p1 - p0));
+            System.out.println(i + " "+ (p1 - p0));
         }
-        idx.createInvertedIndex();
+        index.createInvertedIndex();
         long endTime = System.currentTimeMillis();
         totalRunTime = (endTime - startTime) / 1000;
-        uniqueTerms = idx.finalTermsDic.size();
+        uniqueTerms = index.finalTermsDic.size();
     }
 
     public String getTermsNum() {
@@ -70,7 +79,7 @@ public class SearchEngine {
     public void Reset(String path) {
         rf.resetDocSet();
         parse.resetParse();
-        idx.resetIndex();
+        index.resetIndex();
         deleteAllFiles(path);
         docs.clear();
     }
@@ -94,5 +103,38 @@ public class SearchEngine {
                 }
             }
         }
+    }
+
+    public HashMap<String, Integer> partB(String qPath, boolean cityFlag, boolean semanticFlag) throws IOException {
+        index.loadDics(pp, false);
+        search = new Searcher(cityFlag, semanticFlag, index);
+        HashSet<StringBuilder> querys = rfBeta(qPath);
+        for(StringBuilder sb : querys) {
+            search.createTermsList(sb.toString(), pp + "\\Without_Stemmer");
+            ranker.rankerStart(search.getQueryTerms());
+        }
+
+
+        HashMap<String, Integer> res = new HashMap<>();
+        return res;
+    }
+
+    public HashSet<StringBuilder> rfBeta(String qPath) throws IOException {
+        HashSet<StringBuilder> res = new HashSet<>();
+        BufferedReader br = new BufferedReader(new FileReader(new File(qPath)));
+        String line;
+        while((line = br.readLine()) != null){
+            if(contains(line, "<title>"))
+            {
+                Doc d = new Doc();
+                d.update(substring(line, 8), 4);
+                ParsedDoc pd = parse.runParser(d);
+                StringBuilder sb = new StringBuilder();
+                for(Map.Entry<String, StringBuilder> entry : pd.getTerms().entrySet())
+                    sb.append(entry.getKey()).append(";");
+                res.add(sb);
+            }
+        }
+        return res;
     }
 }

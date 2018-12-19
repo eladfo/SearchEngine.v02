@@ -1,6 +1,9 @@
 package Model;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
+
+import static java.lang.Character.isUpperCase;
 import static org.apache.commons.lang3.StringUtils.*;
 
 public class ParsedDoc {
@@ -12,13 +15,14 @@ public class ParsedDoc {
     private StringBuilder cityID;
     private StringBuilder cityInfo;
     private String fileID;
+    public TreeMap<String, Double> entities;
 
     /**
      * Constructor
      */
     public ParsedDoc() {
         terms = new HashMap<>();
-        cityID = new StringBuilder();
+        cityID = new StringBuilder(" ");
         cityInfo =new StringBuilder();
     }
 
@@ -30,8 +34,10 @@ public class ParsedDoc {
      */
     public void addTerm(String str, int position){
         String tmp;
+        if(str.length()==0)
+            return;
         char c = str.charAt(0);
-        if( (c <= '0' || c >= '9') && c == Character.toUpperCase(c) )
+        if( (c <= '0' || c >= '9') && isUpperCase(c) )
             tmp = upperCase(str);
         else
             tmp = lowerCase(str);
@@ -57,12 +63,44 @@ public class ParsedDoc {
      */
     public void calcMaxTF(){
         maxTF = 0;
+        entities = new TreeMap<>();
         for (Map.Entry<String, StringBuilder> entry : terms.entrySet()) {
             StringBuilder termPositions = entry.getValue();
             String[] pos = split(termPositions.toString(), ",");
             if(pos.length > maxTF)
                 maxTF = pos.length;
+            if(isUpperCase(entry.getKey().charAt(0))){
+                double finalEntityRank = calcEntityFinalRank(pos, 0.7, 0.3);
+                entities.put(entry.getKey(), finalEntityRank);
+            }
         }
+    }
+
+    /**
+     * calculate entity's final rank by the formula of (alpha*df + beta*positionRank)
+     * @param alpha - df's factor
+     * @param beta - position formula's factor.
+     * @return final entity rank by our formula.
+     */
+    public double calcEntityFinalRank(String[] pos, double alpha, double beta){
+        int posRank = (docLength - Integer.valueOf(pos[0])) / docLength;
+        double finalRank = (int) (alpha*pos.length + beta*posRank);
+        return finalRank;
+    }
+
+    /**
+     * calculate top 5 Entities per doc, and return them.
+     */
+    public String[] calcTop15Entity() {
+        String[] topFifteen = new String[15];
+        int idx = 0;
+        for (Map.Entry<String, Double> entry : entities.entrySet()) {
+            if(idx == 15)
+                return topFifteen;
+            topFifteen[idx] = entry.getKey();
+            idx++;
+        }
+        return topFifteen;
     }
 
     /**

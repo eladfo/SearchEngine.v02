@@ -55,7 +55,7 @@ public class ReadFile {
                 docFlag = 0;
                 return;
             }
-            if(st.charAt(0)=='<')
+            if(st.charAt(0)=='<' || st.contains("Article Type"))
                 return;
             doc.update(st, docFlag);
         } else {
