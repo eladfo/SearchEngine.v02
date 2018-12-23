@@ -14,7 +14,6 @@ import static org.apache.commons.lang3.StringUtils.*;
 
 public class Ranker
 {
-
     public ArrayList<Term> query;
     public double Avg_Doc= 600;
     public ArrayList<String> queryDoc;
