@@ -12,11 +12,11 @@ import Model.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class Controller_View extends Component
+public class InvertedIndex_Controller extends Component
 {
     public  javafx.scene.control.TextField txtfld_corpus_path ;
     public  javafx.scene.control.TextField txtfld_posting_path ;
-    public  javafx.scene.control.TextField txtfld_path_stopwords;
+    public  javafx.scene.control.TextField txtfld_stopwords_path;
     public javafx.scene.control.CheckBox steam;
     public static String postingPath ="";
     public static boolean is_steam =false;
@@ -24,7 +24,7 @@ public class Controller_View extends Component
     /**
      * Controller of primaryStage.
      */
-    public Controller_View() {}
+    public InvertedIndex_Controller() {}
 
     /**
      * Open File chooser to chose the path of Corpus files.
@@ -34,9 +34,6 @@ public class Controller_View extends Component
         chooser.setCurrentDirectory(new java.io.File("."));
         chooser.setDialogTitle("Corpus Path");
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        //
-        // disable the "All files" option.
-        //
         chooser.setAcceptAllFileFilterUsed(false);
         //
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
@@ -72,7 +69,7 @@ public class Controller_View extends Component
         chooser.setFileFilter(fne);
         chooser.setAcceptAllFileFilterUsed(false);
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            txtfld_path_stopwords.setText(chooser.getSelectedFile().toString());
+            txtfld_stopwords_path.setText(chooser.getSelectedFile().toString());
         }
     }
 
@@ -82,7 +79,8 @@ public class Controller_View extends Component
     public void startButton() throws IOException {
         if(!txtfld_corpus_path.getText().isEmpty() && !txtfld_posting_path.getText().isEmpty())
         {
-            Main.google = new SearchEngine(txtfld_corpus_path.getText(), txtfld_posting_path.getText(), steam.isSelected() , txtfld_path_stopwords.getText());
+            Main.google = new SearchEngine(txtfld_corpus_path.getText(), txtfld_posting_path.getText()
+                                                , steam.isSelected() , txtfld_stopwords_path.getText());
             Main.google.runSearchEngine();
             openDetailsWindow();
         }
@@ -99,7 +97,7 @@ public class Controller_View extends Component
     private void openDetailsWindow() throws IOException {
         Stage stage = new Stage();
         FXMLLoader fxmlLoader = new FXMLLoader();
-        Parent root = fxmlLoader.load(getClass().getResource("Show_Details.fxml").openStream());
+        Parent root = fxmlLoader.load(getClass().getResource("SummaryDetails_Controller.fxml").openStream());
         Scene scene = new Scene(root, 397, 280);
         scene.getStylesheets().add(getClass().getResource("/ViewStyle.css").toExternalForm());
         stage.setScene(scene);
@@ -153,14 +151,14 @@ public class Controller_View extends Component
      * Load the terms dictionary to java memory.
      */
     public void loadDicsToMemory() throws IOException {
-        if( postingPath.equals("")|| postingPath.isEmpty())
+        if(postingPath.equals("")|| postingPath.isEmpty())
         {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Please enter posting's path");
             alert.showAndWait();
         }
         else
         {
-            Main.google.index.loadDics(txtfld_posting_path.getText(), steam.isSelected());
+            Main.google.index.loadDics(txtfld_posting_path.getText());
             Alert alert = new Alert(Alert.AlertType.INFORMATION,
                         "All dictionaries successfully loaded to memory");
             alert.showAndWait();

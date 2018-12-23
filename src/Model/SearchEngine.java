@@ -9,7 +9,6 @@ public class SearchEngine {
     ReadFile rf;
     Parse parse;
     Searcher search;
-    Ranker ranker;
     public Indexer index;
     HashSet<Doc> docs;
     int partiotions;
@@ -17,7 +16,9 @@ public class SearchEngine {
     int uniqueTerms;
     double totalRunTime;
     boolean stemmFlag;
-    String pp;
+    String postingsPath;
+
+    Ranker ranker;
 
     /**
      * Constructor. Initialize 3 paths for corpus, posting and stopwords.
@@ -25,14 +26,18 @@ public class SearchEngine {
      */
     public SearchEngine(String corpusPath, String postPath, Boolean isStemm, String stopwordsPath) throws IOException {
         rf = new ReadFile(corpusPath);
-        pp = postPath;
+        if(isStemm)
+            postingsPath = postPath + "\\With_Stemmer";
+        else
+            postingsPath = postPath + "\\Without_Stemmer";
 //        partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
-        partiotions=6;
+        partiotions=2;
         stemmFlag = isStemm;
-        index = new Indexer(postPath, partiotions, stemmFlag);
+        index = new Indexer(postingsPath, partiotions);
         parse = new Parse(corpusPath, stemmFlag, stopwordsPath);
         docs = new HashSet<>();
         ranker = new Ranker();
+
     }
 
     /**
@@ -106,11 +111,11 @@ public class SearchEngine {
     }
 
     public HashMap<String, Integer> partB(String qPath, boolean cityFlag, boolean semanticFlag) throws IOException {
-        index.loadDics(pp, false);
+        index.loadDics(postingsPath);
         search = new Searcher(cityFlag, semanticFlag, index);
         HashSet<StringBuilder> querys = rfBeta(qPath);
         for(StringBuilder sb : querys) {
-            search.createTermsList(sb.toString(), pp + "\\Without_Stemmer");
+            search.createTermsList(sb.toString(), postingsPath);
             ranker.rankerStart(search.getQueryTerms());
         }
 

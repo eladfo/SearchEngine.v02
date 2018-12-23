@@ -1,4 +1,6 @@
 package Model;
+import java.text.DecimalFormat;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -15,7 +17,7 @@ public class ParsedDoc {
     private StringBuilder cityID;
     private StringBuilder cityInfo;
     private String fileID;
-    public TreeMap<String, Double> entities;
+    public TreeMap<Double, String> entities;
 
     /**
      * Constructor
@@ -24,6 +26,7 @@ public class ParsedDoc {
         terms = new HashMap<>();
         cityID = new StringBuilder(" ");
         cityInfo =new StringBuilder();
+        entities = new TreeMap<>(Comparator.reverseOrder());
     }
 
     /**
@@ -63,7 +66,6 @@ public class ParsedDoc {
      */
     public void calcMaxTF(){
         maxTF = 0;
-        entities = new TreeMap<>();
         for (Map.Entry<String, StringBuilder> entry : terms.entrySet()) {
             StringBuilder termPositions = entry.getValue();
             String[] pos = split(termPositions.toString(), ",");
@@ -71,7 +73,7 @@ public class ParsedDoc {
                 maxTF = pos.length;
             if(isUpperCase(entry.getKey().charAt(0))){
                 double finalEntityRank = calcEntityFinalRank(pos, 0.7, 0.3);
-                entities.put(entry.getKey(), finalEntityRank);
+                entities.put(finalEntityRank, entry.getKey());
             }
         }
     }
@@ -83,24 +85,19 @@ public class ParsedDoc {
      * @return final entity rank by our formula.
      */
     public double calcEntityFinalRank(String[] pos, double alpha, double beta){
-        int posRank = (docLength - Integer.valueOf(pos[0])) / docLength;
-        double finalRank = (int) (alpha*pos.length + beta*posRank);
-        return finalRank;
+        double posRank = (docLength - Double.valueOf(pos[0])) / docLength;
+        double finalRank = alpha*pos.length + beta*posRank;
+        DecimalFormat df = new DecimalFormat("#.000");
+        return Double.valueOf(df.format(finalRank));
     }
 
-    /**
-     * calculate top 5 Entities per doc, and return them.
-     */
-    public String[] calcTop15Entity() {
-        String[] topFifteen = new String[15];
-        int idx = 0;
-        for (Map.Entry<String, Double> entry : entities.entrySet()) {
-            if(idx == 15)
-                return topFifteen;
-            topFifteen[idx] = entry.getKey();
-            idx++;
-        }
-        return topFifteen;
+    public StringBuilder getEntitiesAsStb(){
+        StringBuilder res = new StringBuilder();
+        if(entities != null)
+            for(Map.Entry<Double, String> entry : entities.entrySet())
+                res.append(entry.getValue()).append(",").append(entry.getKey()).append(",");
+
+        return res;
     }
 
     /**

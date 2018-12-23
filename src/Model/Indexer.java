@@ -13,26 +13,20 @@ public class Indexer {
     public TreeMap<String, Integer> finalCitiesDic;
     public int partitions;
     public String postingsPath;
-    public Boolean isStemm;
+//    public Boolean isStemm;
 
     /**
      * Index's_Constructor
      */
-    public Indexer(String postPath, int partitions, Boolean isStemm) {
+    public Indexer(String postPath, int partitions) {
         tmpTermsDic = new TreeMap<>();
-        tmpDocsDic = new TreeSet<>(new Comparator<ParsedDoc>() {
-            @Override
-            public int compare(ParsedDoc o1, ParsedDoc o2) {
-                return o1.getDocID().toString().compareTo(o2.getDocID().toString());
-            }
-        });
+        tmpDocsDic = new TreeSet<>(Comparator.comparing(o -> o.getDocID().toString()));
         tmpCityDic = new TreeMap<>();
         finalTermsDic = new TreeMap<>();
         finalDocsDic = new TreeMap<>();
         finalCitiesDic = new TreeMap<>();
         this.postingsPath = postPath;
         this.partitions = partitions;
-        this.isStemm = isStemm;
         createPostingsDir();
     }
 
@@ -42,10 +36,6 @@ public class Indexer {
      */
     private void createPostingsDir() {
         File dir;
-        if(isStemm)
-            postingsPath += "\\With_Stemmer";
-        else
-            postingsPath += "\\Without_Stemmer";
         dir = new File(postingsPath);
         if(!dir.exists())
             dir.mkdir();
@@ -100,15 +90,10 @@ public class Indexer {
      * Loading the 3 dictionaries from the disk to the memory,
      * and storing them to the proper data structures.
      * @param path - posting path which the user chose
-     * @param stemm - stemming flag from GUI
      */
-    public void loadDics(String path, boolean stemm) throws IOException {
+    public void loadDics(String path) throws IOException {
         BufferedReader[] brs = new BufferedReader[3];
-        String dicPath = "";
-        if(stemm)
-            dicPath = path + "\\With_Stemmer";
-        else
-            dicPath = path + "\\Without_Stemmer";
+        String dicPath = path;
         brs[0] = new BufferedReader(new FileReader(new File(dicPath + "\\Final_Terms_Dic")));
         brs[1] = new BufferedReader(new FileReader(new File(dicPath + "\\Final_Docs_Dic")));
         brs[2] = new BufferedReader(new FileReader(new File(dicPath + "\\Final_Cities_Dic")));
@@ -510,12 +495,11 @@ public class Indexer {
             StringBuilder city = pd.getCity();
             int totalTerms = pd.getNumOfTerms();
             StringBuilder docid = pd.getDocID();
-            String[] topFifteen = pd.calcTop15Entity();
-            StringBuilder stb = new StringBuilder();
-            for(String s : topFifteen)
-                stb.append(s).append(",");
-            bw.write(docid.toString()+"~"+maxTF+"~"+totalTerms
-                        +"~"+upperCase(city.toString())+"~"+pd.getFileID()+"~"+pd.docLength+"~"+stb.toString()+"\n");
+            StringBuilder stb = pd.getEntitiesAsStb();
+            StringBuilder res = new StringBuilder();
+            res.append(docid).append("~").append(maxTF).append("~").append(totalTerms).append("~").append(upperCase(city.toString()))
+                    .append("~").append(pd.getFileID()).append("~").append(pd.docLength).append("~").append(stb).append("\n");
+            bw.write(res.toString());
         }
         bw.close();
     }
@@ -547,14 +531,15 @@ public class Indexer {
     private StringBuilder calcTopFive(String line) {
         StringBuilder res = new StringBuilder();
         String[] entities = split(line, ",");
-        int i = 0;
-        for(String s : entities){
-            if(i==5)
+        int count = 0;
+        for(int i=0; i<entities.length; i++){
+            if(count==5)
                 return res;
-            else if(!s.equals("null") && finalTermsDic.containsKey(s)) {
-                res.append(s).append(",");
-                i++;
+            else if(!entities[i].equals("null") && finalTermsDic.containsKey(entities[i])) {
+                res.append(entities[i]).append(",").append(entities[i+1]).append(",");
+                count++;
             }
+            i++;
         }
         return res;
     }

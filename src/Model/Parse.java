@@ -38,7 +38,7 @@ public class Parse
             }
         }
         capitalCityAPI = new TreeMap<>();
-        createCityMap();
+//        createCityMap();
         stemmer = new Stemmer();
     }
 

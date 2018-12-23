@@ -5,7 +5,7 @@ import java.awt.*;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class Controller_Show_Details extends Component implements Initializable
+public class SummaryDetails_Controller extends Component implements Initializable
 {
     public  javafx.scene.control.Label Num_term;
     public  javafx.scene.control.Label Num_doc ;

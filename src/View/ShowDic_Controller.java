@@ -9,17 +9,17 @@ import java.util.ResourceBundle;
 import static org.apache.commons.lang3.StringUtils.*;
 
 
-public class Controller_Show_Dic extends Component implements Initializable
+public class ShowDic_Controller extends Component implements Initializable
 {
     public javafx.scene.control.TextArea  txt_area;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         File file;
-        if(!Controller_View.is_steam)
-            file = new File(Controller_View.postingPath + "\\Without_Stemmer\\Final_Terms_Dic");
+        if(!InvertedIndex_Controller.is_steam)
+            file = new File(InvertedIndex_Controller.postingPath + "\\Without_Stemmer\\Final_Terms_Dic");
         else
-            file = new File(Controller_View.postingPath + "\\With_Stemmer\\Final_Terms_Dic");
+            file = new File(InvertedIndex_Controller.postingPath + "\\With_Stemmer\\Final_Terms_Dic");
 
         String st;
         String[] arr_str;
