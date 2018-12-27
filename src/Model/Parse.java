@@ -93,7 +93,7 @@ public class Parse
     public ParsedDoc runParser(Doc doc) {
         parsedDoc = new ParsedDoc();
         parsedDoc.setDocID(doc.getDocID());
-        stk = split(doc.getDocText().toString(), " ():[];?]=");
+        stk = split(doc.getDocText().toString(), " '%_*&$#+<>|~\\,;][:^@()?{}!�");
         rowCounter = 0;                 // rowCounter of word in file include stop words!
         wordPosition = 1;      // rowCounter of word in file without stop words!
         while (rowCounter < stk.length) {
@@ -150,7 +150,7 @@ public class Parse
                             tmp[j]= initialParse(tmp[j]);
                             if(!stopWords.contains(tmp[j]))
                             {
-                                tmp[j]=replaceChars(tmp[j],"'%/_*&$#+<>|~,!�","");
+                                clean(tmp[j] , wordPosition );
                                 addTermToParsedDoc(strb.append(tmp[j]), wordPosition);
                             }
                             strb.setLength(0);
@@ -171,10 +171,13 @@ public class Parse
                             }
                         }
                         else {*/
-                            s=replaceChars(s,"%/_*'&$#+<>|~,!�","");
+                        //System.out.println(s);
+                        if(s.contains("/") ||s.contains(".") )
+                            clean(s , wordPosition);
+                        else
                             addTermToParsedDoc(strb.append(s), wordPosition);
-
                         strb.setLength(0);
+
                     }
                 }
             }
@@ -185,6 +188,20 @@ public class Parse
         updateCityInfo(doc.getDocCity());
         parsedDoc.setFileID(doc.getDocFile());
         return parsedDoc;
+    }
+
+    private void clean(String s , int pos)
+    {
+        String[] tokens = split(s,"./");
+        for(String word : tokens)
+        {
+            if(s.contains("/") ||s.contains("."))
+                clean(word, pos);
+            else{
+                addTermToParsedDoc(strb.append(s), pos);
+                strb.setLength(0);
+            }
+        }
     }
 
     /**
@@ -203,19 +220,13 @@ public class Parse
      */
     private String initialParse(String s) {
         char tmp = '"';
-        s= replaceChars(s,tmp,'#');
-        s=replaceChars(s,"'#+<>|~,!�","");
+        //s= replaceChars(s,tmp,'#');
+        //s=replaceChars(s,"'#+<>|~,!�","");
         if (org.apache.commons.lang3.StringUtils.contains(s,".") && !s.equals("U.S.")
                 && !Character.isDigit(s.charAt(0)) && s.charAt(0)!='$')
             s=  replaceChars(s,".","");
         else if (s.length()>0 && s.charAt(s.length()-1)  == '.' && !s.equals("U.S.") )
             s=replaceChars(s,".","");
-        if(s.length()>0 && (s.charAt(s.length()-1)  == '-'))
-            s=replaceChars(s,"-","");
-        else if(s.length()>0 &&  s.charAt(s.length()-1)  == '*')
-            s=replaceChars(s,"*","");
-        if(s.length()>0 &&  s.charAt(0) == '`')
-            s= replaceChars(s,"`","");
         return s;
     }
 

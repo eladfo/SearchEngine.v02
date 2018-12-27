@@ -33,8 +33,8 @@ public class SearchEngine {
             postingsPath = postPath + "\\With_Stemmer";
         else
             postingsPath = postPath + "\\Without_Stemmer";
-        partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
-        //partiotions=2;
+        //partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
+        partiotions=10;
         stemmFlag = isStemm;
         index = new Indexer(postingsPath, partiotions);
         parse = new Parse(corpusPath, stemmFlag, stopwordsPath);
@@ -117,7 +117,6 @@ public class SearchEngine {
         index.loadDics(postingsPath);
         search = new Searcher(cityFlag, semanticFlag, index);
         HashMap<String,StringBuilder> querys = rfBeta(qPath);
-
 
         for (Map.Entry<String, StringBuilder> entry : querys.entrySet()) {
             search.createTermsList(entry.getValue().toString(), postingsPath);
