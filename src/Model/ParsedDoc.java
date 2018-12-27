@@ -92,7 +92,7 @@ public class ParsedDoc {
     }
 
     public StringBuilder getEntitiesAsStb(){
-        StringBuilder res = new StringBuilder();
+        StringBuilder res = new StringBuilder(" ");
         if(entities != null)
             for(Map.Entry<Double, String> entry : entities.entrySet())
                 res.append(entry.getValue()).append(",").append(entry.getKey()).append(",");

@@ -55,7 +55,7 @@ public class ReadFile {
                 docFlag = 0;
                 return;
             }
-            if(st.charAt(0)=='<' || st.contains("Article Type"))
+            if(st.charAt(0)=='<' || contains(st, "Article Type"))
                 return;
             doc.update(st, docFlag);
         } else {
@@ -76,6 +76,10 @@ public class ReadFile {
                 doc = new Doc();
                 docFlag = 0;
                 return;
+            } else if (contains(st, "<TI>")){
+                //findDocTitle(st);
+            } else if (contains(st, "<HEADLINE>")){
+                //findDocHeadling(st);
             }
         }
     }
@@ -91,6 +95,26 @@ public class ReadFile {
             tmp.append(array[2]).append(" ").append(array[3]);
             doc.update(tmp.toString(), 2);
         }
+    }
+
+    private void findDocTitle(String s){
+        String [] tokens = split(s," ");
+        StringBuilder tmp = new StringBuilder();
+        int idx = 0;
+        while (!tokens[idx].equals("<T1"))
+            idx++;
+        idx++;
+        while (!tokens[idx].equals("</T1>")){
+            tmp.append(tokens[idx]);
+            idx++;
+        }
+        doc.update(tmp.toString(),3);
+
+    }
+
+    private void findDocHeadling(String s) {
+        String [] tokens = split(s," ");
+        StringBuilder tmp = new StringBuilder();
     }
 
     public void resetDocSet()

@@ -4,6 +4,7 @@ public class Doc {
     private String docFile;
     private StringBuilder docText = new StringBuilder();
     private StringBuilder docCity = new StringBuilder();
+    private StringBuilder docHeader = new StringBuilder();
 
     /**
      * Insert the line to the specific field depends on the flag.
@@ -19,6 +20,8 @@ public class Doc {
                     break;
             case 2: docCity.append(st);
                     break;
+            case 3: docHeader.append(st);
+                break;
             case 4: docText.append(st).append(" ");
                     break;
         }

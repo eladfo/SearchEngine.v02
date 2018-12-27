@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.RadioButton?>
@@ -11,63 +15,162 @@
 
 <AnchorPane prefHeight="550.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.MainWindow_Controller">
    <children>
-      <Label layoutX="282.0" layoutY="59.0" text="Search Engine Project">
+
+       <TextField fx:id="txtfld_corpus_path" layoutX="199.0" layoutY="69.0" prefHeight="25.0" prefWidth="363.0" />
+       <Label layoutX="88.0" layoutY="109.0" prefHeight="25.0" prefWidth="94.0" text="Posting Path">
+           <font>
+               <Font name="System Bold Italic" size="13.0" />
+           </font></Label>
+       <TextField fx:id="txtfld_posting_path" layoutX="199.0" layoutY="109.0" prefHeight="25.0" prefWidth="363.0" />
+       <Button layoutX="591.0" layoutY="69.0" mnemonicParsing="false" onMouseClicked="#setCorpusPath" prefHeight="25.0" prefWidth="85.0" text="Browse" />
+       <Button layoutX="205.0" layoutY="189.0" mnemonicParsing="false" onMouseClicked="#startButton" prefHeight="25.0" prefWidth="237.0" text="Create Inverted Index">
+           <font>
+               <Font name="System Bold Italic" size="13.0" />
+           </font></Button>
+       <CheckBox fx:id="steam" contentDisplay="RIGHT" layoutX="436.0" layoutY="191.0" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" prefHeight="25.0" prefWidth="126.0" text="Stemmer">
+           <font>
+               <Font name="System Bold Italic" size="14.0" />
+           </font>
+       </CheckBox>
+       <Label layoutX="88.0" layoutY="69.0" prefHeight="25.0" prefWidth="94.0" text="Corpus Path">
+           <font>
+               <Font name="System Bold Italic" size="13.0" />
+           </font>
+       </Label>
+       <Button layoutX="69.0" layoutY="246.0" mnemonicParsing="false" onMouseClicked="#showDicButton" prefHeight="28.0" prefWidth="125.0" text="Show Dictionary">
+           <font>
+               <Font name="System Bold" size="12.0" />
+           </font></Button>
+       <Button layoutX="221.0" layoutY="246.0" mnemonicParsing="false" onMouseClicked="#loadDicsToMemory" prefHeight="28.0" prefWidth="125.0" text="Load Dictionary">
+           <font>
+               <Font name="System Bold" size="12.0" />
+           </font></Button>
+       <Button layoutX="374.0" layoutY="246.0" mnemonicParsing="false" onMouseClicked="#totalIndexReset" prefHeight="28.0" prefWidth="125.0" text="Reset">
+           <font>
+               <Font name="System Bold Italic" size="12.0" />
+           </font></Button>
+
+       <ChoiceBox layoutX="545.0" layoutY="253.0" prefHeight="25.0" prefWidth="154.0" value="Select">
+           <items>
+               <FXCollections fx:factory="observableArrayList">
+                   <String fx:value="Afrikaans" />
+                   <String fx:value="Albanian" />
+                   <String fx:value="Arabic" />
+                   <String fx:value="Armenian" />
+                   <String fx:value="Azeri" />
+                   <String fx:value="Belarusian" />
+                   <String fx:value="Bulgarian" />
+                   <String fx:value="Burmese" />
+                   <String fx:value="Cambodian" />
+                   <String fx:value="Chinese" />
+                   <String fx:value="Czech" />
+                   <String fx:value="Danish" />
+                   <String fx:value="Dari" />
+                   <String fx:value="Dutch" />
+                   <String fx:value="English" />
+                   <String fx:value="Estonian" />
+                   <String fx:value="Finnish" />
+                   <String fx:value="Georgian" />
+                   <String fx:value="German" />
+                   <String fx:value="Greek" />
+                   <String fx:value="Hebrew" />
+                   <String fx:value="Hungarian" />
+                   <String fx:value="Indonesian" />
+                   <String fx:value="Italian" />
+                   <String fx:value="Japanese" />
+                   <String fx:value="Kazakh" />
+                   <String fx:value="Kinyarwanda" />
+                   <String fx:value="Korean" />
+                   <String fx:value="Kyrgyz" />
+                   <String fx:value="Latvian" />
+                   <String fx:value="Lithuanian" />
+                   <String fx:value="Macedonian" />
+                   <String fx:value="Malay" />
+                   <String fx:value="Mandarin" />
+                   <String fx:value="Norwegian" />
+                   <String fx:value="Pashto" />
+                   <String fx:value="Persian" />
+                   <String fx:value="Polish" />
+                   <String fx:value="Portuguese" />
+                   <String fx:value="French" />
+                   <String fx:value="Romanian" />
+                   <String fx:value="Russian" />
+                   <String fx:value="Serbo-Croatian" />
+                   <String fx:value="Slovak" />
+                   <String fx:value="Slovene" />
+                   <String fx:value="Somali" />
+                   <String fx:value="Spanish" />
+                   <String fx:value="Swahili" />
+                   <String fx:value="Swedish" />
+                   <String fx:value="Tajik" />
+                   <String fx:value="Tigrinya" />
+                   <String fx:value="Thai" />
+                   <String fx:value="Turkish" />
+                   <String fx:value="Ukrainian" />
+                   <String fx:value="Urdu" />
+                   <String fx:value="Vietnamese" />
+               </FXCollections>
+           </items>
+       </ChoiceBox>
+      <Label layoutX="545.0" layoutY="226.0" prefHeight="25.0" prefWidth="114.0" text="Select Language">
+           <font>
+               <Font name="System Bold Italic" size="13.0" />
+           </font>
+       </Label><Label layoutX="75.0" layoutY="149.0" prefHeight="25.0" prefWidth="107.0" text="Stop-Words Path">
+           <font>
+               <Font name="System Bold Italic" size="13.0" />
+           </font>
+       </Label><Button layoutX="591.0" layoutY="149.0" mnemonicParsing="false" onMouseClicked="#setStopWordsPath" prefHeight="25.0" prefWidth="85.0" text="Browse" /><TextField fx:id="txtfld_stopwords_path" layoutX="199.0" layoutY="149.0" prefHeight="25.0" prefWidth="363.0" />
+      <Button layoutX="591.0" layoutY="109.0" mnemonicParsing="false" onMouseClicked="#setPostingsPath" prefHeight="25.0" prefWidth="85.0" text="Browsee" />
+      <Label layoutX="275.0" layoutY="22.0" text="Search Engine Project">
          <font>
             <Font name="System Bold Italic" size="20.0" />
          </font>
       </Label>
-      <Button layoutX="545.0" layoutY="321.0" mnemonicParsing="false" onAction="#indexButton" text="Inverted Index">
-         <font>
-            <Font name="System Bold Italic" size="12.0" />
-         </font></Button>
-      <RadioButton layoutX="240.0" layoutY="222.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="84.0" text="Semantic">
+      <RadioButton layoutX="240.0" layoutY="412.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="84.0" text="Semantic">
          <font>
             <Font name="System Bold Italic" size="12.0" />
          </font>
       </RadioButton>
-      <ProgressIndicator layoutX="579.0" layoutY="364.0" progress="0.0" />
-      <RadioButton layoutX="341.0" layoutY="222.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="84.0" text="Stemmer">
+      <ProgressIndicator layoutX="579.0" layoutY="454.0" progress="0.0" />
+      <RadioButton layoutX="341.0" layoutY="412.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="84.0" text="Stemmer">
          <font>
             <Font name="System Bold Italic" size="12.0" />
          </font>
       </RadioButton>
-      <Button layoutX="566.0" layoutY="181.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="85.0" text="Browse">
+      <Button layoutX="566.0" layoutY="371.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="85.0" text="Browse">
          <font>
             <Font name="System Bold Italic" size="12.0" />
          </font>
       </Button>
-      <Label layoutX="100.0" layoutY="141.0" text="Specific query">
+      <Label layoutX="100.0" layoutY="331.0" text="Specific query">
          <font>
             <Font name="System Bold Italic" size="12.0" />
          </font>
       </Label>
-      <Label layoutX="100.0" layoutY="185.0" text="Queries file's path">
+      <Label layoutX="100.0" layoutY="375.0" text="Queries file's path">
          <font>
             <Font name="System Bold Italic" size="12.0" />
          </font>
       </Label>
-      <Button layoutX="566.0" layoutY="137.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="85.0" text="Run">
+      <Button layoutX="566.0" layoutY="327.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="85.0" text="Run">
          <font>
             <Font name="System Bold Italic" size="12.0" />
          </font>
       </Button>
-      <TextField layoutX="224.0" layoutY="137.0" prefHeight="25.0" prefWidth="312.0" />
-      <TextField layoutX="227.0" layoutY="181.0" prefHeight="25.0" prefWidth="312.0" />
-      <Button layoutX="121.0" layoutY="404.0" mnemonicParsing="false" text="Save Output File">
+      <TextField layoutX="224.0" layoutY="327.0" prefHeight="25.0" prefWidth="312.0" />
+      <TextField layoutX="224.0" layoutY="371.0" prefHeight="25.0" prefWidth="312.0" />
+      <Button layoutX="121.0" layoutY="494.0" mnemonicParsing="false" text="Save Output File">
          <font>
             <Font name="System Bold Italic" size="12.0" />
          </font>
       </Button>
-      <Button layoutX="131.0" layoutY="367.0" mnemonicParsing="false" text="Entity Search">
+      <Button layoutX="131.0" layoutY="457.0" mnemonicParsing="false" text="Entity Search">
          <font>
             <Font name="System Bold Italic" size="12.0" />
          </font>
       </Button>
-      <Button layoutX="85.0" layoutY="275.0" mnemonicParsing="false" text="City Filter">
-         <font>
-            <Font name="System Bold Italic" size="12.0" />
-         </font>
-      </Button>
-      <CheckComboBox id="extras" fx:id="extras" layoutX="442.0" layoutY="218.0" prefHeight="25.0" prefWidth="116.0" />
+      <CheckComboBox id="extras" fx:id="extras" layoutX="442.0" layoutY="408.0" prefHeight="25.0" prefWidth="116.0" />
+
    </children>
 </AnchorPane>

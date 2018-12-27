@@ -13,7 +13,6 @@ public class Indexer {
     public TreeMap<String, Integer> finalCitiesDic;
     public int partitions;
     public String postingsPath;
-//    public Boolean isStemm;
 
     /**
      * Index's_Constructor
@@ -53,7 +52,7 @@ public class Indexer {
         tmpDocsDic.clear();
         createFinalTermsPostings();
         createFinalTermsDic();
-        deleteTmpFiles();
+        //deleteTmpFiles();
     }
 
     /**

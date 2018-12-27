@@ -45,18 +45,18 @@ public class Main extends Application {
      */
     public static void main(String[] args) {
         launch(args);
-        String e1 = "C:\\Users\\e-pc\\IdeaProjects\\corpus\\corpus";
-        String e2 = "C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\postinggg";
-        String e3 = "C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\resources\\stop_words.txt";
-        String e4 = "C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\resources\\queries.txt";
+//        String e1 = "C:\\Users\\e-pc\\IdeaProjects\\corpus\\corpus";
+//        String e2 = "C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\postinggg";
+//        String e3 = "C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\resources\\stop_words.txt";
+//        String e4 = "C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\resources\\queries.txt";
 //        try {
-////            SearchEngine google = new SearchEngine(e1, e2, false, e3);
-////            google.runSearchEngine();
+//            SearchEngine google = new SearchEngine(e1, e2, false, e3);
+//            google.runSearchEngine();
 ////            google.partB(e4, true, true);
 //            exit();
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
-//    }
     }
+
 }

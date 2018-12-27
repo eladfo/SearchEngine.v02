@@ -30,8 +30,8 @@ public class SearchEngine {
             postingsPath = postPath + "\\With_Stemmer";
         else
             postingsPath = postPath + "\\Without_Stemmer";
-//        partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
-        partiotions=2;
+        partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
+        //partiotions=2;
         stemmFlag = isStemm;
         index = new Indexer(postingsPath, partiotions);
         parse = new Parse(corpusPath, stemmFlag, stopwordsPath);

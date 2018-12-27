@@ -137,7 +137,6 @@ public class Parse
                                 tmp[j] = replace(tmp[j],"$","");
                                 tmp[j] = initialParse(tmp[j]);
                                 strb.append(tmp[j]);
-
                             }
                         }
                     }
@@ -159,7 +158,7 @@ public class Parse
 
                     }
                     else {     //regular worddd
-                        if(Character.isUpperCase(s.charAt(0)) &&rowCounter+1<stk.length && Character.isUpperCase(stk[rowCounter+1].charAt(0)))
+                        /*if(Character.isUpperCase(s.charAt(0)) &&rowCounter+1<stk.length && Character.isUpperCase(stk[rowCounter+1].charAt(0)))
                         {
                             strb.setLength(0);
                             if(!stopWords.contains(lowerCase(s)) && !stopWords.contains(lowerCase(stk[rowCounter+1]))) {
@@ -171,12 +170,11 @@ public class Parse
                                 addTermToParsedDoc(strb, wordPosition);
                             }
                         }
-                        else {
+                        else {*/
                             s=replaceChars(s,"%/_*'&$#+<>|~,!�","");
                             addTermToParsedDoc(strb.append(s), wordPosition);
-                        }
-                        strb.setLength(0);
 
+                        strb.setLength(0);
                     }
                 }
             }
@@ -186,7 +184,6 @@ public class Parse
         parsedDoc.docLength = rowCounter;
         updateCityInfo(doc.getDocCity());
         parsedDoc.setFileID(doc.getDocFile());
-
         return parsedDoc;
     }
 
