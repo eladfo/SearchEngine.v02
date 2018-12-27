@@ -4,6 +4,8 @@ import java.util.*;
 
 import static org.apache.commons.lang3.StringUtils.contains;
 import static org.apache.commons.lang3.StringUtils.substring;
+import static org.apache.commons.lang3.StringUtils.*;
+
 
 public class SearchEngine {
     ReadFile rf;
@@ -110,25 +112,34 @@ public class SearchEngine {
         }
     }
 
-    public HashMap<String, Integer> partB(String qPath, boolean cityFlag, boolean semanticFlag) throws IOException {
+    public void partB(String qPath, boolean cityFlag, boolean semanticFlag) throws IOException {
         index.loadDics(postingsPath);
         search = new Searcher(cityFlag, semanticFlag, index);
-        HashSet<StringBuilder> querys = rfBeta(qPath);
-        for(StringBuilder sb : querys) {
-            search.createTermsList(sb.toString(), postingsPath);
-            ranker.rankerStart(search.getQueryTerms());
+        HashMap<String,StringBuilder> querys = rfBeta(qPath);
+
+
+        for (Map.Entry<String, StringBuilder> entry : querys.entrySet()) {
+            search.createTermsList(entry.getValue().toString(), postingsPath);
+            ranker.rankerStart(postingsPath ,entry.getKey(),search.getQueryTerms());
         }
-
-
-        HashMap<String, Integer> res = new HashMap<>();
-        return res;
     }
 
-    public HashSet<StringBuilder> rfBeta(String qPath) throws IOException {
-        HashSet<StringBuilder> res = new HashSet<>();
+    public void save_res() throws IOException {
+        ranker.Save_res(postingsPath);
+    }
+
+    public HashMap<String,StringBuilder> rfBeta(String qPath) throws IOException {   //function that Readfile Query file!!!
+        HashMap<String,StringBuilder> res = new HashMap<>();
         BufferedReader br = new BufferedReader(new FileReader(new File(qPath)));
         String line;
+        String[] st;
+        String num_query ="";
         while((line = br.readLine()) != null){
+            if(contains(line, "<num>"))
+            {
+                st = split(line , " ");
+                num_query = st[st.length-1];
+            }
             if(contains(line, "<title>"))
             {
                 Doc d = new Doc();
@@ -136,8 +147,8 @@ public class SearchEngine {
                 ParsedDoc pd = parse.runParser(d);
                 StringBuilder sb = new StringBuilder();
                 for(Map.Entry<String, StringBuilder> entry : pd.getTerms().entrySet())
-                    sb.append(entry.getKey()).append(";");
-                res.add(sb);
+                    sb.append(entry.getKey()).append(" ");
+                res.put(num_query,sb);
             }
         }
         return res;

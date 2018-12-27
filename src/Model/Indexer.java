@@ -52,7 +52,7 @@ public class Indexer {
         tmpDocsDic.clear();
         createFinalTermsPostings();
         createFinalTermsDic();
-        //deleteTmpFiles();
+        deleteTmpFiles();
     }
 
     /**

@@ -32,17 +32,7 @@ public class Searcher {
         query = q;
         String[] tokens = split(query, " ");
 
-        for(int i=0 ; i<tokens.length ; i++)
-        {
-            word.add(tokens[i]);
-            Get_semantica(tokens[i]);
-            for(String s : semantic_words)
-                word.add(s);
-            semantic_words.clear();
-        }
-
-        for (String word : word) {
-            System.out.println(word);
+        for (String word : tokens) {
             Term t;
             if(index.finalTermsDic.containsKey(upperCase(word))) {
                 t = new Term(null, null, 1);
@@ -52,27 +42,25 @@ public class Searcher {
                 word = lowerCase(word);
             }
 
-
             int[] test = index.finalTermsDic.get(word);
             if(test == null)
-            {
-                //queryTerms.add(t);
                 continue;
-            }
+
             int termRowPtr = test[2] + 1;
             BufferedReader brTermPost = new BufferedReader(new FileReader(new File
                     (postingPath + "\\" + (upperCase(Character.toString(word.charAt(0)))))));
+
             for(int i=0; i<termRowPtr-1; i++)
                 brTermPost.readLine();
             String termData = brTermPost.readLine();
             String[] docs = split(termData, "~");
+
             for(String d : docs) {
                 String[] tmp = split(d, ",");
                 int tf = tmp.length - 1;
                 int docLength = index.finalDocsDic.get(tmp[0])[0];
                 t.addDoc(tmp[0], new StringBuilder(tf+";"+docLength));
             }
-
             queryTerms.add(t);
         }
     }
@@ -84,6 +72,8 @@ public class Searcher {
     public ArrayList<Term> getQueryTerms() {
         return queryTerms;
     }
+
+
 
 
     public void  Get_semantica (String word) throws IOException {

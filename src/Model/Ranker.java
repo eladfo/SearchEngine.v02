@@ -5,10 +5,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import static org.apache.commons.lang3.StringUtils.*;
 
@@ -17,11 +14,10 @@ public class Ranker
     public ArrayList<Term> query;
     public double Avg_Doc= 600;
     public ArrayList<String> queryDoc;
-    public ArrayList<String> result;
+    public HashMap<String,String> result;
     public TreeMap<Double, String> QueryDocRank;
     public double b=0.75;
     public double k=1.2;
-    public double doclength = 472525;
     public ArrayList<String> semantic_words;
 
     public Ranker ()
@@ -32,18 +28,17 @@ public class Ranker
                 return o2.compareTo(o1);
             }
         });
-        result = new ArrayList<>();
+        result = new HashMap<>();
         queryDoc = new ArrayList<>();
         semantic_words = new ArrayList<>();
     }
 
-    public void rankerStart(ArrayList<Term> qList) throws IOException
+    public void rankerStart(String path , String num_query, ArrayList<Term> qList) throws IOException
     {
         query = qList;
-        set_result();
         Build_doc_list();
         double B25_Rank  , Total_Rank,CosSim_Rank;
-        System.out.println(queryDoc.size());
+
         for (String Doc : queryDoc)
         {
             B25_Rank =CalculateB25(Doc);
@@ -51,9 +46,33 @@ public class Ranker
             Total_Rank =    B25_Rank*0.7 + CosSim_Rank*0.3 ;
             QueryDocRank.put(Total_Rank,Doc);
         }
-        System.out.println("======================The res=======================");
 
-        print_res();
+        Addres(num_query);
+        //System.out.println("======================The res=======================");
+        //print_res();
+    }
+
+    public void Save_res(String postingsPath) throws IOException
+    {
+        int index=0;
+
+        FileWriter fw = new FileWriter(postingsPath + "\\results.txt");
+        BufferedWriter bw = new BufferedWriter(fw);
+        StringBuilder s = new StringBuilder();
+        for (Map.Entry<String, String> entry : result.entrySet())
+        {
+            if(index<50)
+            {
+                s.append(entry.getValue()).append(" 0 ").append(entry.getKey()).append(" 1 42.38 mt\n");
+                   bw.write(s.toString());
+                   s.setLength(0);
+            }
+            else
+                break;
+            index++;
+        }
+        bw.close();
+        fw.close();
     }
 
     public void Build_doc_list(){
@@ -110,24 +129,21 @@ public class Ranker
             return Sum;
         }
     */
-    private void print_res()
+    private void Addres(String numqurey)
     {
         int index=0;
-        int good=0;
         for (Map.Entry<Double, String> entry : QueryDocRank.entrySet())
         {
-            if(index<50) {
-                if (result.contains(entry.getValue()))
-                    good++;
-            }
+            if(index<50)
+                result.put(entry.getValue(),numqurey);
             else
                 break;
             index++;
         }
-        System.out.println("The total good res:  " +  result.size() );
-        System.out.println("The good rank is:  " +  (double)good);
+        System.out.println(result.size() +  "  hhh") ;
 
     }
+
 
     private double CalculateCosSim(String doc) throws IOException {
         double mone = 0;
@@ -164,21 +180,7 @@ public class Ranker
         return (mone/mechane) ;
     }
 
-    public void set_result() throws IOException {
-        String st;
-        String [] ss ;
-        BufferedReader brTermPost = new BufferedReader(new FileReader(new File
-                ("C:\\Users\\alonts\\Downloads\\Searcher\\Searcher\\British Chunnel impact.txt")));
-        while((st= brTermPost.readLine())!=null )
-        {
-            ss = split(st," ");
-            if(ss[3].equals("1"))
-            {
-                System.out.println(ss[2]);
-                result.add(ss[2]);
-            }
-        }
-    }
+
 
 //    public void  Get_semantica (String word) throws IOException {
 //
