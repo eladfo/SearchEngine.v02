@@ -3,6 +3,7 @@ import java.io.*;
 import java.util.*;
 
 import static org.apache.commons.lang3.StringUtils.contains;
+import static org.apache.commons.lang3.StringUtils.split;
 import static org.apache.commons.lang3.StringUtils.substring;
 import static org.apache.commons.lang3.StringUtils.*;
 
@@ -152,5 +153,16 @@ public class SearchEngine {
             }
         }
         return res;
+    }
+
+    public String[] getEntitiesPerDoc(String docID) throws IOException {
+        int[] tmp = index.finalDocsDic.get(docID);
+        BufferedReader br = new BufferedReader(new FileReader(new File(postingsPath + "mergedDocsPosting")));
+        String line = "";
+        for (int j = 0; j < tmp[3] ; j++) {
+            line = br.readLine();
+        }
+        String[] tokens = split(line, "~");
+        return split(tokens[5], ",");
     }
 }

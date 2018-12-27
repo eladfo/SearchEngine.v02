@@ -528,7 +528,7 @@ public class Indexer {
     }
 
     private StringBuilder calcTopFive(String line) {
-        StringBuilder res = new StringBuilder();
+        StringBuilder res = new StringBuilder(" ");
         String[] entities = split(line, ",");
         int count = 0;
         for(int i=0; i<entities.length; i++){

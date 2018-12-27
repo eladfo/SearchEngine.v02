@@ -58,6 +58,18 @@ public class ReadFile {
             if(st.charAt(0)=='<' || contains(st, "Article Type"))
                 return;
             doc.update(st, docFlag);
+        } else if(docFlag == 3){
+                    if (st.equals("</HEADLINE>")) {
+                        docFlag = 0;
+                        return;
+                    }
+                    if(st.charAt(0)=='<')
+                        return;
+                    if(st.charAt(0)=='F' && st.charAt(1)=='T'){
+                        String[] tokens = split(st, "/");
+                        st = tokens[1];
+                    }
+                    doc.update(st, docFlag);
         } else {
             if (contains(st, "<DOCNO>")) {
                 st = st.replaceAll(" ", "");
@@ -77,9 +89,9 @@ public class ReadFile {
                 docFlag = 0;
                 return;
             } else if (contains(st, "<TI>")){
-                //findDocTitle(st);
+                findDocTitle(st);
             } else if (contains(st, "<HEADLINE>")){
-                //findDocHeadling(st);
+                docFlag = 3;
             }
         }
     }
@@ -101,20 +113,14 @@ public class ReadFile {
         String [] tokens = split(s," ");
         StringBuilder tmp = new StringBuilder();
         int idx = 0;
-        while (!tokens[idx].equals("<T1"))
+        while (!tokens[idx].equals("<TI>"))
             idx++;
         idx++;
-        while (!tokens[idx].equals("</T1>")){
-            tmp.append(tokens[idx]);
+        while (!tokens[idx].equals("</TI></H3>")){
+            tmp.append(tokens[idx]).append(" ");
             idx++;
         }
         doc.update(tmp.toString(),3);
-
-    }
-
-    private void findDocHeadling(String s) {
-        String [] tokens = split(s," ");
-        StringBuilder tmp = new StringBuilder();
     }
 
     public void resetDocSet()
