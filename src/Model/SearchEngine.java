@@ -33,8 +33,8 @@ public class SearchEngine {
             postingsPath = postPath + "\\With_Stemmer";
         else
             postingsPath = postPath + "\\Without_Stemmer";
-        //partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
-        partiotions=2;
+        partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
+        //partiotions=2;
         stemmFlag = isStemm;
         index = new Indexer(postingsPath, partiotions);
         parse = new Parse(corpusPath, stemmFlag, stopwordsPath);
@@ -118,14 +118,15 @@ public class SearchEngine {
         HashMap<String,StringBuilder> queries = rfBeta(qPath);
         for (Map.Entry<String, StringBuilder> entry : queries.entrySet()) {
             search.createTermsList(entry.getValue().toString(), postingsPath);
-            ranker.rankerStart(postingsPath ,entry.getKey(),search.getQueryTerms());
+            ranker.rankerStart(postingsPath ,entry.getKey(),search.getQueryTerms() , index);
+            ranker.Save_res(postingsPath);
         }
     }
 
     public void runSingleQuery(String query, boolean cityFlag, boolean semanticFlag) throws IOException {
         search = new Searcher(cityFlag, semanticFlag, index);
         search.createTermsList(query, postingsPath);
-        ranker.rankerStart(postingsPath ,"007" ,search.getQueryTerms());
+        ranker.rankerStart(postingsPath ,"007" ,search.getQueryTerms() , index);
     }
 
     public HashMap<String,StringBuilder> rfBeta(String qPath) throws IOException {   //function that Readfile Query file!!!

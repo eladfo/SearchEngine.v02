@@ -50,49 +50,55 @@ public class ReadFile {
      * @param st - A line from file
      */
     public void stringBuild(String st) {
-        if(docFlag == 4) {
-            if (st.equals("</TEXT>")) {
-                docFlag = 0;
-                return;
+        try {
+            if (docFlag == 4) {
+                if (st.equals("</TEXT>")) {
+                    docFlag = 0;
+                    return;
+                }
+                if (st.charAt(0) == '<' || contains(st, "Article Type"))
+                    return;
+                doc.update(st, docFlag);
+            } else if (docFlag == 3) {
+                if (st.equals("</HEADLINE>")) {
+                    docFlag = 0;
+                    return;
+                }
+                if (st.charAt(0) == '<')
+                    return;
+                if (st.charAt(0) == 'F' && st.charAt(1) == 'T') {
+                    String[] tokens = split(st, "/");
+                    st = tokens[1];
+                }
+                doc.update(st, docFlag);
+            } else {
+                if (contains(st, "<DOCNO>")) {
+                    st = st.replaceAll(" ", "");
+                    st = st.substring(7, st.length() - 8);
+                    doc.update(st, 1);
+                    return;
+                } else if (contains(st, "<F P=104>")) {
+                    findCityID(st);
+                    return;
+                } else if (st.equals("<TEXT>")) {
+                    docFlag = 4;
+                    return;
+                } else if (st.equals("</DOC>")) {
+                    doc.setDocFile(fileID);
+                    docSet.add(doc);
+                    doc = new Doc();
+                    docFlag = 0;
+                    return;
+                } else if (contains(st, "<TI>")) {
+                    findDocTitle(st);
+                } else if (contains(st, "<HEADLINE>")) {
+                    docFlag = 3;
+                }
             }
-            if(st.charAt(0)=='<' || contains(st, "Article Type"))
-                return;
-            doc.update(st, docFlag);
-        } else if(docFlag == 3){
-                    if (st.equals("</HEADLINE>")) {
-                        docFlag = 0;
-                        return;
-                    }
-                    if(st.charAt(0)=='<')
-                        return;
-                    if(st.charAt(0)=='F' && st.charAt(1)=='T'){
-                        String[] tokens = split(st, "/");
-                        st = tokens[1];
-                    }
-                    doc.update(st, docFlag);
-        } else {
-            if (contains(st, "<DOCNO>")) {
-                st = st.replaceAll(" ", "");
-                st = st.substring(7, st.length() - 8);
-                doc.update(st, 1);
-                return;
-            } else if (contains(st, "<F P=104>")) {
-                findCityID(st);
-                return;
-            } else if (st.equals("<TEXT>")) {
-                docFlag = 4;
-                return;
-            } else if (st.equals("</DOC>")) {
-                doc.setDocFile(fileID);
-                docSet.add(doc);
-                doc = new Doc();
-                docFlag = 0;
-                return;
-            } else if (contains(st, "<TI>")){
-                findDocTitle(st);
-            } else if (contains(st, "<HEADLINE>")){
-                docFlag = 3;
-            }
+        }
+        catch(ArrayIndexOutOfBoundsException e)
+        {
+            System.out.println(st);
         }
     }
 
@@ -110,6 +116,7 @@ public class ReadFile {
     }
 
     private void findDocTitle(String s){
+        try{
         String [] tokens = split(s," ");
         StringBuilder tmp = new StringBuilder();
         int idx = 0;
@@ -120,7 +127,11 @@ public class ReadFile {
             tmp.append(tokens[idx]).append(" ");
             idx++;
         }
-        doc.update(tmp.toString(),3);
+        doc.update(tmp.toString(),3);}
+        catch(ArrayIndexOutOfBoundsException e)
+        {
+            System.out.println(s);
+        }
     }
 
     public void resetDocSet()

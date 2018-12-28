@@ -47,19 +47,20 @@ public class Main  extends Application {
 
 
     public static void main(String[] args) {
-        launch(args);
-//        String e1 = "C:\\Users\\A\\Downloads\\corpus\\corpus";
-//        String e2 = "C:\\Users\\A\\Downloads\\Searcher\\Searcher\\pos";
-//        String e3 = "C:\\Users\\A\\Downloads\\corpus\\stop_words.txt";
-//        String e4 = "C:\\Users\\A\\Downloads\\Searcher\\Searcher\\queries.txt";
-//        try {
-//            SearchEngine google = new SearchEngine(e1, e2, false, e3);
-//           google.runSearchEngine();
-//           google.partB(e4, true, true);
-//           exit();
-//       } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        //launch(args);
+        String e1 = "C:\\Users\\A\\Downloads\\corpus\\corpus";
+        String e2 = "C:\\Users\\A\\Downloads\\Searcher\\Searcher\\pos_with_header";
+        String e3 = "C:\\Users\\A\\Downloads\\corpus\\stop_words.txt";
+        String e4 = "C:\\Users\\A\\Downloads\\Searcher2\\Searcher\\queries.txt";
+        try {
+            SearchEngine google = new SearchEngine(e1, e2, false, e3);
+           google.runSearchEngine();
+           //google.index.loadDics(e2);
+           //google.partB(e4, true, true);
+           exit();
+       } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

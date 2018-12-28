@@ -28,10 +28,11 @@ public class Searcher {
     }
 
     public void createTermsList(String q, String postingPath) throws IOException {
-        queryTerms = new ArrayList<>();
+        semanticTerms = new ArrayList<>();
         query = q;
         String[] tokens = split(query, " ");
-        for (String word : tokens) {
+        for (String word : tokens)
+        {
             Term t;
             if(index.finalTermsDic.containsKey(upperCase(word))) {
                 t = new Term(null, null, 1);
@@ -67,8 +68,6 @@ public class Searcher {
     public ArrayList<Term> getQueryTerms() {
         return queryTerms;
     }
-
-
 
 
     public void  Get_semantica (String word) throws IOException {

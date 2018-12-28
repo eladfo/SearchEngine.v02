@@ -20,7 +20,6 @@ public class Parse
     private int rowCounter;
     public TreeMap<String, StringBuilder> capitalCityAPI;
     public Stemmer stemmer;
-    public String si="";
 
     /**
      * Constructor
@@ -97,8 +96,29 @@ public class Parse
         parsedDoc.setDocID(doc.getDocID());
         char x = '"';
         stk = split(doc.getDocText().toString(), x + " `'%_*&#+<>|~\\,;][:^@()?{}!�");
-        rowCounter = 0;                 // rowCounter of word in file include stop words!
-        wordPosition = 1;      // rowCounter of word in file without stop words!
+
+        parse_arr_token(1);
+
+        parsedDoc.docLength = rowCounter;    //Update the row
+
+        parse_header(doc);
+
+        updateCityInfo(doc.getDocCity());
+        parsedDoc.setFileID(doc.getDocFile());
+        return parsedDoc;
+    }
+
+    private void parse_header(Doc doc)
+    {
+        char x = '"';
+        stk = split(doc.getDocHeader().toString(), x + " `'%_*&#+<>|~\\,;][:^@()?{}!�");
+        parse_arr_token(0);
+    }
+
+    private void parse_arr_token(int flag)
+    {
+        rowCounter = 0;
+        wordPosition = 1;
         while (rowCounter < stk.length) {
             String s = initialParse(stk[rowCounter]);
             if (s.length() == 0 || stopWords.contains(lowerCase(s))) {
@@ -107,102 +127,74 @@ public class Parse
             }
             strb.setLength(0);
 
-            if (s.charAt(0) >= '0' && s.charAt(0) <= '9')
-            {
+            if (s.charAt(0) >= '0' && s.charAt(0) <= '9') {
                 if (s.charAt(s.length() - 1) == '%') {
-                    addTermToParsedDoc(strb.append(s), wordPosition);
+                    addTermToParsedDoc(strb.append(s), flag*wordPosition);
                 } else if (!isFraction(s)) {
-                    tokenIsNum(s);
+                    tokenIsNum(s , flag);
                 } else if (rowCounter + 1 < stk.length && equalsIgnoreCase(stk[rowCounter + 1], "Dollars")) {
-                    addTermToParsedDoc(strb.append(s).append(" Dollars"), wordPosition);
+                    addTermToParsedDoc(strb.append(s).append(" Dollars"), flag*wordPosition);
                 }
             } else if (Character.isLetter(s.charAt(0)))    //word!!
             {
                 if (rowCounter + 1 < stk.length && monthInfo.containsKey(lowerCase(s)) && isNumeric(stk[rowCounter + 1])) {
                     addTermToParsedDoc(strb.append(monthInfo.get(lowerCase(s))).append("-")
-                            .append(isNumUnder10(initialParse(stk[rowCounter + 1]))), wordPosition);
+                            .append(isNumUnder10(initialParse(stk[rowCounter + 1]))), flag*wordPosition);
                     rowCounter++;
                     continue;
-                }
-                else
-                {
-                    if(contains(s,"--"))
-                    {
+                } else {
+                    if (contains(s, "--")) {
                         strb.setLength(0);
-                        String[] tmp =split(s, "--");
-                        for(int j=0 ; j<tmp.length;j++)
-                            if(stopWords.contains(lowerCase(tmp[j])))
+                        String[] tmp = split(s, "--");
+                        for (int j = 0; j < tmp.length; j++)
+                            if (stopWords.contains(lowerCase(tmp[j])))
                                 continue;
-                        for(int j=0 ; j<tmp.length-1;j++) {
-                            if(stopWords.contains(lowerCase(tmp[j])))
+                        for (int j = 0; j < tmp.length - 1; j++) {
+                            if (stopWords.contains(lowerCase(tmp[j])))
                                 continue;
-                            else{
-                                tmp[j] = replace(tmp[j],"$","");
+                            else {
+                                tmp[j] = replace(tmp[j], "$", "");
                                 tmp[j] = initialParse(tmp[j]);
                                 strb.append(tmp[j]);
                             }
                         }
-                    }
-                    else if(contains(s,"-"))
-                    {
+                    } else if (contains(s, "-")) {
                         strb.setLength(0);
-                        String[] tmp =split(s, "-");
-                        if(tmp.length!=1){
-                            addTermToParsedDoc(strb.append(s), wordPosition);
+                        String[] tmp = split(s, "-");
+                        if (tmp.length != 1) {
+                            addTermToParsedDoc(strb.append(s), flag*wordPosition);
                             strb.setLength(0);
                         }
-                        for(int j = 0 ; j<tmp.length ; j++)
-                        {
-                            tmp[j]= initialParse(tmp[j]);
-                            if(!stopWords.contains(tmp[j]))
-                            {
-                                if(s.contains("/") || s.contains(".") )
-                                    clean(tmp[j] , wordPosition );
+                        for (int j = 0; j < tmp.length; j++) {
+                            tmp[j] = initialParse(tmp[j]);
+                            if (!stopWords.contains(tmp[j])) {
+                                if (s.contains("/") || s.contains("."))
+                                    clean(tmp[j],flag*wordPosition,flag);
                                 else
-                                    addTermToParsedDoc(strb.append(tmp[j]), wordPosition);
+                                    addTermToParsedDoc(strb.append(tmp[j]),  flag*wordPosition);
                             }
                             strb.setLength(0);
                         }
 
-                    }
-                    else {     //regular worddd
-                        /*if(Character.isUpperCase(s.charAt(0)) &&rowCounter+1<stk.length && Character.isUpperCase(stk[rowCounter+1].charAt(0)))
-                        {
-                            strb.setLength(0);
-                            if(!stopWords.contains(lowerCase(s)) && !stopWords.contains(lowerCase(stk[rowCounter+1]))) {
-                                s=replaceChars(s,"'%/_*&$#+<>|~,!�","");
-                                strb.append(initialParse(s)).append(" ").append(initialParse(stk[rowCounter + 1]));
-                                addTermToParsedDoc(strb, wordPosition);
-                                strb.setLength(0);
-                                strb.append(s);
-                                addTermToParsedDoc(strb, wordPosition);
-                            }
-                        }
-                        else {*/
-                        //System.out.println(s);
-                        if(s.contains("/") || s.contains(".") )
-                            clean(s , wordPosition);
+                    } else {     //regular worddd
+                        if (s.contains("/") || s.contains("."))
+                            clean(s, flag*wordPosition,flag);
                         else
-                            addTermToParsedDoc(strb.append(s), wordPosition);
+                            addTermToParsedDoc(strb.append(s),flag* wordPosition);
                         strb.setLength(0);
-
                     }
                 }
             }
             strb.setLength(0);
             rowCounter++;
         }
-        parsedDoc.docLength = rowCounter;
-        updateCityInfo(doc.getDocCity());
-        parsedDoc.setFileID(doc.getDocFile());
-        return parsedDoc;
     }
 
-    private void clean(String s , int pos)
+    private void clean(String s , int pos , int flag)
     {
         if(s.equals("U.S."))
         {
-            addTermToParsedDoc(strb.append(s), pos);
+            addTermToParsedDoc(strb.append(s), flag*pos);
             strb.setLength(0);
             return;
         }
@@ -210,9 +202,9 @@ public class Parse
         for(String word : tokens)
         {
             if(word.contains("/") || word.contains("."))
-                clean(word, pos);
+                clean(word, pos,flag);
             else{
-                addTermToParsedDoc(strb.append(word), pos);
+                addTermToParsedDoc(strb.append(word), flag*pos);
                 strb.setLength(0);
             }
         }
@@ -244,9 +236,9 @@ public class Parse
         return s;
     }
 
-    private void tokenIsNum(String s) {
+    private void tokenIsNum(String s , int flag_header) {
         if(contains(s,"-")) {
-            addTermToParsedDoc(strb.append(s), wordPosition);
+            addTermToParsedDoc(strb.append(s), flag_header*wordPosition);
             return;
         }
         float f;
@@ -259,20 +251,20 @@ public class Parse
         Boolean flag = false;
         if (rowCounter + 1 < stk.length && suffixWords.contains(lowerCase(stk[rowCounter + 1]))) {
             String nextTkn = stk[rowCounter + 1];
-            flag = checkNextTkn(f, nextTkn);
+            flag = checkNextTkn(f, nextTkn , flag_header);
         }
         if (!flag) {
             if (f < 1000) {
-                addTermToParsedDoc(strb.append(isNumUnder10(fromNumToString(f))), wordPosition);
+                addTermToParsedDoc(strb.append(isNumUnder10(fromNumToString(f))), flag_header*wordPosition);
             } else if (f < 1000000 && f >= 1000) {
                 f = f / 1000;
-                addTermToParsedDoc(strb.append(fromNumToString(f)).append("K"), wordPosition);
+                addTermToParsedDoc(strb.append(fromNumToString(f)).append("K"), flag_header*wordPosition);
             } else if (f < 1000000000 && f >= 1000000) {
                 f = f / 1000000;
-                addTermToParsedDoc(strb.append(fromNumToString(f)).append("M"), wordPosition);
+                addTermToParsedDoc(strb.append(fromNumToString(f)).append("M"), flag_header*wordPosition);
             } else if (f >= 1000000000) {
                 f = f / 1000000000;
-                addTermToParsedDoc(strb.append(fromNumToString(f)).append("B"), wordPosition);
+                addTermToParsedDoc(strb.append(fromNumToString(f)).append("B"), flag_header*wordPosition);
             }
         }
     }
@@ -292,50 +284,50 @@ public class Parse
      * @param nextTkn - after f
      * @return True if succeed to find and combine them together. else False.
      */
-    private Boolean checkNextTkn(float f, String nextTkn) {
+    private Boolean checkNextTkn(float f, String nextTkn , int flag_header) {
 
         if (equalsIgnoreCase(nextTkn,"Thousand")) {
-            addTermToParsedDoc(strb.append(fromNumToString(f)).append("K"), wordPosition);
+            addTermToParsedDoc(strb.append(fromNumToString(f)).append("K"), flag_header*wordPosition);
             rowCounter++;
             return true;
         }
         else if (isNumDate(f,nextTkn) != null) {
-            addTermToParsedDoc(strb.append(isNumDate(f,nextTkn)).append("-").append(fromNumToString(f)), wordPosition);
+            addTermToParsedDoc(strb.append(isNumDate(f,nextTkn)).append("-").append(fromNumToString(f)), flag_header*wordPosition);
             rowCounter++;
             return true;
         }else if (equalsIgnoreCase(nextTkn,"Million")) {
-            addTermToParsedDoc(strb.append(fromNumToString(f)).append("M"), wordPosition);
+            addTermToParsedDoc(strb.append(fromNumToString(f)).append("M"),flag_header*wordPosition);
             rowCounter++;
             return true;
         } else if (equalsIgnoreCase(nextTkn,"Billion")) {
-            addTermToParsedDoc(strb.append(fromNumToString(f)).append("B"), wordPosition);
+            addTermToParsedDoc(strb.append(fromNumToString(f)).append("B"), flag_header*wordPosition);
             rowCounter++;
             return true;
         } else if (equalsIgnoreCase(nextTkn,"Trillion")) {
-            addTermToParsedDoc(strb.append(fromNumToString(f*1000)).append("B"), wordPosition);
+            addTermToParsedDoc(strb.append(fromNumToString(f*1000)).append("B"), flag_header*wordPosition);
             rowCounter++;
             return true;
         } else if (equalsIgnoreCase(nextTkn,"percent") || nextTkn.equals("percentage")) {
-            addTermToParsedDoc(strb.append(fromNumToString(f)).append("%"), wordPosition);
+            addTermToParsedDoc(strb.append(fromNumToString(f)).append("%"), flag_header*wordPosition);
             rowCounter++;
             return true;
         }
         else if (f < 1000000 && equalsIgnoreCase(nextTkn,"Dollars")) {
-            addTermToParsedDoc(strb.append(fromNumToString(f)).append(" ").append(nextTkn), wordPosition);
+            addTermToParsedDoc(strb.append(fromNumToString(f)).append(" ").append(nextTkn), flag_header*wordPosition);
             rowCounter++;
             return true;
         }
         else if (isFraction(nextTkn)) {
             if (rowCounter + 2 < stk.length && stk[rowCounter + 2].equals("Dollars")) {
-                addTermToParsedDoc(strb.append(fromNumToString(f)).append(" ").append(nextTkn).append("Dollars"), wordPosition);
+                addTermToParsedDoc(strb.append(fromNumToString(f)).append(" ").append(nextTkn).append("Dollars"), flag_header*wordPosition);
                 rowCounter = rowCounter + 2;
                 return true;
             }
-            addTermToParsedDoc(strb.append(fromNumToString(f)).append(" ").append(nextTkn), wordPosition);
+            addTermToParsedDoc(strb.append(fromNumToString(f)).append(" ").append(nextTkn), flag_header*wordPosition);
             rowCounter++;
             return true;
         }
-        else if (isPriceBiggerThenMillion(f))
+        else if (isPriceBiggerThenMillion(f ,flag_header))
             return true;
         return false;
     }
@@ -349,24 +341,24 @@ public class Parse
             return monthInfo.get(lowerCase(nextTkn));
     }
 
-    private Boolean isPriceBiggerThenMillion(float f) {
+    private Boolean isPriceBiggerThenMillion(float f , int flag_header) {
         if(rowCounter +3 < stk.length && equalsIgnoreCase(stk[rowCounter +2],"U.S.") && equalsIgnoreCase(stk[rowCounter +3],"dollars"))
         {
             if (equalsIgnoreCase(stk[rowCounter + 1],"billion"))
             {
-                addTermToParsedDoc(strb.append(fromNumToString(f*1000)).append(" M Dollars "), wordPosition);
+                addTermToParsedDoc(strb.append(fromNumToString(f*1000)).append(" M Dollars "), flag_header*wordPosition);
                 rowCounter = rowCounter + 3;
                 return true;
             }
             else if(equalsIgnoreCase(stk[rowCounter + 1],"million"))
             {
-                addTermToParsedDoc(strb.append(fromNumToString(f)).append(" M Dollars "), wordPosition);
+                addTermToParsedDoc(strb.append(fromNumToString(f)).append(" M Dollars "), flag_header*wordPosition);
                 rowCounter = rowCounter + 3;
                 return true;
             }
             else if(equalsIgnoreCase(stk[rowCounter + 1],"trillion"))
             {
-                addTermToParsedDoc(strb.append(fromNumToString(f*1000000)).append(" M Dollars "), wordPosition);
+                addTermToParsedDoc(strb.append(fromNumToString(f*1000000)).append(" M Dollars "), flag_header*wordPosition);
                 rowCounter = rowCounter + 3;
                 return true;
             }
@@ -374,20 +366,20 @@ public class Parse
         else if (rowCounter +2 < stk.length && equalsIgnoreCase(stk[rowCounter +2],"Dollars") ){
             if(stk[rowCounter + 1].equals("m"))
             {
-                addTermToParsedDoc(strb.append(fromNumToString(f)).append(" M Dollars"), wordPosition);
+                addTermToParsedDoc(strb.append(fromNumToString(f)).append(" M Dollars"), flag_header*wordPosition);
                 rowCounter = rowCounter + 2;
                 return true;
             }
             else if(equalsIgnoreCase(stk[rowCounter + 1],"bn"))
             {
-                addTermToParsedDoc(strb.append(fromNumToString(f*1000)).append(" M Dollars"), wordPosition);
+                addTermToParsedDoc(strb.append(fromNumToString(f*1000)).append(" M Dollars"), flag_header*wordPosition);
                 rowCounter = rowCounter + 2;
                 return true;
             }
         }
         else if(equalsIgnoreCase(stk[rowCounter +1],"Dollars"))
         {
-            addTermToParsedDoc(strb.append(fromNumToString(f)).append(" M Dollars"), wordPosition);
+            addTermToParsedDoc(strb.append(fromNumToString(f)).append(" M Dollars"), flag_header*wordPosition);
             rowCounter = rowCounter + 1;
             return true;
         }

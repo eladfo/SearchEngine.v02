@@ -93,9 +93,10 @@ public class Indexer {
     public void loadDics(String path) throws IOException {
         BufferedReader[] brs = new BufferedReader[3];
         String dicPath = path;
-        brs[0] = new BufferedReader(new FileReader(new File(dicPath + "\\Final_Terms_Dic")));
-        brs[1] = new BufferedReader(new FileReader(new File(dicPath + "\\Final_Docs_Dic")));
-        brs[2] = new BufferedReader(new FileReader(new File(dicPath + "\\Final_Cities_Dic")));
+        System.out.println(dicPath);
+        brs[0] = new BufferedReader(new FileReader(new File(dicPath + "\\Without_Stemmer\\Final_Terms_Dic")));
+        brs[1] = new BufferedReader(new FileReader(new File(dicPath + "\\Without_Stemmer\\Final_Docs_Dic")));
+        brs[2] = new BufferedReader(new FileReader(new File(dicPath + "\\Without_Stemmer\\Final_Cities_Dic")));
         setFinalTermsDic(brs[0]);
         setFinalDocsDic(brs[1]);
         setFinalCityDic(brs[2]);

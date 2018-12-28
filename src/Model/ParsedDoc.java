@@ -87,8 +87,14 @@ public class ParsedDoc {
     public double calcEntityFinalRank(String[] pos, double alpha, double beta){
         double posRank = (docLength - Double.valueOf(pos[0])) / docLength;
         double finalRank = alpha*pos.length + beta*posRank;
-        DecimalFormat df = new DecimalFormat("#.000");
-        return Double.valueOf(df.format(finalRank));
+        try {
+            DecimalFormat df = new DecimalFormat("#.000");
+            return Double.valueOf(df.format(finalRank));
+        }catch(NumberFormatException e)
+        {
+            System.out.println(pos.length + "xx");
+        }
+        return 0;
     }
 
     public StringBuilder getEntitiesAsStb(){

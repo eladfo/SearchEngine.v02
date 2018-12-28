@@ -44,7 +44,13 @@ public class Doc {
         return docFile;
     }
 
+    public StringBuilder getDocHeader() {
+        return docHeader;
+    }
+
     public void setDocFile(String docFile) {
         this.docFile = docFile;
     }
+
+
 }

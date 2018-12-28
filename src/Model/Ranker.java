@@ -11,10 +11,13 @@ import static org.apache.commons.lang3.StringUtils.*;
 
 public class Ranker
 {
+    public Indexer idx ;
     public ArrayList<Term> query;
     public double Avg_Doc= 600;
+    public double num_docs_crorpus= 472525;
     public ArrayList<String> queryDoc;
-    public HashMap<String,String> result;
+    public ArrayList<String> result;
+    public ArrayList<String> result_tmp ;
     public TreeMap<Double, String> QueryDocRank;
     public double b=0.75;
     public double k=1.2;
@@ -22,19 +25,22 @@ public class Ranker
 
     public Ranker ()
     {
+        result_tmp = new ArrayList<>();
         QueryDocRank = new TreeMap<>(new Comparator<Double>() {
             @Override
             public int compare(Double o1, Double o2) {
                 return o2.compareTo(o1);
             }
         });
-        result = new HashMap<>();
+        result = new ArrayList<>();
         queryDoc = new ArrayList<>();
         semantic_words = new ArrayList<>();
     }
 
-    public void rankerStart(String path , String num_query, ArrayList<Term> qList) throws IOException
+    public void rankerStart(String path , String num_query, ArrayList<Term> qList , Indexer indexer) throws IOException
     {
+        idx = indexer;
+        set_result();
         query = qList;
         Build_doc_list();
         double B25_Rank  , Total_Rank,CosSim_Rank;
@@ -54,11 +60,13 @@ public class Ranker
         FileWriter fw = new FileWriter(postingsPath + "\\results.txt");
         BufferedWriter bw = new BufferedWriter(fw);
         StringBuilder s = new StringBuilder();
-        for (Map.Entry<String, String> entry : result.entrySet())
+        String[] arr;
+        for (String line : result)
         {
+            arr = split(line , "~");
             if(index<50)
             {
-                s.append(entry.getValue()).append(" 0 ").append(entry.getKey()).append(" 1 42.38 mt\n");
+                   s.append(arr[0]).append(" 0 ").append(arr[1]).append(" 1 42.38 mt\n");
                    bw.write(s.toString());
                    s.setLength(0);
             }
@@ -86,18 +94,8 @@ public class Ranker
 
     private double get_Size_Doc(String Doc) throws IOException
     {
-        for (Term term : query)
-        {
-            for(Map.Entry<String,StringBuilder> entry : term.docList.entrySet()){
-                if(Doc.equals(entry.getKey()))
-                {
-                    StringBuilder docData = entry.getValue();
-                    String[] st = splitByWholeSeparator(docData.toString(),";" );
-                    return Double.parseDouble(st[1]);
-                }
-            }
-        }
-        return 0d ;
+        int[] arr = idx.finalDocsDic.get(Doc);
+        return (double)arr[0];
     }
 
     private double get_tf(Term t ,String Doc) throws IOException
@@ -112,7 +110,94 @@ public class Ranker
         return 0d;
     }
 
-    /*
+    private void Addres(String numqurey)
+    {
+        int index=0;
+        int good = 0;
+        for (Map.Entry<Double, String> entry : QueryDocRank.entrySet())
+        {
+            if(index<50)
+            {
+                System.out.println(numqurey+"~"+entry.getValue());
+                result.add(numqurey+"~"+entry.getValue());
+                if(result_tmp.contains(entry.getValue()))
+                    good++;
+            }
+            else
+                break;
+            index++;
+        }
+        System.out.println(good +  "   hhh") ;
+    }
+
+
+    private double CalculateCosSim(String doc) throws IOException {
+        double mone = 0;
+        double mechane = 0;
+        double tf;
+        for (Term t : query)
+        {
+            tf = get_tf(t, doc);
+            mone = mone + tf;
+            mechane = mechane + Math.pow(tf,2);
+        }
+        double sqr = Math.sqrt(mechane);
+        return mone/sqr;
+    }
+
+    private double CalculateB25(String doc) throws IOException {
+        double Sum = 0;
+        double logExp;
+        double df;
+        double tf;
+        for (Term t : query)
+        {
+            tf = get_tf(t,doc);
+            df = get_df(t);
+            if(get_tf(t,doc) != 0)
+            {
+                logExp = Math.log10( (num_docs_crorpus +1)/(df));
+                // sizde doc + 1 ==> num of docs in corpus + 1
+                Sum = Sum + Exp_Calculate_BM25(tf,doc) * logExp ;
+            }
+        }
+        return Sum ;
+    }
+
+    private double Exp_Calculate_BM25(double tf, String doc) throws IOException {
+        double mone , mechane;
+        mone = (k+1) * tf;
+        mechane = tf + k*(1d -b + (b*get_Size_Doc(doc)/Avg_Doc));
+        if(mechane == 0)
+            return 0;
+        return (mone/mechane) ;
+    }
+
+    public void set_result() throws IOException {
+        String st;
+        String [] ss ;
+        BufferedReader brTermPost = new BufferedReader(new FileReader(new File
+                ("C:\\Users\\A\\Downloads\\Searcher2\\Searcher\\British Chunnel impact.txt")));
+        while((st= brTermPost.readLine())!=null )
+        {
+            ss = split(st," ");
+            if(ss[3].equals("1"))
+            {
+                //System.out.println(ss[2]);
+                result_tmp.add(ss[2]);
+            }
+        }
+    }
+
+    public void Reset()
+    {
+        QueryDocRank.clear();
+    }
+
+
+
+
+ /*
         private double get_tf_semantica(String word ,String Doc) throws IOException
         {
             double Sum=0;
@@ -124,59 +209,6 @@ public class Ranker
             return Sum;
         }
     */
-    private void Addres(String numqurey)
-    {
-        int index=0;
-        for (Map.Entry<Double, String> entry : QueryDocRank.entrySet())
-        {
-            if(index<50)
-                result.put(entry.getValue(),numqurey);
-            else
-                break;
-            index++;
-        }
-        System.out.println(result.size() +  "  hhh") ;
-    }
-
-
-    private double CalculateCosSim(String doc) throws IOException {
-        double mone = 0;
-        double mechane = 0;
-        for (Term t : query)
-        {
-            mone = mone + get_tf(t, doc);
-            mechane = mechane + Math.pow(get_tf(t, doc),2);
-        }
-        double sqr = Math.sqrt(mechane);
-        return mone/sqr;
-    }
-
-    private double CalculateB25(String doc) throws IOException {
-        double Sum = 0;
-        double logExp;
-        for (Term t : query)
-        {
-            if(get_tf(t,doc) != 0)
-            {
-                logExp = Math.log10( (get_Size_Doc(doc) +1)/(get_df(t)));
-                // sizde doc + 1 ==> num of docs in corpus + 1
-                Sum = Sum + Exp_Calculate_BM25(t,doc) * logExp ;
-            }
-        }
-        return Sum ;
-    }
-
-    private double Exp_Calculate_BM25(Term t, String doc) throws IOException {
-        double mone , mechane;
-        mone = (k+1) * get_tf(t,doc);
-        mechane = get_tf(t,doc) + k*(1d -b + (b*get_Size_Doc(doc)/Avg_Doc));
-        if(mechane == 0)
-            return 0;
-        return (mone/mechane) ;
-    }
-
-
-
 //    public void  Get_semantica (String word) throws IOException {
 //
 //        URL url = new URL("https://api.datamuse.com/words?ml="+word);
