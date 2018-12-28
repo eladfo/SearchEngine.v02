@@ -96,7 +96,7 @@ public class Parse
         parsedDoc = new ParsedDoc();
         parsedDoc.setDocID(doc.getDocID());
         char x = '"';
-        stk = split(doc.getDocText().toString(), x + " `'%_*&$#+<>|~\\,;][:^@()?{}!�");
+        stk = split(doc.getDocText().toString(), x + " `'%_*&#+<>|~\\,;][:^@()?{}!�");
         rowCounter = 0;                 // rowCounter of word in file include stop words!
         wordPosition = 1;      // rowCounter of word in file without stop words!
         while (rowCounter < stk.length) {
