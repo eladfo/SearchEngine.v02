@@ -116,16 +116,10 @@ public class ReadFile {
         while (!tokens[idx].equals("<TI>"))
             idx++;
         idx++;
-        try {
-            while (!tokens[idx].equals("</TI></H3>") && idx < tokens.length - 1) {
-                tmp.append(tokens[idx]).append(" ");
-                idx++;
-            }
+        while (!tokens[idx].equals("</TI></H3>") && idx<(tokens.length-1)){
+            tmp.append(tokens[idx]).append(" ");
+            idx++;
         }
-        catch(ArrayIndexOutOfBoundsException e)
-            {
-                System.out.println(s);
-            }
         doc.update(tmp.toString(),3);
     }
 

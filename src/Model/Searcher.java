@@ -31,7 +31,6 @@ public class Searcher {
         queryTerms = new ArrayList<>();
         query = q;
         String[] tokens = split(query, " ");
-
         for (String word : tokens) {
             Term t;
             if(index.finalTermsDic.containsKey(upperCase(word))) {
@@ -41,20 +40,16 @@ public class Searcher {
                 t = new Term(null, null, 0);
                 word = lowerCase(word);
             }
-
             int[] test = index.finalTermsDic.get(word);
             if(test == null)
                 continue;
-
             int termRowPtr = test[2] + 1;
             BufferedReader brTermPost = new BufferedReader(new FileReader(new File
                     (postingPath + "\\" + (upperCase(Character.toString(word.charAt(0)))))));
-
             for(int i=0; i<termRowPtr-1; i++)
                 brTermPost.readLine();
             String termData = brTermPost.readLine();
             String[] docs = split(termData, "~");
-
             for(String d : docs) {
                 String[] tmp = split(d, ",");
                 int tf = tmp.length - 1;

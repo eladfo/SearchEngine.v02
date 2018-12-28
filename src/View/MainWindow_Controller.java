@@ -14,9 +14,7 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.*;
-
 import static org.apache.commons.lang3.StringUtils.split;
-
 
 public class MainWindow_Controller extends Component {
     public CheckComboBox<String> extras;
@@ -193,10 +191,9 @@ public class MainWindow_Controller extends Component {
         }
     }
 
-    public void runSingleQuery() {
+    public void runSingleQuery() throws IOException {
         if (!txtfld_singleQuery.getText().isEmpty() && loadedDics) {
-            String query = txtfld_singleQuery.getText();
-            //Main.google.partB(txtfld_queriesFile_path.getText(), false, semantic.isSelected());
+            Main.google.runSingleQuery(txtfld_queriesFile_path.getText(), false, semantic.isSelected());
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR,
                     "Please enter queries's file path, and make sure to load the dics");

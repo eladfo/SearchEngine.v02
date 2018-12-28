@@ -34,7 +34,7 @@ public class SearchEngine {
         else
             postingsPath = postPath + "\\Without_Stemmer";
         //partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
-        partiotions=10;
+        partiotions=2;
         stemmFlag = isStemm;
         index = new Indexer(postingsPath, partiotions);
         parse = new Parse(corpusPath, stemmFlag, stopwordsPath);
@@ -114,18 +114,18 @@ public class SearchEngine {
     }
 
     public void partB(String qPath, boolean cityFlag, boolean semanticFlag) throws IOException {
-        index.loadDics(postingsPath);
         search = new Searcher(cityFlag, semanticFlag, index);
-        HashMap<String,StringBuilder> querys = rfBeta(qPath);
-
-        for (Map.Entry<String, StringBuilder> entry : querys.entrySet()) {
+        HashMap<String,StringBuilder> queries = rfBeta(qPath);
+        for (Map.Entry<String, StringBuilder> entry : queries.entrySet()) {
             search.createTermsList(entry.getValue().toString(), postingsPath);
             ranker.rankerStart(postingsPath ,entry.getKey(),search.getQueryTerms());
         }
     }
 
-    public void save_res() throws IOException {
-        ranker.Save_res(postingsPath);
+    public void runSingleQuery(String query, boolean cityFlag, boolean semanticFlag) throws IOException {
+        search = new Searcher(cityFlag, semanticFlag, index);
+        search.createTermsList(query, postingsPath);
+        ranker.rankerStart(postingsPath ,"007" ,search.getQueryTerms());
     }
 
     public HashMap<String,StringBuilder> rfBeta(String qPath) throws IOException {   //function that Readfile Query file!!!
@@ -152,6 +152,10 @@ public class SearchEngine {
             }
         }
         return res;
+    }
+
+    public void save_res() throws IOException {
+        ranker.Save_res(postingsPath);
     }
 
     public String[] getEntitiesPerDoc(String docID) throws IOException {

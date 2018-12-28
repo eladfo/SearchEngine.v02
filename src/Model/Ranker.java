@@ -38,7 +38,6 @@ public class Ranker
         query = qList;
         Build_doc_list();
         double B25_Rank  , Total_Rank,CosSim_Rank;
-
         for (String Doc : queryDoc)
         {
             B25_Rank =CalculateB25(Doc);
@@ -46,16 +45,12 @@ public class Ranker
             Total_Rank =    B25_Rank*0.7 + CosSim_Rank*0.3 ;
             QueryDocRank.put(Total_Rank,Doc);
         }
-
         Addres(num_query);
-        //System.out.println("======================The res=======================");
-        //print_res();
     }
 
     public void Save_res(String postingsPath) throws IOException
     {
         int index=0;
-
         FileWriter fw = new FileWriter(postingsPath + "\\results.txt");
         BufferedWriter bw = new BufferedWriter(fw);
         StringBuilder s = new StringBuilder();
@@ -141,7 +136,6 @@ public class Ranker
             index++;
         }
         System.out.println(result.size() +  "  hhh") ;
-
     }
 
 
@@ -165,6 +159,7 @@ public class Ranker
             if(get_tf(t,doc) != 0)
             {
                 logExp = Math.log10( (get_Size_Doc(doc) +1)/(get_df(t)));
+                // sizde doc + 1 ==> num of docs in corpus + 1
                 Sum = Sum + Exp_Calculate_BM25(t,doc) * logExp ;
             }
         }

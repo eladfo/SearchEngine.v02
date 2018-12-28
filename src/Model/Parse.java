@@ -79,6 +79,8 @@ public class Parse
     }
 
     public void addTermToParsedDoc(StringBuilder sb, int pos) {
+        if(sb.toString().equals("/ultraleft"))
+            System.out.printf("bla");
         if(isStem)
             parsedDoc.addTerm(stemmer.stem(sb.toString()), pos);
         else
@@ -93,7 +95,8 @@ public class Parse
     public ParsedDoc runParser(Doc doc) {
         parsedDoc = new ParsedDoc();
         parsedDoc.setDocID(doc.getDocID());
-        stk = split(doc.getDocText().toString(), " '%_*&$#+<>|~\\,;][:^@()?{}!�");
+        char x = '"';
+        stk = split(doc.getDocText().toString(), x + " `'%_*&$#+<>|~\\,;][:^@()?{}!�");
         rowCounter = 0;                 // rowCounter of word in file include stop words!
         wordPosition = 1;      // rowCounter of word in file without stop words!
         while (rowCounter < stk.length) {
@@ -142,16 +145,21 @@ public class Parse
                     }
                     else if(contains(s,"-"))
                     {
-                        addTermToParsedDoc(strb.append(s), wordPosition);
                         strb.setLength(0);
                         String[] tmp =split(s, "-");
+                        if(tmp.length!=1){
+                            addTermToParsedDoc(strb.append(s), wordPosition);
+                            strb.setLength(0);
+                        }
                         for(int j = 0 ; j<tmp.length ; j++)
                         {
                             tmp[j]= initialParse(tmp[j]);
                             if(!stopWords.contains(tmp[j]))
                             {
-                                clean(tmp[j] , wordPosition );
-                                addTermToParsedDoc(strb.append(tmp[j]), wordPosition);
+                                if(s.contains("/") || s.contains(".") )
+                                    clean(tmp[j] , wordPosition );
+                                else
+                                    addTermToParsedDoc(strb.append(tmp[j]), wordPosition);
                             }
                             strb.setLength(0);
                         }
@@ -172,7 +180,7 @@ public class Parse
                         }
                         else {*/
                         //System.out.println(s);
-                        if(s.contains("/") ||s.contains(".") )
+                        if(s.contains("/") || s.contains(".") )
                             clean(s , wordPosition);
                         else
                             addTermToParsedDoc(strb.append(s), wordPosition);
@@ -192,13 +200,19 @@ public class Parse
 
     private void clean(String s , int pos)
     {
+        if(s.equals("U.S."))
+        {
+            addTermToParsedDoc(strb.append(s), pos);
+            strb.setLength(0);
+            return;
+        }
         String[] tokens = split(s,"./");
         for(String word : tokens)
         {
-            if(s.contains("/") ||s.contains("."))
+            if(word.contains("/") || word.contains("."))
                 clean(word, pos);
             else{
-                addTermToParsedDoc(strb.append(s), pos);
+                addTermToParsedDoc(strb.append(word), pos);
                 strb.setLength(0);
             }
         }
