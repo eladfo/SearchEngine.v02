@@ -51,7 +51,7 @@ public class SearchEngine {
      */
     public void runSearchEngine() throws IOException {
         long startTime = System.currentTimeMillis();
-        for (int i = 35; i < partiotions; i++) {
+        for (int i = 0; i < partiotions; i++) {
             long p0 = System.currentTimeMillis();
             docs.clear();
             docs = rf.readLines(i);
