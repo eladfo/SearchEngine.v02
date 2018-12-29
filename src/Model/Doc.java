@@ -20,7 +20,7 @@ public class Doc {
                     break;
             case 2: docCity.append(st);
                     break;
-            case 3: docHeader.append(st);
+            case 3: docHeader.append(st).append(" ");
                 break;
             case 4: docText.append(st).append(" ");
                     break;
