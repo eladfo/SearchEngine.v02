@@ -20,7 +20,6 @@ public class SearchEngine {
     double totalRunTime;
     boolean stemmFlag;
     String postingsPath;
-
     Ranker ranker;
 
     /**
@@ -29,10 +28,7 @@ public class SearchEngine {
      */
     public SearchEngine(String corpusPath, String postPath, Boolean isStemm, String stopwordsPath) throws IOException {
         rf = new ReadFile(corpusPath);
-        if(isStemm)
-            postingsPath = postPath + "\\With_Stemmer";
-        else
-            postingsPath = postPath + "\\Without_Stemmer";
+        this.postingsPath = updatePath(postPath, isStemm);
         partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
         //partiotions=2;
         stemmFlag = isStemm;
@@ -43,6 +39,10 @@ public class SearchEngine {
 
     }
 
+    public void setPostingsPath(String postingsPath) {
+        this.postingsPath = postingsPath;
+    }
+
     /**
      * Core function that control the whole program,
      * and navigating the data from the disk into ReadFile obj,
@@ -51,7 +51,7 @@ public class SearchEngine {
      */
     public void runSearchEngine() throws IOException {
         long startTime = System.currentTimeMillis();
-        for (int i = 0; i < partiotions; i++) {
+        for (int i = 35; i < partiotions; i++) {
             long p0 = System.currentTimeMillis();
             docs.clear();
             docs = rf.readLines(i);
@@ -84,11 +84,11 @@ public class SearchEngine {
         return String.valueOf(totalRunTime);
     }
 
-    public void Reset(String path) {
+    public void resetIdx() {
         rf.resetDocSet();
         parse.resetParse();
         index.resetIndex();
-        deleteAllFiles(path);
+        deleteAllFiles(postingsPath);
         docs.clear();
     }
 
@@ -113,20 +113,21 @@ public class SearchEngine {
         }
     }
 
-    public void partB(String qPath, boolean cityFlag, boolean semanticFlag) throws IOException {
-        search = new Searcher(cityFlag, semanticFlag, index);
+    public void partB(String qPath, String postingPath, boolean stemmFlag, boolean semanticFlag, ArrayList<String> cityFilter) throws IOException {
+        search = new Searcher(cityFilter, semanticFlag, index, postingPath);
         HashMap<String,StringBuilder> queries = rfBeta(qPath);
         for (Map.Entry<String, StringBuilder> entry : queries.entrySet()) {
-            search.createTermsList(entry.getValue().toString(), postingsPath);
-            ranker.rankerStart(postingsPath ,entry.getKey(),search.getQueryTerms() , index);
-            ranker.Save_res(postingsPath);
+            search.createTermsList(entry.getValue().toString(), postingPath);
+            ranker.rankerStart(postingPath, entry.getKey(), search.getQueryTerms(), index);
         }
+        saveSearchResults();
     }
 
-    public void runSingleQuery(String query, boolean cityFlag, boolean semanticFlag) throws IOException {
-        search = new Searcher(cityFlag, semanticFlag, index);
-        search.createTermsList(query, postingsPath);
-        ranker.rankerStart(postingsPath ,"007" ,search.getQueryTerms() , index);
+    public void runSingleQuery(String query, String postingPath, boolean stemmFlag, boolean semanticFlag, ArrayList<String> cityFlag) throws IOException {
+        search = new Searcher(cityFlag, semanticFlag, index, postingPath);
+        String postPath = postingPath;
+        search.createTermsList(query, postPath);
+        ranker.rankerStart(postPath ,"007" ,search.getQueryTerms(), index);
     }
 
     public HashMap<String,StringBuilder> rfBeta(String qPath) throws IOException {   //function that Readfile Query file!!!
@@ -155,7 +156,7 @@ public class SearchEngine {
         return res;
     }
 
-    public void save_res() throws IOException {
+    public void saveSearchResults() throws IOException {
         ranker.Save_res(postingsPath);
     }
 
@@ -168,5 +169,21 @@ public class SearchEngine {
         }
         String[] tokens = split(line, "~");
         return split(tokens[5], ",");
+    }
+
+    public String updatePath(String path, boolean isStemm){
+        if(isStemm)
+            return path + "\\With_Stemmer";
+        else
+            return path + "\\Without_Stemmer";
+    }
+
+    public void testing(String e2) throws IOException {
+        e2 += "\\Without_Stemmer";
+        index.loadDics(e2);
+        search = new Searcher(null, false, index, e2);
+        String query = "mutual fund predictors";
+        HashMap<String, ArrayList<String[]>> test = search.createBetaMap(query, e2);
+        System.out.println("well well");
     }
 }

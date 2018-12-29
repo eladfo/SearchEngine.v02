@@ -78,8 +78,6 @@ public class Parse
     }
 
     public void addTermToParsedDoc(StringBuilder sb, int pos) {
-        if(sb.toString().equals("/ultraleft"))
-            System.out.printf("bla");
         if(isStem)
             parsedDoc.addTerm(stemmer.stem(sb.toString()), pos);
         else
@@ -112,7 +110,7 @@ public class Parse
     {
         char x = '"';
         stk = split(doc.getDocHeader().toString(), x + " `'%_*&#+<>|~\\,;][:^@()?{}!�");
-        parse_arr_token(0);
+        parse_arr_token(-1);
     }
 
     private void parse_arr_token(int flag)

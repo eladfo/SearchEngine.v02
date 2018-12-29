@@ -40,11 +40,12 @@ public class ParsedDoc {
         if(str.length()==0)
             return;
         char c = str.charAt(0);
+        if(c == '$')
+            return;
         if( (c <= '0' || c >= '9') && isUpperCase(c) )
             tmp = upperCase(str);
         else
             tmp = lowerCase(str);
-
         if (terms.containsKey(tmp))
         {
             StringBuilder t = terms.get(tmp);
@@ -85,6 +86,8 @@ public class ParsedDoc {
      * @return final entity rank by our formula.
      */
     public double calcEntityFinalRank(String[] pos, double alpha, double beta){
+        if(docLength == 0)
+            docLength = 1;
         double posRank = (docLength - Double.valueOf(pos[0])) / docLength;
         double finalRank = alpha*pos.length + beta*posRank;
         try {

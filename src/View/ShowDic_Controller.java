@@ -20,6 +20,8 @@ public class ShowDic_Controller extends Component implements Initializable
             file = new File(MainWindow_Controller .postingPath + "\\Without_Stemmer\\Final_Terms_Dic");
         else
             file = new File(MainWindow_Controller .postingPath + "\\With_Stemmer\\Final_Terms_Dic");
+        if(!file.exists())
+            return;
         String st;
         String[] arr_str;
         StringBuilder s = new StringBuilder();

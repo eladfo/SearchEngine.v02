@@ -7,6 +7,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.RadioButton;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.controlsfx.control.CheckComboBox;
@@ -14,18 +18,28 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.*;
+import java.util.ArrayList;
+
 import static org.apache.commons.lang3.StringUtils.split;
 
 public class MainWindow_Controller extends Component {
-    public CheckComboBox<String> extras;
-    public javafx.scene.control.TextField txtfld_corpus_path;
-    public javafx.scene.control.TextField txtfld_posting_path;
-    public javafx.scene.control.TextField txtfld_stopwords_path;
-    public javafx.scene.control.TextField txtfld_queriesFile_path;
-    public javafx.scene.control.TextField txtfld_singleQuery;
-    public javafx.scene.control.CheckBox steam;
-    public javafx.scene.control.RadioButton semantic;
-    public javafx.scene.control.RadioButton stemm;
+    public TextField txtfld_corpus_path;
+    public TextField txtfld_posting_path;
+    public TextField txtfld_stopwords_path;
+    public TextField txtfld_queriesFile_path;
+    public TextField txtfld_singleQuery;
+    public CheckBox steam;
+    public RadioButton semanticFlag;
+    public RadioButton stemmFlag;
+    public CheckComboBox<String> cityFilter;
+    public Button createInvertedIdx;
+    public Button showDic;
+    public Button loadDic;
+    public Button resetIdx;
+    public Button browseQueryFile;
+    public Button runQueryFile;
+    public Button runSingleQuery;
+
     public boolean loadedDics = false;
     public static String postingPath = "";
     public static boolean is_steam = false;
@@ -42,6 +56,7 @@ public class MainWindow_Controller extends Component {
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             txtfld_corpus_path.setText(chooser.getSelectedFile().toString());
         }
+        createInvertedIdxCheck();
     }
 
     /**
@@ -57,6 +72,7 @@ public class MainWindow_Controller extends Component {
             txtfld_posting_path.setText(chooser.getSelectedFile().toString());
             postingPath = txtfld_posting_path.getText();
         }
+        createInvertedIdxCheck();
     }
 
     /**
@@ -72,22 +88,26 @@ public class MainWindow_Controller extends Component {
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             txtfld_stopwords_path.setText(chooser.getSelectedFile().toString());
         }
+        createInvertedIdxCheck();
     }
 
     /**
-     * Start the create inverted files process.
+     * Start the createInvertedIdx inverted files process.
      */
     public void startButton() throws IOException {
-        if (!txtfld_corpus_path.getText().isEmpty() && !txtfld_posting_path.getText().isEmpty()) {
             Main.google = new SearchEngine(txtfld_corpus_path.getText(), txtfld_posting_path.getText()
                     , steam.isSelected(), txtfld_stopwords_path.getText());
             Main.google.runSearchEngine();
             openDetailsWindow();
             loadedDics = true;
-            initializeCityFilter();
-        } else {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Please enter corpus&postings paths");
-            alert.showAndWait();
+            enableBottuns();
+    }
+
+    public void createInvertedIdxCheck() {
+        if (!txtfld_corpus_path.getText().isEmpty()
+                && !txtfld_posting_path.getText().isEmpty()
+                    && !txtfld_stopwords_path.getText().isEmpty()) {
+            createInvertedIdx.setDisable(false);
         }
     }
 
@@ -111,11 +131,10 @@ public class MainWindow_Controller extends Component {
      */
     public void showDicButton() throws IOException {
         if (postingPath.equals("") || postingPath.isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Please enter posting's path");
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Please choose posting's path");
             alert.showAndWait();
         } else {
             is_steam = steam.isSelected();
-            postingPath = txtfld_posting_path.getText();
             Stage stage = new Stage();
             FXMLLoader fxmlLoader = new FXMLLoader();
             Parent root = fxmlLoader.load(getClass().getResource("Show_Dic.fxml").openStream());
@@ -129,16 +148,17 @@ public class MainWindow_Controller extends Component {
     }
 
     /**
-     * Resetting all data structures in project and delete all inverted files that create in the program.
+     * Resetting all data structures in project and delete all inverted files that createInvertedIdx in the program.
      */
     public void totalIndexReset() {
         if (Main.google != null) {
             if (postingPath != "") {
-                Main.google.Reset(postingPath);
+                Main.google.resetIdx();
+                disableButtons();
                 Alert alert = new Alert(Alert.AlertType.INFORMATION, "Index successfully reset");
                 alert.showAndWait();
             } else {
-                Alert alert = new Alert(Alert.AlertType.ERROR, "Please enter posting's path");
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Please choose posting's path");
                 alert.showAndWait();
             }
         }
@@ -149,24 +169,31 @@ public class MainWindow_Controller extends Component {
      */
     public void loadDicsToMemory() throws IOException {
         if (postingPath.equals("") || postingPath.isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Please enter posting's path");
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Please choose posting's path");
             alert.showAndWait();
         } else {
-            updatePostingPath();
-            Main.google.index.loadDics(postingPath);
-            Alert alert = new Alert(Alert.AlertType.INFORMATION,
-                    "All dictionaries successfully loaded to memory");
-            alert.showAndWait();
-            loadedDics = true;
-            initializeCityFilter();
+            String updatePath = updatePostingPath(steam.isSelected());
+            Main.google.setPostingsPath(postingPath);
+            Boolean res = Main.google.index.loadDics(updatePath);
+            if(res) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION,
+                        "All dictionaries successfully loaded to memory");
+                alert.showAndWait();
+                loadedDics = true;
+                enableBottuns();
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR,
+                        "Dictionaries loaded failed. Maybe one of them is missing.");
+                alert.showAndWait();
+            }
         }
     }
 
-    private void updatePostingPath() {
-        if(steam.isSelected())
-            postingPath = txtfld_posting_path.getText() + "\\With_Stemmer";
+    private String updatePostingPath(Boolean flag) {
+        if(flag)
+            return postingPath + "\\With_Stemmer";
         else
-            postingPath = txtfld_posting_path.getText() + "\\Without_Stemmer";
+            return postingPath + "\\Without_Stemmer";
     }
 
     public void setQueriesFilePath() {
@@ -183,44 +210,65 @@ public class MainWindow_Controller extends Component {
 
     public void runQueriesButton() throws IOException {
         if (!txtfld_queriesFile_path.getText().isEmpty() && loadedDics) {
-            Main.google.partB(txtfld_queriesFile_path.getText(), false, semantic.isSelected());
+            ArrayList<String> cityList = getCitiesSelected();
+            String path = updatePostingPath(stemmFlag.isSelected());
+            Main.google.partB(txtfld_queriesFile_path.getText(), path, stemmFlag.isSelected(), semanticFlag.isSelected(), cityList);
         } else {
-            Alert alert = new Alert(Alert.AlertType.ERROR,
-                    "Please enter queries's file path, and make sure to load the dics");
+            Alert alert = new Alert(Alert.AlertType.ERROR,"Please choose queries's file path");
             alert.showAndWait();
         }
     }
 
-    public void runSingleQuery() throws IOException {
+    public void runSingle() throws IOException {
         if (!txtfld_singleQuery.getText().isEmpty() && loadedDics) {
-            Main.google.runSingleQuery(txtfld_queriesFile_path.getText(), false, semantic.isSelected());
+            ArrayList<String> cityList = getCitiesSelected();
+            String path = updatePostingPath(stemmFlag.isSelected());
+            Main.google.runSingleQuery(txtfld_queriesFile_path.getText(), path, stemmFlag.isSelected(), semanticFlag.isSelected(), cityList);
         } else {
-            Alert alert = new Alert(Alert.AlertType.ERROR,
-                    "Please enter queries's file path, and make sure to load the dics");
+            Alert alert = new Alert(Alert.AlertType.ERROR,"Please enter a query");
             alert.showAndWait();
         }
     }
 
-    public void initializeCityFilter() {
+    public void initializeCityFilter() throws IOException {
         ObservableList<String> strings = FXCollections.observableArrayList();
-        File file;
-        updatePostingPath();
-        file = new File(postingPath + "\\Final_Cities_Dic");
+        String upPath = updatePostingPath(steam.isSelected());
+        File file = new File(upPath + "\\Final_Cities_Dic");
         String st;
         String[] arr_str;
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            while ((st = br.readLine()) != null) {
-                arr_str = split(st, ";");
-                strings.add(arr_str[0]);
-            }
-            br.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        BufferedReader br = new BufferedReader(new FileReader(file));
+        while ((st = br.readLine()) != null) {
+            arr_str = split(st, ";");
+            strings.add(arr_str[0]);
         }
-        extras = new CheckComboBox<String>(strings);
-        //extras.getItems().addAll(strings);
+        br.close();
+        cityFilter.getItems().addAll(strings);
+        cityFilter.setDisable(false);
+    }
+
+    public void enableBottuns() throws IOException {
+        showDic.setDisable(false);
+        runQueryFile.setDisable(false);
+        runSingleQuery.setDisable(false);
+        browseQueryFile.setDisable(false);
+        resetIdx.setDisable(false);
+        initializeCityFilter();
+    }
+
+    public void disableButtons(){
+        showDic.setDisable(true);
+        runQueryFile.setDisable(true);
+        runSingleQuery.setDisable(true);
+        browseQueryFile.setDisable(true);
+        cityFilter.setDisable(true);
+    }
+
+    public ArrayList<String> getCitiesSelected(){
+        ArrayList<String> res = new ArrayList<>();
+        ObservableList<Integer> idxCheackedCities = cityFilter.getCheckModel().getCheckedIndices();
+        for (Integer i : idxCheackedCities) {
+            res.add((String) cityFilter.getItems().get(i));
+        }
+        return res;
     }
 }

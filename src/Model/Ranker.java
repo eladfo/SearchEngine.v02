@@ -1,19 +1,14 @@
 package Model;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
 import java.util.*;
-
 import static org.apache.commons.lang3.StringUtils.*;
 
 public class Ranker
 {
     public Indexer idx ;
     public ArrayList<Term> query;
-    public double Avg_Doc= 600;
+    public double avgDocLength = 443.4632;
     public double num_docs_crorpus= 472525;
     public ArrayList<String> queryDoc;
     public ArrayList<String> result;
@@ -40,7 +35,7 @@ public class Ranker
     public void rankerStart(String path , String num_query, ArrayList<Term> qList , Indexer indexer) throws IOException
     {
         idx = indexer;
-        set_result();
+        //set_result();
         query = qList;
         Build_doc_list();
         double B25_Rank  , Total_Rank,CosSim_Rank;
@@ -54,95 +49,12 @@ public class Ranker
         Addres(num_query);
     }
 
-    public void Save_res(String postingsPath) throws IOException
-    {
-        int index=0;
-        FileWriter fw = new FileWriter(postingsPath + "\\results.txt");
-        BufferedWriter bw = new BufferedWriter(fw);
-        StringBuilder s = new StringBuilder();
-        String[] arr;
-        for (String line : result)
-        {
-            arr = split(line , "~");
-            if(index<50)
-            {
-                   s.append(arr[0]).append(" 0 ").append(arr[1]).append(" 1 42.38 mt\n");
-                   bw.write(s.toString());
-                   s.setLength(0);
-            }
-            else
-                break;
-            index++;
-        }
-        bw.close();
-        fw.close();
-    }
-
     public void Build_doc_list(){
         for (Term term : query)
         {
             for(Map.Entry<String,StringBuilder> entry : term.docList.entrySet())
                 queryDoc.add(entry.getKey());
         }
-    }
-
-
-    private double get_df(Term t)
-    {
-        return t.docList.size();
-    }
-
-    private double get_Size_Doc(String Doc) throws IOException
-    {
-        int[] arr = idx.finalDocsDic.get(Doc);
-        return (double)arr[0];
-    }
-
-    private double get_tf(Term t ,String Doc) throws IOException
-    {
-        for (Map.Entry<String, StringBuilder> entry : t.docList.entrySet()) {
-            if (entry.getKey().equalsIgnoreCase(Doc)) {
-                StringBuilder docData = entry.getValue();
-                String[] s = split(docData.toString(), ";");
-                return Double.parseDouble(s[0]);
-            }
-        }
-        return 0d;
-    }
-
-    private void Addres(String numqurey)
-    {
-        int index=0;
-        int good = 0;
-        for (Map.Entry<Double, String> entry : QueryDocRank.entrySet())
-        {
-            if(index<50)
-            {
-                System.out.println(numqurey+"~"+entry.getValue());
-                result.add(numqurey+"~"+entry.getValue());
-                if(result_tmp.contains(entry.getValue()))
-                    good++;
-            }
-            else
-                break;
-            index++;
-        }
-        System.out.println(good +  "   hhh") ;
-    }
-
-
-    private double CalculateCosSim(String doc) throws IOException {
-        double mone = 0;
-        double mechane = 0;
-        double tf;
-        for (Term t : query)
-        {
-            tf = get_tf(t, doc);
-            mone = mone + tf;
-            mechane = mechane + Math.pow(tf,2);
-        }
-        double sqr = Math.sqrt(mechane);
-        return mone/sqr;
     }
 
     private double CalculateB25(String doc) throws IOException {
@@ -167,11 +79,117 @@ public class Ranker
     private double Exp_Calculate_BM25(double tf, String doc) throws IOException {
         double mone , mechane;
         mone = (k+1) * tf;
-        mechane = tf + k*(1d -b + (b*get_Size_Doc(doc)/Avg_Doc));
+        mechane = tf + k*(1d -b + (b*get_Size_Doc(doc)/ avgDocLength));
         if(mechane == 0)
             return 0;
         return (mone/mechane) ;
     }
+
+    private double get_Size_Doc(String Doc) throws IOException
+    {
+        int[] arr = idx.finalDocsDic.get(Doc);
+        return (double)arr[0];
+    }
+
+    private double get_tf(Term t ,String Doc) throws IOException
+    {
+        for (Map.Entry<String, StringBuilder> entry : t.docList.entrySet()) {
+            if (entry.getKey().equalsIgnoreCase(Doc)) {
+                StringBuilder docData = entry.getValue();
+                String[] s = split(docData.toString(), ";");
+                return Double.parseDouble(s[0]);
+            }
+        }
+        return 0d;
+    }
+
+    private double get_df(Term t)
+    {
+        return t.docList.size();
+    }
+
+    private double CalculateCosSim(String doc) throws IOException {
+        double mone = 0;
+        double mechane = 0;
+        double tf;
+        for (Term t : query)
+        {
+            tf = get_tf(t, doc);
+            mone = mone + tf;
+            mechane = mechane + Math.pow(tf,2);
+        }
+        double sqr = Math.sqrt(mechane);
+        return mone/sqr;
+    }
+
+    public void Save_res(String postingsPath) throws IOException
+    {
+        int index=0;
+        FileWriter fw = new FileWriter(postingsPath + "\\results.txt");
+        BufferedWriter bw = new BufferedWriter(fw);
+        StringBuilder s = new StringBuilder();
+        String[] arr;
+        for (String line : result)
+        {
+            arr = split(line , "~");
+            if(index<50)
+            {
+                s.append(arr[0]).append(" 0 ").append(arr[1]).append(" 1 42.38 mt\n");
+                bw.write(s.toString());
+                s.setLength(0);
+            }
+            else
+                break;
+            index++;
+        }
+        bw.close();
+        fw.close();
+    }
+
+    private void Addres(String numqurey)
+    {
+        int index=0;
+        int good = 0;
+        for (Map.Entry<Double, String> entry : QueryDocRank.entrySet())
+        {
+            if(index<50)
+            {
+                System.out.println(numqurey+"~"+entry.getValue());
+                result.add(numqurey+"~"+entry.getValue());
+                if(result_tmp.contains(entry.getValue()))
+                    good++;
+            }
+            else
+                break;
+            index++;
+        }
+        System.out.println(good +  "   hhh") ;
+    }
+
+   /*public void rankerStartBeta(String path , String num_query, ArrayList<Term> qList , Indexer indexer) throws IOException
+    {
+        idx = indexer;
+        //set_result();
+        query = qList;
+        double B25_Rank  , Total_Rank,CosSim_Rank;
+        for (Term term : query) {
+            for (Map.Entry<String, StringBuilder> entry : term.docList.entrySet()) {
+                String docID = entry.getKey();
+                StringBuilder docData = entry.getValue();
+                String[] s = split(docData.toString(), ";");
+                double docSize =  Double.parseDouble(s[1]);
+                double termTF =  Double.parseDouble(s[0]);
+                double termDF = term.docList.size();
+
+                B25_Rank = CalculateB25(termDF, termTF);
+                CosSim_Rank = CalculateCosSim(Doc);
+                Total_Rank = B25_Rank * 0.7 + CosSim_Rank * 0.3;
+                QueryDocRank.put(Total_Rank, Doc);
+            }
+            Addres(num_query);
+        }
+    }
+    */
 
     public void set_result() throws IOException {
         String st;
@@ -193,9 +211,6 @@ public class Ranker
     {
         QueryDocRank.clear();
     }
-
-
-
 
  /*
         private double get_tf_semantica(String word ,String Doc) throws IOException

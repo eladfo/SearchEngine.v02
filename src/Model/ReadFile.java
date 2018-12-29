@@ -46,7 +46,7 @@ public class ReadFile {
 
     /**
      * Insert a line, into the right group of the Doc object.
-     * When reached to an end of a doc, enter it to the docSet and create a new Doc object.
+     * When reached to an end of a doc, enter it to the docSet and createInvertedIdx a new Doc object.
      * @param st - A line from file
      */
     public void stringBuild(String st) {
@@ -66,11 +66,15 @@ public class ReadFile {
                 }
                 if (st.charAt(0) == '<')
                     return;
-                if (st.charAt(0) == 'F' && st.charAt(1) == 'T') {
-                    String[] tokens = split(st, "/");
-                    st = tokens[1];
-                }
                 doc.update(st, docFlag);
+            } else if (docFlag == 5) {
+                    if(contains(st, "</TI>"))
+                    {
+                        String [] tokens = split(st,"<");
+                        doc.update(tokens[0], 3);
+                        docFlag = 0;
+                    } else
+                        doc.update(st, 3);
             } else {
                 if (contains(st, "<DOCNO>")) {
                     st = st.replaceAll(" ", "");
@@ -98,7 +102,8 @@ public class ReadFile {
         }
         catch(ArrayIndexOutOfBoundsException e)
         {
-            System.out.println(st);
+            System.out.println(st + " 000");
+            int x =2;
         }
     }
 
@@ -116,21 +121,15 @@ public class ReadFile {
     }
 
     private void findDocTitle(String s){
-        try{
-        String [] tokens = split(s," ");
-        StringBuilder tmp = new StringBuilder();
-        int idx = 0;
-        while (!tokens[idx].equals("<TI>"))
-            idx++;
-        idx++;
-        while (!tokens[idx].equals("</TI></H3>") && idx<(tokens.length-1)){
-            tmp.append(tokens[idx]).append(" ");
-            idx++;
-        }
-        doc.update(tmp.toString(),3);}
-        catch(ArrayIndexOutOfBoundsException e)
-        {
-            System.out.println(s);
+        if(contains(s, "</TI>")) {
+            String[] tokens = split(s, "<");
+            String[] tmp = split(tokens[1], ">");
+            doc.update(tmp[1], 3);
+            docFlag = 0;
+        } else {
+            String[] tokens = split(s, ">");
+            doc.update(tokens[2], 3);
+            docFlag = 5;
         }
     }
 

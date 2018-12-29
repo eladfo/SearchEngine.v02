@@ -42,7 +42,7 @@ public class Indexer {
     }
 
     /**
-     * Charge on calling all the essentials functions that create the Inverted Index.
+     * Charge on calling all the essentials functions that createInvertedIdx the Inverted Index.
      */
     public void createInvertedIndex() throws IOException {
         mergeTermsPostings();
@@ -52,7 +52,7 @@ public class Indexer {
         tmpDocsDic.clear();
         createFinalTermsPostings();
         createFinalTermsDic();
-        deleteTmpFiles();
+        //deleteTmpFiles();
     }
 
     /**
@@ -90,18 +90,32 @@ public class Indexer {
      * and storing them to the proper data structures.
      * @param path - posting path which the user chose
      */
-    public void loadDics(String path) throws IOException {
+    public Boolean loadDics(String path) throws IOException {
         BufferedReader[] brs = new BufferedReader[3];
         String dicPath = path;
-        System.out.println(dicPath);
-        brs[0] = new BufferedReader(new FileReader(new File(dicPath + "\\Without_Stemmer\\Final_Terms_Dic")));
-        brs[1] = new BufferedReader(new FileReader(new File(dicPath + "\\Without_Stemmer\\Final_Docs_Dic")));
-        brs[2] = new BufferedReader(new FileReader(new File(dicPath + "\\Without_Stemmer\\Final_Cities_Dic")));
-        setFinalTermsDic(brs[0]);
-        setFinalDocsDic(brs[1]);
-        setFinalCityDic(brs[2]);
-        for(BufferedReader br : brs)
-            br.close();
+        File termsDic = new File(dicPath + "\\Final_Terms_Dic");
+        File docsDic = new File(dicPath + "\\Final_Docs_Dic");
+        File cityDic = new File(dicPath + "\\Final_Cities_Dic");
+        if(termsDic.exists()) {
+            brs[0] = new BufferedReader(new FileReader(termsDic));
+            setFinalTermsDic(brs[0]);
+        } else
+            return false;
+        if(docsDic.exists()) {
+            brs[1] = new BufferedReader(new FileReader(docsDic));
+            setFinalDocsDic(brs[1]);
+        }else
+            return false;
+        if(cityDic.exists()) {
+            brs[2] = new BufferedReader(new FileReader(cityDic));
+            setFinalCityDic(brs[2]);
+        }else
+            return false;
+        for(BufferedReader br : brs){
+            if(br != null)
+                br.close();
+        }
+        return true;
     }
 
     /**
@@ -127,7 +141,9 @@ public class Indexer {
             s = split(line, ";");
             finalCitiesDic.put(s[0], Integer.valueOf(s[1]));
         }
-    }private void setFinalDocsDic(BufferedReader br) throws IOException {
+    }
+
+    private void setFinalDocsDic(BufferedReader br) throws IOException {
         String line;
         String[] s;
         while ((line = br.readLine()) != null){
@@ -155,7 +171,6 @@ public class Indexer {
         updateTmpCityDic(pd, docID);
         pd.resetTerms();
     }
-
 
     /**
      Received term's data, and add it to a temp terms dic.
@@ -371,7 +386,7 @@ public class Indexer {
     }
 
     /**
-     * From the final terms dic which locate on the memory, create one on the disk.
+     * From the final terms dic which locate on the memory, createInvertedIdx one on the disk.
      */
     public void createFinalTermsDic() throws IOException {
         BufferedWriter bw = new BufferedWriter(new FileWriter(postingsPath + "Final_Terms_Dic"));
@@ -379,10 +394,11 @@ public class Indexer {
             String termID = entry.getKey();
             int[] termData = entry.getValue();
             try {
-                bw.write(termID + ";" + termData[0] + ";" + termData[1] + ";" + termData[2] + "\n");
+                if(termData[0] > 1)
+                     bw.write(termID + ";" + termData[0] + ";" + termData[1] + ";" + termData[2] + "\n");
             } catch (NullPointerException e)
             {
-                System.out.println("bkaka");
+                System.out.println(termID);
             }
         }
         bw.close();
