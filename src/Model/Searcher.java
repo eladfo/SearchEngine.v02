@@ -143,6 +143,7 @@ public class Searcher {
         query = q;
         String[] tokens = split(query, " ");
         for (String word : tokens) {
+            System.out.println(word);
             String docID;
             String termID;
             int termTF;

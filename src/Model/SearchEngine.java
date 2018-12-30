@@ -120,6 +120,8 @@ public class SearchEngine {
     public void partB(String qPath, String postingPath, boolean stemmFlag, boolean semanticFlag, ArrayList<String> cityFilter) throws IOException {
         search = new Searcher(cityFilter, semanticFlag, index, postingPath);
         ArrayList<StringBuilder> queries = rfBeta(qPath);
+        if(semanticFlag)
+            queries = addSemantic(queries);
         String[] arr;
         for (StringBuilder entry : queries)
         {
@@ -130,6 +132,20 @@ public class SearchEngine {
             result_qurey= ranker.rankerStart(postPath, arr[0], search.getQueryTerms(), index , docsMap);
         }
         saveSearchResults();
+    }
+
+    private ArrayList<StringBuilder> addSemantic(ArrayList<StringBuilder> queries) throws IOException {
+        ArrayList<String> semantic = new ArrayList<>();
+        String[] arr;
+        for(StringBuilder sb : queries)
+        {
+            arr = split(sb.toString(),"~");
+            //System.out.println();
+            semantic = search.Get_semantica(sb.toString());
+            for(String s : semantic)
+                sb.append(s);
+        }
+        return queries;
     }
 
 
