@@ -91,7 +91,8 @@ public class Parse
      * Received object with original text,
      * @return  return object with parsed words.
      */
-    public ParsedDoc runParser(Doc doc) {
+    public ParsedDoc runParser(Doc doc , boolean with_parse) {
+        isStem = with_parse;
         parsedDoc = new ParsedDoc();
         parsedDoc.setDocID(doc.getDocID());
         char x = '"';

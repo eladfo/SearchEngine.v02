@@ -186,7 +186,9 @@ public class Searcher {
         }
     }
 
-    public String termData(String termID, int termRowPtr) throws IOException {
+    public String termData(String termID, int termRowPtr) throws IOException
+    {
+        System.out.println(postPath);
         File termPost = new File
                 (postPath + "\\" + (upperCase(Character.toString(termID.charAt(0)))));
         if(!termPost.exists())

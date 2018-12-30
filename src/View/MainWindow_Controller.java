@@ -211,6 +211,7 @@ public class MainWindow_Controller extends Component {
     }
 
     public void runQueriesButton() throws IOException {
+        System.out.println(postingPath + "   kkkkkkkkkkk");
         if (!txtfld_queriesFile_path.getText().isEmpty() && loadedDics) {
             ArrayList<String> cityList = getCitiesSelected();
             String path = updatePostingPath(stemmFlag.isSelected());

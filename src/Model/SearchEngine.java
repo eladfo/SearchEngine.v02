@@ -61,7 +61,7 @@ public class SearchEngine {
             docs = rf.readLines(i);
             indexedDocs += docs.size();
             for (Doc d : docs) {
-                ParsedDoc pd = parse.runParser(d);
+                ParsedDoc pd = parse.runParser(d , stemmFlag);
                 index.addParsedDoc(pd);
                 d.getDocText().setLength(0);
             }
@@ -156,7 +156,7 @@ public class SearchEngine {
             {
                 Doc d = new Doc();
                 d.update(substring(line, 8), 4);
-                ParsedDoc pd = parse.runParser(d);
+                ParsedDoc pd = parse.runParser(d,false);
                 StringBuilder sb = new StringBuilder();
                 sb.append(num_query).append("~");
                 for(Map.Entry<String, StringBuilder> entry : pd.getTerms().entrySet())

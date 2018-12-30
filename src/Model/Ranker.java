@@ -53,15 +53,15 @@ public class Ranker
                 mone = mone + Double.valueOf(Data[1]);
                 mechane = mechane + Math.pow(Double.valueOf(Data[1]),2);
 
-                if(Data[3].equalsIgnoreCase("1"))
-                    is_header = true;
+                //if(Data[3].equalsIgnoreCase("1"))
+                  //  is_header = true;
 
             }
-            if(is_header)
-                Header_Rank = 100d;
+            //if(is_header)
+              //  Header_Rank = 100d;
             sqr = Math.sqrt(mechane);
             CosSim_Rank =  mone/sqr;
-            Total_Rank = B25_Rank*0.9  + CosSim_Rank*0.1 + Header_Rank ;
+            Total_Rank = B25_Rank*0.7  + CosSim_Rank*0.3 ;//+ Header_Rank ;
 
             QueryDocRank.put(Total_Rank, entry.getKey());
             B25_Rank = 0 ;
