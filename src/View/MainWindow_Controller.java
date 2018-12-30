@@ -231,7 +231,7 @@ public class MainWindow_Controller extends Component {
         stage.initModality(Modality.APPLICATION_MODAL); //Lock the window until it closes
         stage.show();
     }
-
+//ff
     public void runSingle() throws IOException {
         if (!txtfld_singleQuery.getText().isEmpty() && loadedDics) {
             ArrayList<String> cityList = getCitiesSelected();
