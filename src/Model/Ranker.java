@@ -35,24 +35,46 @@ public class Ranker
 
     public ArrayList<String> rankerStart(String path , String num_query, ArrayList<Term> qList , Indexer indexer , HashMap<String, ArrayList<String[]>> map) throws IOException
     {
-        double B25_Rank  , Total_Rank,CosSim_Rank;
-
+        double B25_Rank =0  , Total_Rank = 0 ,CosSim_Rank = 0;
+        double mone = 0 , mechane=0 , sqr = 0;
         info_map = map;
         idx = indexer;
         query = qList;
 
         Reset();
-        //set_result();
-        Build_doc_list();
-        Header_Rank();
-        for (String Doc : queryDoc)
+        for (Map.Entry<String, ArrayList<String[]>> entry : map.entrySet())
         {
-            B25_Rank =CalculateB25(Doc);
-            CosSim_Rank =CalculateCosSim(Doc);
-            Total_Rank = B25_Rank*0.7 + CosSim_Rank*0.3 ;
-            QueryDocRank.put(Total_Rank,Doc);
+            for(String[] Data : entry.getValue())
+            {
+                B25_Rank = B25_Rank + CalculateB25(Double.valueOf(Data[1]) , Double.valueOf(Data[2]) , entry.getKey());
+
+
+                mone = mone + Double.valueOf(Data[1]);
+                mechane = mechane + Math.pow(Double.valueOf(Data[1]),2);
+            }
+            sqr = Math.sqrt(mechane);
+            CosSim_Rank =  mone/sqr;
+            Total_Rank = B25_Rank*0.9  + CosSim_Rank*0.1 ;
+
+            //Header_Rank();
+            QueryDocRank.put(Total_Rank, entry.getKey());
+            B25_Rank = 0 ;
+            mechane=0;
+            mone=0;
+            CosSim_Rank=0;
         }
         Addres(num_query);
+
+       // Build_doc_list();
+        //Header_Rank();
+       // for (String Doc : queryDoc)
+       // {
+           // B25_Rank =CalculateB25(Doc);
+           // CosSim_Rank =CalculateCosSim(Doc);
+           // Total_Rank = B25_Rank*0.7  + CosSim_Rank*0.3 ;
+         //   QueryDocRank.put(Total_Rank,Doc);
+       // }
+        //Addres(num_query);
 
         return result;
 
@@ -81,34 +103,18 @@ public class Ranker
         }
     }
 
-    public void Build_doc_list()
-    {
-        boolean is_show_in_header = false;
 
-        for (Term term : query)
-        {
-            for(Map.Entry<String,StringBuilder> entry : term.docList.entrySet())
-                queryDoc.add(entry.getKey());
-        }
-    }
-
-    private double CalculateB25(String doc) throws IOException {
+    private double CalculateB25(double tf , double df , String doc) throws IOException {
         double Sum = 0;
         double logExp;
-        double df;
-        double tf;
 
-        for (Term t : query)
+        if(tf != 0)
         {
-            tf = get_tf(t,doc);
-            df = get_df(t);
-            if(tf != 0)
-            {
-                logExp = Math.log10( (num_docs_crorpus +1)/(df));
-                // sizde doc + 1 ==> num of docs in corpus + 1
-                Sum = Sum + Exp_Calculate_BM25(tf,doc) * logExp ;
-            }
+            logExp = Math.log10( (num_docs_crorpus +1)/(df));
+            // sizde doc + 1 ==> num of docs in corpus + 1
+            Sum = Sum + Exp_Calculate_BM25(tf,doc) * logExp ;
         }
+
         return Sum ;
     }
 
@@ -125,37 +131,6 @@ public class Ranker
     {
         int[] arr = idx.finalDocsDic.get(Doc);
         return (double)arr[0];
-    }
-
-    private double get_tf(Term t ,String Doc) throws IOException
-    {
-        for (Map.Entry<String, StringBuilder> entry : t.docList.entrySet()) {
-            if (entry.getKey().equalsIgnoreCase(Doc)) {
-                StringBuilder docData = entry.getValue();
-                String[] s = split(docData.toString(), ";");
-                return Double.parseDouble(s[0]);
-            }
-        }
-        return 0d;
-    }
-
-    private double get_df(Term t)
-    {
-        return t.docList.size();
-    }
-
-    private double CalculateCosSim(String doc) throws IOException {
-        double mone = 0;
-        double mechane = 0;
-        double tf;
-        for (Term t : query)
-        {
-            tf = get_tf(t, doc);
-            mone = mone + tf;
-            mechane = mechane + Math.pow(tf,2);
-        }
-        double sqr = Math.sqrt(mechane);
-        return mone/sqr;
     }
 
     public void Save_res(String postingsPath) throws IOException
@@ -227,73 +202,10 @@ public class Ranker
 */
 
 
-    public void set_result() throws IOException {
-        String st;
-        String [] ss ;
-        BufferedReader brTermPost = new BufferedReader(new FileReader(new File
-                ("C:\\Users\\A\\Downloads\\Searcher2\\Searcher\\human smuggling.txt")));
-        while((st= brTermPost.readLine())!=null )
-        {
-            ss = split(st," ");
-            if(ss[3].equals("1"))
-            {
-                //System.out.println(ss[2]);
-                result_tmp.add(ss[2]);
-            }
-        }
-    }
-
     public void Reset()
     {
+        queryDoc.clear();
         QueryDocRank.clear();
     }
 
- /*
-        private double get_tf_semantica(String word ,String Doc) throws IOException
-        {
-            double Sum=0;
-            semantic_words.clear();
-            Get_semantica(word);
-            for(String st :semantic_words )
-                Sum = Sum + get_tf(st,Doc);
-            Sum = Sum + get_tf(word,Doc);
-            return Sum;
-        }
-    */
-//    public void  Get_semantica (String word) throws IOException {
-//
-//        URL url = new URL("https://api.datamuse.com/words?ml="+word);
-//        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-//        con.setRequestMethod("GET");
-//        InputStreamReader input_stem =  new InputStreamReader(con.getInputStream());
-//        BufferedReader in = new BufferedReader(input_stem);
-//        String inputLine;
-//        StringBuffer content = new StringBuffer();
-//        while ((inputLine = in.readLine()) != null)
-//        {
-//            content.append(inputLine);
-//        }
-//        parse_semantica(content);
-//        in.close();
-//        con.disconnect();
-//    }
-//
-//    private ArrayList<String> parse_semantica(StringBuffer content)
-//    {
-//        String[] st = splitByWholeSeparator(content.toString(),"},{");
-//        String[] st1 ;
-//        String[] st2;
-//        char c;
-//        for(int i=0 ; i<5 && i<st.length ;i++)
-//        {
-//            st1 = splitByWholeSeparator(st[i],",");
-//            st2=splitByWholeSeparator(st1[0],":");
-//            c = '"';
-//            st2[1] = replaceChars(st2[1],c,'*');
-//            st2[1] = replace(st2[1],"*","");
-//            // System.out.println(st2[1]);
-//            semantic_words.add(st2[1]);
-//        }
-//        return semantic_words;
-//    }
 }

@@ -93,7 +93,7 @@ public class Parse
         parsedDoc = new ParsedDoc();
         parsedDoc.setDocID(doc.getDocID());
         char x = '"';
-        stk = split(doc.getDocText().toString(), x + " `'%_*&#+<>|~\\,;][:^@()?{}!�");
+        stk = split(doc.getDocText().toString(), x + " `'_*&#+<>|~\\,;][:^@()?{}!�");
 
         parse_arr_token(1);
 
@@ -109,7 +109,7 @@ public class Parse
     private void parse_header(Doc doc)
     {
         char x = '"';
-        stk = split(doc.getDocHeader().toString(), x + " `'%_*&#+<>|~\\,;][:^@()?{}!�");
+        stk = split(doc.getDocHeader().toString(), x + " `'_*&#+<>|~\\,;][:^@()?{}!�");
         parse_arr_token(0);
     }
 

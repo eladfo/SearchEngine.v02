@@ -152,7 +152,7 @@ public class Searcher {
             }else {
                 termID = lowerCase(word);
             }
-            int[] termDicData = index.finalTermsDic.get(word);
+            int[] termDicData = index.finalTermsDic.get(termID);
             if(termDicData == null)
                 continue;
             termDF = termDicData[0];
