@@ -147,6 +147,7 @@ public class Searcher {
             String termID;
             int termTF;
             int termDF;
+            String headerFlag;
             if(index.finalTermsDic.containsKey(upperCase(word))) {
                 termID = upperCase(word);
             }else {
@@ -165,21 +166,23 @@ public class Searcher {
                 String[] tmp = split(d, ",");
                 termTF = tmp.length - 1;
                 docID = tmp[0];
-                updateBetaMap(docID, termID,termTF, termDF);
+                updateBetaMap(docID, termID,termTF, termDF, tmp[tmp.length-1]);
             }
         }
         return betaMap;
     }
 
-    private void updateBetaMap(String docID, String termID, int termTF, int termDF) {
+    private void updateBetaMap(String docID, String termID, int termTF, int termDF, String headerFlag) {
+        if(!headerFlag.equals("0"))
+            headerFlag = "1";
         if(!betaMap.containsKey(docID)){
             ArrayList<String[]> betaDocData = new ArrayList<>();
-            betaDocData.add(new String[]{termID, String.valueOf(termTF), String.valueOf(termDF)});
+            betaDocData.add(new String[]{termID, String.valueOf(termTF), String.valueOf(termDF), headerFlag});
             betaMap.put(docID, betaDocData);
         }
         else {
             ArrayList<String[]> tmp = betaMap.get(docID);
-            tmp.add(new String[]{termID, String.valueOf(termTF), String.valueOf(termDF)});
+            tmp.add(new String[]{termID, String.valueOf(termTF), String.valueOf(termDF), String.valueOf(0), headerFlag});
         }
     }
 

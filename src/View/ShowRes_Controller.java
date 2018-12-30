@@ -27,11 +27,11 @@ public class ShowRes_Controller extends Component {
     {
         String[] arr;
         StringBuilder s = new StringBuilder();
-            s.append("Num_query").append("  ").append("Doc_id\n");
+            s.append("Num_query").append("          ").append("Doc_id\n");
             for (String line : Main.google.result_qurey)
             {
                 arr = split(line , "~");
-                s.append(arr[0]).append("           ").append(arr[1]).append("\n");
+                s.append(arr[0]).append("                       ").append(arr[1]).append("\n");
             }
             tabel.setText(s.toString());
             tabel.scrollLeftProperty();
