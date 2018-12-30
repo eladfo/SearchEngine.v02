@@ -122,28 +122,20 @@ public class SearchEngine {
         for (StringBuilder entry : queries)
         {
             arr = split(entry.toString(),"~");
-            HashMap<String, ArrayList<String[]>> test = search.createBetaMap(arr[1], postingPath);
-            search.createTermsList(arr[1], postingPath);
-            result_qurey= ranker.rankerStart(postingPath, arr[0], search.getQueryTerms(), index , test);
+            HashMap<String, ArrayList<String[]>> docsMap = search.createBetaMap(arr[1], postingPath);
+            //search.createTermsList(arr[1], postingPath);
+            String postPath = updatePath(postingPath, stemmFlag);
+            result_qurey= ranker.rankerStart(postPath, arr[0], search.getQueryTerms(), index , docsMap);
         }
-        /*
-        for (Map.Entry<String, StringBuilder> entry : queries.entrySet())
-        {
-
-            HashMap<String, ArrayList<String[]>> test = search.createBetaMap(entry.getValue().toString(), postingPath);
-            search.createTermsList(entry.getValue().toString(), postingPath);
-            result_qurey= ranker.rankerStart(postingPath, entry.getKey(), search.getQueryTerms(), index , test);
-        }
-        */
         saveSearchResults();
     }
 
 
     public void runSingleQuery(String query, String postingPath, boolean stemmFlag, boolean semanticFlag, ArrayList<String> cityFlag) throws IOException {
         search = new Searcher(cityFlag, semanticFlag, index, postingPath);
-        String postPath = postingPath;
-        search.createTermsList(query, postPath);
-        //ranker.rankerStart(postPath ,"007" ,search.getQueryTerms(), index );
+        String postPath = updatePath(postingPath, stemmFlag);
+        HashMap<String, ArrayList<String[]>> docsMap = search.createBetaMap(query, postingPath);
+        ranker.rankerStart(postPath ,"007" ,search.getQueryTerms(), index, docsMap);
     }
 
     public ArrayList<StringBuilder> rfBeta(String qPath) throws IOException {   //function that Readfile Query file!!!

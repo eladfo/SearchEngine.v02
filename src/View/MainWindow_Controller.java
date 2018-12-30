@@ -226,7 +226,7 @@ public class MainWindow_Controller extends Component {
         Stage stage = new Stage();
         FXMLLoader fxmlLoader = new FXMLLoader();
         Parent root = fxmlLoader.load(getClass().getResource("Show_res.fxml").openStream());
-        Scene scene = new Scene(root,330 , 370);
+        Scene scene = new Scene(root,450 , 634);
         scene.getStylesheets().add(getClass().getResource("/ViewStyle.css").toExternalForm());
         stage.setScene(scene);
         stage.setResizable(false);
