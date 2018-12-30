@@ -16,7 +16,7 @@ public class ShowDic_Controller extends Component implements Initializable
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         File file;
-        if(!MainWindow_Controller .is_steam)
+        if(!MainWindow_Controller .isStemm)
             file = new File(MainWindow_Controller .postingPath + "\\Without_Stemmer\\Final_Terms_Dic");
         else
             file = new File(MainWindow_Controller .postingPath + "\\With_Stemmer\\Final_Terms_Dic");

@@ -37,16 +37,34 @@ public class ShowQueryRes_Controller extends Component {
 
     public void saveResButton() throws IOException {
         Main.google.saveSearchResults();
+        Alert alert = new Alert(Alert.AlertType.INFORMATION,"Results successfully saved");
+        alert.showAndWait();
     }
 
     public void showEntitiesButton() throws IOException {
         if (!docID_txtfld.getText().isEmpty()) {
-            String[] res = Main.google.getEntitiesPerDoc("");
+            String[] res = Main.google.getEntitiesPerDoc(docID_txtfld.getText(), MainWindow_Controller.isStemm);
+            if(res == null){
+                Alert alert = new Alert(Alert.AlertType.ERROR,"Document does not exist!");
+                alert.showAndWait();
+                return;
+            }
+            if(res[0].equals(" ")){
+                Alert alert = new Alert(Alert.AlertType.INFORMATION,"Document have no entities");
+                alert.showAndWait();
+            }
+            StringBuilder s = new StringBuilder();
+            for (String line : res)
+            {
+                s.append(line).append("\n");
+            }
+            entities_txtArea.setText(s.toString());
+            entities_txtArea.scrollLeftProperty();
+            entities_txtArea.selectPositionCaret(entities_txtArea.getLength());
+            entities_txtArea.deselect();
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR,"Please enter docID");
             alert.showAndWait();
         }
-
     }
-
 }

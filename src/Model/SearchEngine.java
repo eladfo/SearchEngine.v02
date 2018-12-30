@@ -1,4 +1,6 @@
 package Model;
+import com.sun.org.apache.xpath.internal.operations.Bool;
+
 import java.io.*;
 import java.util.*;
 
@@ -169,13 +171,19 @@ public class SearchEngine {
         ranker.Save_res(postingsPath);
     }
 
-    public String[] getEntitiesPerDoc(String docID) throws IOException {
+    public String[] getEntitiesPerDoc(String docID, boolean isStemm) throws IOException {
         int[] tmp = index.finalDocsDic.get(docID);
-        BufferedReader br = new BufferedReader(new FileReader(new File(postingsPath + "mergedDocsPosting")));
+        String postPath = updatePath(postingsPath, isStemm);
+        File file = new File(postPath + "\\mergedDocsPosting");
+        if(!file.exists() || tmp==null)
+            return null;
+        BufferedReader br = new BufferedReader(new FileReader(file));
         String line = "";
-        for (int j = 0; j < tmp[3] ; j++) {
+        try{
+        for (int j = 0; j < tmp[1] ; j++) {
             line = br.readLine();
-        }
+        }} catch (java.lang.NullPointerException e){
+            System.out.println("SEMEK");        }
         String[] tokens = split(line, "~");
         return split(tokens[5], ",");
     }

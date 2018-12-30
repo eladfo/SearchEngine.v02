@@ -42,7 +42,7 @@ public class MainWindow_Controller extends Component {
 
     public boolean loadedDics = false;
     public static String postingPath = "";
-    public static boolean is_steam = false;
+    public static boolean isStemm = false;
 
     /**
      * Open File chooser to chose the path of Corpus files.
@@ -136,7 +136,7 @@ public class MainWindow_Controller extends Component {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Please choose posting's path");
             alert.showAndWait();
         } else {
-            is_steam = steam.isSelected();
+            isStemm = steam.isSelected();
             Stage stage = new Stage();
             FXMLLoader fxmlLoader = new FXMLLoader();
             Parent root = fxmlLoader.load(getClass().getResource("Show_Dic.fxml").openStream());
@@ -231,6 +231,7 @@ public class MainWindow_Controller extends Component {
         stage.setScene(scene);
         stage.setResizable(false);
         stage.initModality(Modality.APPLICATION_MODAL); //Lock the window until it closes
+        isStemm = stemmFlag.isSelected();
         stage.show();
     }
 
