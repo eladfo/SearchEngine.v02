@@ -27,11 +27,12 @@ public class SearchEngine {
      * Constructor. Initialize 3 paths for corpus, posting and stopwords.
      * Calculate the partition amount, by dividing the corpus size by 50.
      */
-    public SearchEngine(String corpusPath, String postPath, Boolean isStemm, String stopwordsPath) throws IOException {
+    public SearchEngine(String corpusPath, String postPath, Boolean isStemm, String stopwordsPath) throws IOException
+    {
         rf = new ReadFile(corpusPath);
         this.postingsPath = updatePath(postPath, isStemm);
         partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
-        //partiotions=2;
+        //partiotions=15;
         stemmFlag = isStemm;
         index = new Indexer(postingsPath, partiotions);
         parse = new Parse(corpusPath, stemmFlag, stopwordsPath);

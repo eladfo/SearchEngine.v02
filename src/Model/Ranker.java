@@ -35,11 +35,12 @@ public class Ranker
 
     public ArrayList<String> rankerStart(String path , String num_query, ArrayList<Term> qList , Indexer indexer , HashMap<String, ArrayList<String[]>> map) throws IOException
     {
-        double B25_Rank =0  , Total_Rank = 0 ,CosSim_Rank = 0;
+        double B25_Rank =0  , Total_Rank = 0 ,CosSim_Rank = 0 , Header_Rank=0;
         double mone = 0 , mechane=0 , sqr = 0;
         info_map = map;
         idx = indexer;
         query = qList;
+        boolean is_header = false;
 
         Reset();
         for (Map.Entry<String, ArrayList<String[]>> entry : map.entrySet())
@@ -51,17 +52,24 @@ public class Ranker
 
                 mone = mone + Double.valueOf(Data[1]);
                 mechane = mechane + Math.pow(Double.valueOf(Data[1]),2);
+
+                if(Data[3].equalsIgnoreCase("1"))
+                    is_header = true;
+
             }
+            if(is_header)
+                Header_Rank = 100d;
             sqr = Math.sqrt(mechane);
             CosSim_Rank =  mone/sqr;
-            Total_Rank = B25_Rank*0.9  + CosSim_Rank*0.1 ;
+            Total_Rank = B25_Rank*0.9  + CosSim_Rank*0.1 + Header_Rank ;
 
-            //Header_Rank();
             QueryDocRank.put(Total_Rank, entry.getKey());
             B25_Rank = 0 ;
             mechane=0;
             mone=0;
             CosSim_Rank=0;
+            Header_Rank=0;
+            is_header = false;
         }
         Addres(num_query);
 
@@ -78,29 +86,6 @@ public class Ranker
 
         return result;
 
-    }
-
-    private void Header_Rank()
-    {
-        String[] data;
-        for (Term t : query)
-        {
-            for (Map.Entry<String, StringBuilder> entry : t.docList.entrySet())
-            {
-                data = split(entry.getValue().toString() , ",");
-                for(String s : data)
-                {
-                    if(s.equals("0"))
-                    {
-                        QueryDocRank.put(1000d,entry.getKey());
-                        queryDoc.remove(entry.getKey());
-                        break;
-                    }
-                }
-
-            }
-
-        }
     }
 
 
@@ -172,34 +157,6 @@ public class Ranker
         System.out.println(good +  "   hhh") ;
     }
 
-
-
-   /*
-   public void rankerStartBeta(String path , String num_query, ArrayList<Term> qList , Indexer indexer) throws IOException
-    {
-        idx = indexer;
-        //set_result();
-        query = qList;
-        double B25_Rank  , Total_Rank,CosSim_Rank;
-        for (Term term : query) {
-            for (Map.Entry<String, StringBuilder> entry : term.docList.entrySet()) {
-                String docID = entry.getKey();
-                StringBuilder docData = entry.getValue();
-                String[] s = split(docData.toString(), ";");
-                double docSize =  Double.parseDouble(s[1]);
-                double termTF =  Double.parseDouble(s[0]);
-                double termDF = term.docList.size();
-
-                B25_Rank = CalculateB25(termDF, termTF , docSize);
-                CosSim_Rank = CalculateCosSim(Doc);
-                Total_Rank = B25_Rank * 0.7 + CosSim_Rank * 0.3;
-                QueryDocRank.put(Total_Rank, docID);
-            }
-            Addres(num_query);
-        }
-    }
-
-*/
 
 
     public void Reset()
