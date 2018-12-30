@@ -110,7 +110,7 @@ public class Parse
     {
         char x = '"';
         stk = split(doc.getDocHeader().toString(), x + " `'%_*&#+<>|~\\,;][:^@()?{}!�");
-        parse_arr_token(-1);
+        parse_arr_token(0);
     }
 
     private void parse_arr_token(int flag)

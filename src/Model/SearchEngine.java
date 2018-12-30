@@ -21,6 +21,7 @@ public class SearchEngine {
     boolean stemmFlag;
     String postingsPath;
     Ranker ranker;
+    public ArrayList<String> result_qurey;
 
     /**
      * Constructor. Initialize 3 paths for corpus, posting and stopwords.
@@ -115,23 +116,37 @@ public class SearchEngine {
 
     public void partB(String qPath, String postingPath, boolean stemmFlag, boolean semanticFlag, ArrayList<String> cityFilter) throws IOException {
         search = new Searcher(cityFilter, semanticFlag, index, postingPath);
-        HashMap<String,StringBuilder> queries = rfBeta(qPath);
-        for (Map.Entry<String, StringBuilder> entry : queries.entrySet()) {
-            search.createTermsList(entry.getValue().toString(), postingPath);
-            ranker.rankerStart(postingPath, entry.getKey(), search.getQueryTerms(), index);
+        ArrayList<StringBuilder> queries = rfBeta(qPath);
+        String[] arr;
+        for (StringBuilder entry : queries)
+        {
+            arr = split(entry.toString(),"~");
+            HashMap<String, ArrayList<String[]>> test = search.createBetaMap(arr[1], postingPath);
+            search.createTermsList(arr[1], postingPath);
+            result_qurey= ranker.rankerStart(postingPath, arr[0], search.getQueryTerms(), index , test);
         }
+        /*
+        for (Map.Entry<String, StringBuilder> entry : queries.entrySet())
+        {
+
+            HashMap<String, ArrayList<String[]>> test = search.createBetaMap(entry.getValue().toString(), postingPath);
+            search.createTermsList(entry.getValue().toString(), postingPath);
+            result_qurey= ranker.rankerStart(postingPath, entry.getKey(), search.getQueryTerms(), index , test);
+        }
+        */
         saveSearchResults();
     }
+
 
     public void runSingleQuery(String query, String postingPath, boolean stemmFlag, boolean semanticFlag, ArrayList<String> cityFlag) throws IOException {
         search = new Searcher(cityFlag, semanticFlag, index, postingPath);
         String postPath = postingPath;
         search.createTermsList(query, postPath);
-        ranker.rankerStart(postPath ,"007" ,search.getQueryTerms(), index);
+        //ranker.rankerStart(postPath ,"007" ,search.getQueryTerms(), index );
     }
 
-    public HashMap<String,StringBuilder> rfBeta(String qPath) throws IOException {   //function that Readfile Query file!!!
-        HashMap<String,StringBuilder> res = new HashMap<>();
+    public ArrayList<StringBuilder> rfBeta(String qPath) throws IOException {   //function that Readfile Query file!!!
+        ArrayList<StringBuilder> res = new ArrayList<>();
         BufferedReader br = new BufferedReader(new FileReader(new File(qPath)));
         String line;
         String[] st;
@@ -148,9 +163,10 @@ public class SearchEngine {
                 d.update(substring(line, 8), 4);
                 ParsedDoc pd = parse.runParser(d);
                 StringBuilder sb = new StringBuilder();
+                sb.append(num_query).append("~");
                 for(Map.Entry<String, StringBuilder> entry : pd.getTerms().entrySet())
                     sb.append(entry.getKey()).append(" ");
-                res.put(num_query,sb);
+                res.add(sb);
             }
         }
         return res;

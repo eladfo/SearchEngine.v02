@@ -6,7 +6,7 @@ public class Term {
 
     public TreeMap<String,StringBuilder> docList;
     public int flag;
-
+    public String Name;
     /**
      * Constructor. Add the first doc that had the Term, and also his positions.
      * @param str - docID

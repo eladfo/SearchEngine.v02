@@ -213,10 +213,23 @@ public class MainWindow_Controller extends Component {
             ArrayList<String> cityList = getCitiesSelected();
             String path = updatePostingPath(stemmFlag.isSelected());
             Main.google.partB(txtfld_queriesFile_path.getText(), path, stemmFlag.isSelected(), semanticFlag.isSelected(), cityList);
+            Show_res();
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR,"Please choose queries's file path");
             alert.showAndWait();
         }
+    }
+
+    private void Show_res() throws IOException {
+        Stage stage = new Stage();
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        Parent root = fxmlLoader.load(getClass().getResource("Show_res.fxml").openStream());
+        Scene scene = new Scene(root,300 , 350);
+        scene.getStylesheets().add(getClass().getResource("/ViewStyle.css").toExternalForm());
+        stage.setScene(scene);
+        stage.setResizable(false);
+        stage.initModality(Modality.APPLICATION_MODAL); //Lock the window until it closes
+        stage.show();
     }
 
     public void runSingle() throws IOException {

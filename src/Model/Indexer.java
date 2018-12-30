@@ -93,6 +93,7 @@ public class Indexer {
     public Boolean loadDics(String path) throws IOException {
         BufferedReader[] brs = new BufferedReader[3];
         String dicPath = path;
+
         File termsDic = new File(dicPath + "\\Final_Terms_Dic");
         File docsDic = new File(dicPath + "\\Final_Docs_Dic");
         File cityDic = new File(dicPath + "\\Final_Cities_Dic");

@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import static javafx.application.Platform.exit;
 
@@ -48,25 +49,28 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
-//        String a1 = "C:\\Users\\A\\Downloads\\corpus\\corpus";
-//        String a2 = "C:\\Users\\A\\Downloads\\Searcher\\Searcher\\pos_with_header";
-//        String a3 = "C:\\Users\\A\\Downloads\\corpus\\stop_words.txt";
-//        String a4 = "C:\\Users\\A\\Downloads\\Searcher2\\Searcher\\queries.txt";
+        String a1 = "C:\\Users\\A\\Downloads\\corpus\\corpus";
+        String a2 = "C:\\Users\\A\\Downloads\\Searcher2\\Searcher\\pos_with_header\\Without_Stemmer";
+        String a3 = "C:\\Users\\A\\Downloads\\corpus\\stop_words.txt";
+        String a4 = "C:\\Users\\A\\Downloads\\Searcher2\\Searcher\\queries.txt";
 //
 //        String e1 = "C:\\Users\\e-pc\\IdeaProjects\\corpus\\corpus";
 //        String e2 = "C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\posting";
 //        String e3 = "C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\resources\\stop_words.txt";
 //        String e4 = "C:\\Users\\A\\Downloads\\Searcher2\\Searcher\\queries.txt";
-//        try {
-//            SearchEngine google = new SearchEngine(e1, e2, false, e3);
-//            //google.runSearchEngine();
+        /*
+        try {
+            SearchEngine google = new SearchEngine(a1, a2, false, a3);
+            //google.runSearchEngine();
 //            google.testing(e2);
-//           //google.index.loadDics(e2);
-//           //google.partB(e4, true, true);
-//           exit();
-//       } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+            google.index.loadDics(a2);
+            google.partB(a4, a2, false,false , new ArrayList<>());
+           exit();
+       } catch (IOException e) {
+            e.printStackTrace();
+        }
+        */
     }
+
 
 }

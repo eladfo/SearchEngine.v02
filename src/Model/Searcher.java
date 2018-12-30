@@ -17,7 +17,6 @@ public class Searcher {
     private ArrayList<String> cityFilter;
     private boolean semanticFlag;
     private ArrayList<Term> queryTerms;
-    private ArrayList<Term> semanticTerms;
     private Indexer index;
     public ArrayList<String> semantic_words ;
     public ArrayList<String> word;
@@ -37,8 +36,14 @@ public class Searcher {
     public void createTermsList(String q, String postingPath) throws IOException {
         queryTerms = new ArrayList<>();
         query = q;
+
+        //if we want to run query with semantic:
+       //   q = add_semantic_word(q);
+
+
         String[] tokens = split(query, " ");
         for (String word : tokens) {
+            System.out.println(word);
             Term t;
             if(index.finalTermsDic.containsKey(upperCase(word))) {
                 t = new Term(null, null, 1);
@@ -63,8 +68,22 @@ public class Searcher {
                 int docLength = index.finalDocsDic.get(tmp[0])[0];
                 t.addDoc(tmp[0], new StringBuilder(tf+";"+docLength));
             }
+            t.Name =word;
             queryTerms.add(t);
         }
+    }
+
+    private String add_semantic_word(String q) throws IOException {
+        String[] arr = split(q," ");
+        StringBuilder sb = new StringBuilder(q);
+        for(String s : arr)
+        {
+            for(String semantic_word : Get_semantica(s))
+            {
+                sb.append(semantic_word).append(" ");
+            }
+        }
+        return sb.toString();
     }
 
     public void setQuery(String query) {
@@ -75,7 +94,8 @@ public class Searcher {
         return queryTerms;
     }
 
-    public void  Get_semantica (String word) throws IOException {
+    public ArrayList<String>  Get_semantica (String word) throws IOException {
+        ArrayList<String> res;
         URL url = new URL("https://api.datamuse.com/words?ml="+word);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
@@ -87,9 +107,10 @@ public class Searcher {
         {
             content.append(inputLine);
         }
-        parse_semantica(content);
+        res = parse_semantica(content);
         in.close();
         con.disconnect();
+        return res;
     }
 
     private ArrayList<String> parse_semantica(StringBuffer content)
@@ -98,7 +119,7 @@ public class Searcher {
         String[] st1 ;
         String[] st2;
         char c;
-        for(int i=0 ; i<0 && i<st.length;i++)
+        for(int i=0 ; i<2 && i<st.length;i++)
         {
             st1 = splitByWholeSeparator(st[i],",");
             st2=splitByWholeSeparator(st1[0],":");
@@ -115,6 +136,7 @@ public class Searcher {
      * ***** Beta Map *****
      * ***** Beta Map *****
      */
+
 
     public HashMap<String, ArrayList<String[]>> createBetaMap(String q, String postingPath) throws IOException {
         betaMap = new HashMap<>();

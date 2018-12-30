@@ -17,6 +17,7 @@ public class Ranker
     public double b=0.75;
     public double k=1.2;
     public ArrayList<String> semantic_words;
+    public HashMap<String, ArrayList<String[]>> info_map ;
 
     public Ranker ()
     {
@@ -32,24 +33,58 @@ public class Ranker
         semantic_words = new ArrayList<>();
     }
 
-    public void rankerStart(String path , String num_query, ArrayList<Term> qList , Indexer indexer) throws IOException
+    public ArrayList<String> rankerStart(String path , String num_query, ArrayList<Term> qList , Indexer indexer , HashMap<String, ArrayList<String[]>> map) throws IOException
     {
-        idx = indexer;
-        //set_result();
-        query = qList;
-        Build_doc_list();
         double B25_Rank  , Total_Rank,CosSim_Rank;
+
+        info_map = map;
+        idx = indexer;
+        query = qList;
+
+        Reset();
+        //set_result();
+        Build_doc_list();
+        Header_Rank();
         for (String Doc : queryDoc)
         {
             B25_Rank =CalculateB25(Doc);
             CosSim_Rank =CalculateCosSim(Doc);
-            Total_Rank =    B25_Rank*0.7 + CosSim_Rank*0.3 ;
+            Total_Rank = B25_Rank*0.7 + CosSim_Rank*0.3 ;
             QueryDocRank.put(Total_Rank,Doc);
         }
         Addres(num_query);
+
+        return result;
+
     }
 
-    public void Build_doc_list(){
+    private void Header_Rank()
+    {
+        String[] data;
+        for (Term t : query)
+        {
+            for (Map.Entry<String, StringBuilder> entry : t.docList.entrySet())
+            {
+                data = split(entry.getValue().toString() , ",");
+                for(String s : data)
+                {
+                    if(s.equals("0"))
+                    {
+                        QueryDocRank.put(1000d,entry.getKey());
+                        queryDoc.remove(entry.getKey());
+                        break;
+                    }
+                }
+
+            }
+
+        }
+    }
+
+    public void Build_doc_list()
+    {
+        boolean is_show_in_header = false;
+
         for (Term term : query)
         {
             for(Map.Entry<String,StringBuilder> entry : term.docList.entrySet())
@@ -62,11 +97,12 @@ public class Ranker
         double logExp;
         double df;
         double tf;
+
         for (Term t : query)
         {
             tf = get_tf(t,doc);
             df = get_df(t);
-            if(get_tf(t,doc) != 0)
+            if(tf != 0)
             {
                 logExp = Math.log10( (num_docs_crorpus +1)/(df));
                 // sizde doc + 1 ==> num of docs in corpus + 1
@@ -132,15 +168,10 @@ public class Ranker
         for (String line : result)
         {
             arr = split(line , "~");
-            if(index<50)
-            {
+
                 s.append(arr[0]).append(" 0 ").append(arr[1]).append(" 1 42.38 mt\n");
                 bw.write(s.toString());
                 s.setLength(0);
-            }
-            else
-                break;
-            index++;
         }
         bw.close();
         fw.close();
@@ -166,7 +197,10 @@ public class Ranker
         System.out.println(good +  "   hhh") ;
     }
 
-   /*public void rankerStartBeta(String path , String num_query, ArrayList<Term> qList , Indexer indexer) throws IOException
+
+
+   /*
+   public void rankerStartBeta(String path , String num_query, ArrayList<Term> qList , Indexer indexer) throws IOException
     {
         idx = indexer;
         //set_result();
@@ -181,21 +215,23 @@ public class Ranker
                 double termTF =  Double.parseDouble(s[0]);
                 double termDF = term.docList.size();
 
-                B25_Rank = CalculateB25(termDF, termTF);
+                B25_Rank = CalculateB25(termDF, termTF , docSize);
                 CosSim_Rank = CalculateCosSim(Doc);
                 Total_Rank = B25_Rank * 0.7 + CosSim_Rank * 0.3;
-                QueryDocRank.put(Total_Rank, Doc);
+                QueryDocRank.put(Total_Rank, docID);
             }
             Addres(num_query);
         }
     }
-    */
+
+*/
+
 
     public void set_result() throws IOException {
         String st;
         String [] ss ;
         BufferedReader brTermPost = new BufferedReader(new FileReader(new File
-                ("C:\\Users\\A\\Downloads\\Searcher2\\Searcher\\British Chunnel impact.txt")));
+                ("C:\\Users\\A\\Downloads\\Searcher2\\Searcher\\human smuggling.txt")));
         while((st= brTermPost.readLine())!=null )
         {
             ss = split(st," ");

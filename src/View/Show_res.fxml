@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.ShowRes_Controller">
+<AnchorPane prefHeight="400.0" prefWidth="556.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.ShowRes_Controller">
    <children>
-      <TableView fx:id="Table_res" layoutX="55.0" layoutY="58.0" prefHeight="268.0" prefWidth="491.0">
-        <columns>
-          <TableColumn fx:id="Num_Query" prefWidth="75.0" text="Num_Query" />
-          <TableColumn fx:id="Num_Doc" prefWidth="75.0" text="Num_Doc" />
-        </columns>
-      </TableView>
+      <TextArea fx:id="tabel" layoutX="34.0" layoutY="69.0" prefHeight="190.0" prefWidth="253.0" />
+      <Label layoutX="103.0" layoutY="30.0" prefHeight="26.0" prefWidth="79.0" text="Result:" textAlignment="CENTER">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
    </children>
 </AnchorPane>
