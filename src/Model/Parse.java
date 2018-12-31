@@ -14,7 +14,7 @@ public class Parse
     private ParsedDoc parsedDoc = new ParsedDoc();
     private StringBuilder strb = new StringBuilder();
     private HashMap<String,String> monthInfo = new HashMap<>() ;
-    private HashSet<String> stopWords = new HashSet<>();
+    public HashSet<String> stopWords = new HashSet<>();
     private HashSet<String> suffixWords = new HashSet<>();
     public int wordPosition;
     private int rowCounter;
@@ -24,17 +24,17 @@ public class Parse
     /**
      * Constructor
      */
-    public Parse(String corpusPath, Boolean stemm , String stopWordPath) throws IOException {
+    public Parse(Boolean stemm, String stopWordPath) throws IOException {
         isStem = stemm;
         setMonthMap();
         setSuffixWords();
-        if(corpusPath != "") {
-            BufferedReader br = new BufferedReader(new FileReader(stopWordPath));
-            String st;
-            while ((st = br.readLine()) != null) {
-                if (!st.isEmpty())
-                    stopWords.add(lowerCase(initialParse(st)));
-            }
+        InputStream in = getClass().getResourceAsStream("/stop_words.txt");
+        BufferedReader br = new BufferedReader(new InputStreamReader(in));
+//            BufferedReader br = new BufferedReader(new FileReader(stopWordPath));
+        String st;
+        while ((st = br.readLine()) != null) {
+            if (!st.isEmpty())
+                stopWords.add(lowerCase(initialParse(st)));
         }
         capitalCityAPI = new TreeMap<>();
 //        createCityMap();
@@ -76,10 +76,8 @@ public class Parse
         monthInfo.put("november","11");
         monthInfo.put("december","12");
     }
-//asdssa
+
     public void addTermToParsedDoc(StringBuilder sb, int pos) {
-        if(sb.toString().charAt(0) == '%')
-            return;
         if(isStem)
             parsedDoc.addTerm(stemmer.stem(sb.toString()), pos);
         else
@@ -113,7 +111,7 @@ public class Parse
     {
         char x = '"';
         stk = split(doc.getDocHeader().toString(), x + " `'_*&#+<>|~\\,;][:^@()?{}!�");
-        parse_arr_token(0);
+        parse_arr_token(-1);
     }
 
     private void parse_arr_token(int flag)

@@ -1,9 +1,11 @@
 package Model;
+import com.sun.javafx.geom.TransformedShape;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.io.*;
 import java.util.*;
 
+import static java.lang.Character.isUpperCase;
 import static org.apache.commons.lang3.StringUtils.contains;
 import static org.apache.commons.lang3.StringUtils.split;
 import static org.apache.commons.lang3.StringUtils.substring;
@@ -33,14 +35,13 @@ public class SearchEngine {
     {
         rf = new ReadFile(corpusPath);
         this.postingsPath = updatePath(postPath, isStemm);
-        partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
-        //partiotions=15;
+        //partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
+        partiotions=6;
         stemmFlag = isStemm;
         index = new Indexer(postingsPath, partiotions);
-        parse = new Parse(corpusPath, stemmFlag, stopwordsPath);
+        parse = new Parse(stemmFlag, stopwordsPath);
         docs = new HashSet<>();
         ranker = new Ranker();
-
     }
 
     public void setPostingsPath(String postingsPath) {
@@ -130,6 +131,28 @@ public class SearchEngine {
             result_qurey= ranker.rankerStart(postPath, arr[0], search.getQueryTerms(), index , docsMap);
         }
     }
+
+    private ArrayList<StringBuilder> addSemantic(ArrayList<StringBuilder> queries) throws IOException {
+        ArrayList<String> semantic = new ArrayList<>();
+        String[] arr , arr_word;
+        for(StringBuilder sb : queries)
+        {
+            arr = split(sb.toString(),"~");
+            arr_word = split(arr[1]," ");
+            for(String s : arr_word)
+            {
+                semantic = search.Get_semantica(s);
+                for (String semanticWord : semantic) {
+                    if (index.finalTermsDic.containsKey(upperCase(semanticWord)))
+                        sb.append(upperCase(semanticWord)).append(" ");
+                    else if (index.finalTermsDic.containsKey(lowerCase(semanticWord)))
+                        sb.append(lowerCase(semanticWord)).append(" ");
+                }
+            }
+        }
+        return queries;
+    }
+
     public void runSingleQuery(String query, String postingPath, boolean stemmFlag, boolean semanticFlag, ArrayList<String> cityFlag) throws IOException {
         search = new Searcher(cityFlag, semanticFlag, index, postingPath);
         String postPath = updatePath(postingPath, stemmFlag);
@@ -143,25 +166,72 @@ public class SearchEngine {
         String line;
         String[] st;
         String num_query ="";
+        StringBuilder sb = new StringBuilder();
+        ArrayList<String> tmpQuery = new ArrayList<>();
+        ArrayList<String> trash = createTrashList();
         while((line = br.readLine()) != null){
             if(contains(line, "<num>"))
             {
+                sb = new StringBuilder();
+                tmpQuery = new ArrayList<>();
                 st = split(line , " ");
                 num_query = st[st.length-1];
+                sb.append(num_query).append("~");
             }
             if(contains(line, "<title>"))
             {
                 Doc d = new Doc();
                 d.update(substring(line, 8), 4);
-                System.out.println(stemmFlag);
                 ParsedDoc pd = parse.runParser(d,stemmFlag);
-                StringBuilder sb = new StringBuilder();
-                sb.append(num_query).append("~");
-                for(Map.Entry<String, StringBuilder> entry : pd.getTerms().entrySet())
+                for(Map.Entry<String, StringBuilder> entry : pd.getTerms().entrySet()) {
                     sb.append(entry.getKey()).append(" ");
+                    tmpQuery.add(entry.getKey());
+                }
+            }
+            if(contains(line, "<desc>")){
+                while((line = br.readLine()) != null && !contains(line, "<narr>")){
+                    StringBuilder desc = parseDesc(line, tmpQuery, trash);
+                    if(desc != null)
+                        sb.append(desc).append(" ");
+                }
                 res.add(sb);
             }
         }
+        System.out.println(res.toString());
+        return res;
+    }
+
+    private StringBuilder parseDesc(String line, ArrayList<String> tmpQuery, ArrayList<String> trash) {
+        StringBuilder res = new StringBuilder();
+        HashSet<String> stopWords = parse.stopWords;
+        char x = '"';
+        String [] tokens = split(line, x + " `'_*&#+/<>|~\\,;][:^@.()?{}!�");
+        for(String s : tokens){
+            if(isUpperCase(s.charAt(0)))
+                s = upperCase(s);
+           if( trash.contains(s) || tmpQuery.contains(s) || stopWords.contains(lowerCase(s)))
+               continue;
+           if(s.length()>1)
+               res.append(s).append(" ");
+        }
+        return res;
+    }
+
+    private ArrayList<String> createTrashList() {
+        ArrayList<String> res = new ArrayList<>();
+        res.add("documents");
+        res.add("discuss");
+        res.add("FIND");
+        res.add("find");
+        res.add("IDENTIFY");
+        res.add("identify");
+        res.add("associated");
+        res.add("current");
+        res.add("provide");
+        res.add("background");
+        res.add("available");
+        res.add("information");
+        res.add("INFORMATION");
         return res;
     }
 

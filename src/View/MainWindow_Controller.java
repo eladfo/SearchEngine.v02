@@ -40,11 +40,11 @@ public class MainWindow_Controller extends Component {
     public Button browseQueryFile;
     public Button runQueryFile;
     public Button runSingleQuery;
+    public MenuButton city_bar;
 
     public boolean loadedDics = false;
     public static String postingPath = "";
     public static boolean isStemm = false;
-    public MenuButton city_bar;
 
     /**
      * Open File chooser to chose the path of Corpus files.
@@ -239,7 +239,7 @@ public class MainWindow_Controller extends Component {
     }
 
     public void runSingle() throws IOException {
-        if (!txtfld_singleQuery.getText().isEmpty() && loadedDics) {
+        if (!txtfld_singleQuery.getText().isEmpty()) {
             ArrayList<String> cityList = getSelectedCity();
             String path = updatePostingPath(steam.isSelected());
             Main.google.runSingleQuery(txtfld_queriesFile_path.getText(), path, steam.isSelected(), semanticFlag.isSelected(), cityList);
@@ -268,7 +268,7 @@ public class MainWindow_Controller extends Component {
         //cityFilter.setDisable(false);
     }
 
-        public void addcity(String city)
+    public void addcity(String city)
     {
         CheckMenuItem item = new CheckMenuItem(city);
         city_bar.getItems().add(item);
