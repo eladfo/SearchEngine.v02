@@ -222,6 +222,7 @@ public class MainWindow_Controller extends Component {
             alert.showAndWait();
         }
     }
+    //sdf
 
     private void Show_res() throws IOException {
         Stage stage = new Stage();
