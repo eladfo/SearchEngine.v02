@@ -76,7 +76,7 @@ public class Parse
         monthInfo.put("november","11");
         monthInfo.put("december","12");
     }
-
+//asdssa
     public void addTermToParsedDoc(StringBuilder sb, int pos) {
         if(sb.toString().charAt(0) == '%')
             return;
