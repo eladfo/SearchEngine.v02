@@ -74,22 +74,8 @@ public class Ranker
             is_header = false;
         }
         Addres(num_query);
-
-       // Build_doc_list();
-        //Header_Rank();
-       // for (String Doc : queryDoc)
-       // {
-           // B25_Rank =CalculateB25(Doc);
-           // CosSim_Rank =CalculateCosSim(Doc);
-           // Total_Rank = B25_Rank*0.7  + CosSim_Rank*0.3 ;
-         //   QueryDocRank.put(Total_Rank,Doc);
-       // }
-        //Addres(num_query);
-
         return result;
-
     }
-
 
     private double CalculateB25(double tf , double df , String doc) throws IOException {
         double Sum = 0;
@@ -158,8 +144,6 @@ public class Ranker
         }
         System.out.println(good +  "   hhh") ;
     }
-
-
 
     public void Reset()
     {

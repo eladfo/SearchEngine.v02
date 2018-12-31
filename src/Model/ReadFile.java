@@ -50,12 +50,13 @@ public class ReadFile {
      * @param st - A line from file
      */
     public void stringBuild(String st) {
-        try {
             if (docFlag == 4) {
                 if (st.equals("</TEXT>")) {
                     docFlag = 0;
                     return;
                 }
+                if(contains(st, "<H5>"))
+                    doc.update(st, docFlag);
                 if (st.charAt(0) == '<' || contains(st, "Article Type"))
                     return;
                 doc.update(st, docFlag);
@@ -99,12 +100,6 @@ public class ReadFile {
                     docFlag = 3;
                 }
             }
-        }
-        catch(ArrayIndexOutOfBoundsException e)
-        {
-            System.out.println(st + " 000");
-            int x =2;
-        }
     }
 
     /**
@@ -144,5 +139,4 @@ public class ReadFile {
         else
             return listOfFiles.length;
     }
-
 }

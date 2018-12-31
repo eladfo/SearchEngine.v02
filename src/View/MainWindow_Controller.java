@@ -4,6 +4,7 @@ import Model.SearchEngine;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -17,12 +18,13 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.*;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.ResourceBundle;
 
 import static org.apache.commons.lang3.StringUtils.split;
 
-public class MainWindow_Controller extends Component {
+public class MainWindow_Controller extends Component implements Initializable {
     public TextField txtfld_corpus_path;
     public TextField txtfld_posting_path;
     public TextField txtfld_stopwords_path;
@@ -31,7 +33,6 @@ public class MainWindow_Controller extends Component {
     public CheckBox steam;
     public RadioButton semanticFlag;
     public RadioButton stemmFlag;
-    public CheckComboBox<String> cityFilter;
     public Button createInvertedIdx;
     public Button showDic;
     public Button loadDic;
@@ -42,7 +43,7 @@ public class MainWindow_Controller extends Component {
 
     public boolean loadedDics = false;
     public static String postingPath = "";
-    public static boolean is_steam = false;
+    public static boolean isStemm = false;
     public MenuButton city_bar;
 
     /**
@@ -138,7 +139,7 @@ public class MainWindow_Controller extends Component {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Please choose posting's path");
             alert.showAndWait();
         } else {
-            is_steam = steam.isSelected();
+            isStemm = steam.isSelected();
             Stage stage = new Stage();
             FXMLLoader fxmlLoader = new FXMLLoader();
             Parent root = fxmlLoader.load(getClass().getResource("Show_Dic.fxml").openStream());
@@ -223,7 +224,6 @@ public class MainWindow_Controller extends Component {
             alert.showAndWait();
         }
     }
-    //sdf
 
     private void Show_res() throws IOException {
         Stage stage = new Stage();
@@ -239,7 +239,7 @@ public class MainWindow_Controller extends Component {
 
     public void runSingle() throws IOException {
         if (!txtfld_singleQuery.getText().isEmpty() && loadedDics) {
-            ArrayList<String> cityList = getCitiesSelected();
+            ArrayList<String> cityList = getSelectedCity();
             String path = updatePostingPath(stemmFlag.isSelected());
             Main.google.runSingleQuery(txtfld_queriesFile_path.getText(), path, stemmFlag.isSelected(), semanticFlag.isSelected(), cityList);
         } else {
@@ -262,9 +262,27 @@ public class MainWindow_Controller extends Component {
         br.close();
 
         for(String s :strings )
-            Addcity(s);
+            addcity(s);
         //cityFilter.getItems().addAll(strings);
         //cityFilter.setDisable(false);
+    }
+
+        public void addcity(String city)
+    {
+        CheckMenuItem item = new CheckMenuItem(city);
+        city_bar.getItems().add(item);
+    }
+
+    public ArrayList<String> getSelectedCity()
+    {
+        ArrayList<String> res = new ArrayList<>();
+        for(MenuItem item : city_bar.getItems())
+        {
+            CheckMenuItem curr = (CheckMenuItem) item;
+            if(curr.isSelected())
+                res.add(curr.getText());
+        }
+        return res;
     }
 
     public void enableBottuns() throws IOException {
@@ -281,35 +299,17 @@ public class MainWindow_Controller extends Component {
         runQueryFile.setDisable(true);
         runSingleQuery.setDisable(true);
         browseQueryFile.setDisable(true);
-        cityFilter.setDisable(true);
     }
 
-    public ArrayList<String> getCitiesSelected(){
-        ArrayList<String> res = new ArrayList<>();
-        ObservableList<Integer> idxCheackedCities = cityFilter.getCheckModel().getCheckedIndices();
-        for (Integer i : idxCheackedCities) {
-            res.add((String) cityFilter.getItems().get(i));
-        }
-        return res;
-    }
-
-
-    public void Addcity(String city)
-    {
-        CheckMenuItem item = new CheckMenuItem(city);
-        city_bar.getItems().add(item);
-    }
-
-    public ArrayList<String> getSelectedCity()
-    {
-        ArrayList<String> res = new ArrayList<>();
-        for(MenuItem item :city_bar.getItems())
-        {
-            CheckMenuItem curr = (CheckMenuItem) item;
-            if(curr.isSelected())
-                res.add(curr.getText());
-        }
-
-        return res;
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        txtfld_corpus_path.setText("C:\\Users\\e-pc\\IdeaProjects\\corpus\\corpus");
+        txtfld_posting_path.setText("C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\posting");
+        postingPath = txtfld_posting_path.getText();
+        txtfld_stopwords_path.setText("C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\resources\\stop_words.txt");
+        txtfld_queriesFile_path.setText("C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\resources\\queries.txt");
+        createInvertedIdxCheck();
+        runQueryFile.setDisable(false);
+        runSingleQuery.setDisable(false);
     }
 }

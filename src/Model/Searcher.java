@@ -33,59 +33,6 @@ public class Searcher {
         this.postPath = postPath;
     }
 
-    public void createTermsList(String q, String postingPath) throws IOException {
-        queryTerms = new ArrayList<>();
-        query = q;
-
-        //if we want to run query with semantic:
-       //   q = add_semantic_word(q);
-
-
-        String[] tokens = split(query, " ");
-        for (String word : tokens) {
-            System.out.println(word);
-            Term t;
-            if(index.finalTermsDic.containsKey(upperCase(word))) {
-                t = new Term(null, null, 1);
-                word = upperCase(word);
-            }else {
-                t = new Term(null, null, 0);
-                word = lowerCase(word);
-            }
-            int[] test = index.finalTermsDic.get(word);
-            if(test == null)
-                continue;
-            int termRowPtr = test[2] + 1;
-            BufferedReader brTermPost = new BufferedReader(new FileReader(new File
-                    (postingPath + "\\" + (upperCase(Character.toString(word.charAt(0)))))));
-            for(int i=0; i<termRowPtr-1; i++)
-                brTermPost.readLine();
-            String termData = brTermPost.readLine();
-            String[] docs = split(termData, "~");
-            for(String d : docs) {
-                String[] tmp = split(d, ",");
-                int tf = tmp.length - 1;
-                int docLength = index.finalDocsDic.get(tmp[0])[0];
-                t.addDoc(tmp[0], new StringBuilder(tf+";"+docLength));
-            }
-            t.Name =word;
-            queryTerms.add(t);
-        }
-    }
-
-    private String add_semantic_word(String q) throws IOException {
-        String[] arr = split(q," ");
-        StringBuilder sb = new StringBuilder(q);
-        for(String s : arr)
-        {
-            for(String semantic_word : Get_semantica(s))
-            {
-                sb.append(semantic_word).append(" ");
-            }
-        }
-        return sb.toString();
-    }
-
     public void setQuery(String query) {
         this.query = query;
     }
@@ -110,11 +57,6 @@ public class Searcher {
         res = parse_semantica(content);
         in.close();
         con.disconnect();
-
-        //System.out.println("Semantica!!!!!!!");
-        //for(String s : res)
-          //  System.out.println(s);
-
         return res;
     }
 
@@ -143,13 +85,6 @@ public class Searcher {
         return semantic_words;
     }
 
-    /**
-     * ***** Beta Map *****
-     * ***** Beta Map *****
-     * ***** Beta Map *****
-     */
-
-
     public HashMap<String, ArrayList<String[]>> createBetaMap(String q, String postingPath) throws IOException {
         betaMap = new HashMap<>();
         query = q;
@@ -160,7 +95,6 @@ public class Searcher {
             String termID;
             int termTF;
             int termDF;
-            String headerFlag;
             if(index.finalTermsDic.containsKey(upperCase(word))) {
                 termID = upperCase(word);
             }else {
@@ -179,7 +113,7 @@ public class Searcher {
                 String[] tmp = split(d, ",");
                 termTF = tmp.length - 1;
                 docID = tmp[0];
-                updateBetaMap(docID, termID,termTF, termDF, tmp[tmp.length-1]);
+                updateBetaMap(docID, termID, termTF, termDF, tmp[tmp.length-1]);
             }
         }
         return betaMap;
