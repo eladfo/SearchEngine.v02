@@ -110,23 +110,35 @@ public class Searcher {
         res = parse_semantica(content);
         in.close();
         con.disconnect();
+
+        //System.out.println("Semantica!!!!!!!");
+        //for(String s : res)
+          //  System.out.println(s);
+
         return res;
     }
 
     private ArrayList<String> parse_semantica(StringBuffer content)
     {
-        String[] st = splitByWholeSeparator(content.toString(),"},{");
-        String[] st1 ;
-        String[] st2;
-        char c;
-        for(int i=0 ; i<2 && i<st.length;i++)
+        try
         {
-            st1 = splitByWholeSeparator(st[i],",");
-            st2=splitByWholeSeparator(st1[0],":");
-            c = '"';
-            st2[1] = replaceChars(st2[1],c,'*');
-            st2[1] = replace(st2[1],"*","");
-            semantic_words.add(st2[1]);
+            semantic_words.clear();
+            String[] st = splitByWholeSeparator(content.toString(), "},{");
+            String[] st1;
+            String[] st2;
+            char c;
+            for (int i = 0; i < 1 && i < st.length; i++) {
+                st1 = splitByWholeSeparator(st[i], ",");
+                st2 = splitByWholeSeparator(st1[0], ":");
+                c = '"';
+                st2[1] = replaceChars(st2[1], c, '*');
+                st2[1] = replace(st2[1], "*", "");
+                semantic_words.add(st2[1]);
+            }
+        }
+        catch (ArrayIndexOutOfBoundsException e)
+        {
+            return semantic_words;
         }
         return semantic_words;
     }
@@ -143,7 +155,7 @@ public class Searcher {
         query = q;
         String[] tokens = split(query, " ");
         for (String word : tokens) {
-            System.out.println(word);
+            System.out.println(word + "    BEFORE  ====");
             String docID;
             String termID;
             int termTF;

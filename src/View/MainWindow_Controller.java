@@ -6,11 +6,10 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.RadioButton;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextField;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.controlsfx.control.CheckComboBox;
@@ -19,6 +18,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import static org.apache.commons.lang3.StringUtils.split;
 
@@ -42,7 +42,8 @@ public class MainWindow_Controller extends Component {
 
     public boolean loadedDics = false;
     public static String postingPath = "";
-    public static boolean isStemm = false;
+    public static boolean is_steam = false;
+    public MenuButton city_bar;
 
     /**
      * Open File chooser to chose the path of Corpus files.
@@ -136,7 +137,7 @@ public class MainWindow_Controller extends Component {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Please choose posting's path");
             alert.showAndWait();
         } else {
-            isStemm = steam.isSelected();
+            is_steam = steam.isSelected();
             Stage stage = new Stage();
             FXMLLoader fxmlLoader = new FXMLLoader();
             Parent root = fxmlLoader.load(getClass().getResource("Show_Dic.fxml").openStream());
@@ -211,9 +212,8 @@ public class MainWindow_Controller extends Component {
     }
 
     public void runQueriesButton() throws IOException {
-        System.out.println(postingPath + "   kkkkkkkkkkk");
         if (!txtfld_queriesFile_path.getText().isEmpty() && loadedDics) {
-            ArrayList<String> cityList = getCitiesSelected();
+            ArrayList<String> cityList = getSelectedCity();
             String path = updatePostingPath(stemmFlag.isSelected());
             Main.google.partB(txtfld_queriesFile_path.getText(), path, stemmFlag.isSelected(), semanticFlag.isSelected(), cityList);
             Show_res();
@@ -232,7 +232,6 @@ public class MainWindow_Controller extends Component {
         stage.setScene(scene);
         stage.setResizable(false);
         stage.initModality(Modality.APPLICATION_MODAL); //Lock the window until it closes
-        isStemm = stemmFlag.isSelected();
         stage.show();
     }
 
@@ -259,8 +258,11 @@ public class MainWindow_Controller extends Component {
             strings.add(arr_str[0]);
         }
         br.close();
-        cityFilter.getItems().addAll(strings);
-        cityFilter.setDisable(false);
+
+        for(String s :strings )
+            Addcity(s);
+        //cityFilter.getItems().addAll(strings);
+        //cityFilter.setDisable(false);
     }
 
     public void enableBottuns() throws IOException {
@@ -286,6 +288,26 @@ public class MainWindow_Controller extends Component {
         for (Integer i : idxCheackedCities) {
             res.add((String) cityFilter.getItems().get(i));
         }
+        return res;
+    }
+
+
+    public void Addcity(String city)
+    {
+        CheckMenuItem item = new CheckMenuItem(city);
+        city_bar.getItems().add(item);
+    }
+
+    public ArrayList<String> getSelectedCity()
+    {
+        ArrayList<String> res = new ArrayList<>();
+        for(MenuItem item :city_bar.getItems())
+        {
+            CheckMenuItem curr = (CheckMenuItem) item;
+            if(curr.isSelected())
+                res.add(curr.getText());
+        }
+
         return res;
     }
 }

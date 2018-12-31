@@ -14,8 +14,8 @@ public class Ranker
     public ArrayList<String> result;
     public ArrayList<String> result_tmp ;
     public TreeMap<Double, String> QueryDocRank;
-    public double b=0.38;
-    public double k=1.2;
+    public double b=0.38; //0.38
+    public double k=1.2; // 1.2
     public ArrayList<String> semantic_words;
     public HashMap<String, ArrayList<String[]>> info_map ;
 
@@ -42,6 +42,7 @@ public class Ranker
         query = qList;
         boolean is_header = false;
 
+
         Reset();
         for (Map.Entry<String, ArrayList<String[]>> entry : map.entrySet())
         {
@@ -53,15 +54,16 @@ public class Ranker
                 mone = mone + Double.valueOf(Data[1]);
                 mechane = mechane + Math.pow(Double.valueOf(Data[1]),2);
 
-                if(Data[3].equalsIgnoreCase("1"))
+                if(Data[3].equalsIgnoreCase("0")) {
                     is_header = true;
+                }
 
             }
             if(is_header)
-                Header_Rank = 100d;
+                Header_Rank = 1d;
             sqr = Math.sqrt(mechane);
             CosSim_Rank =  mone/sqr;
-            Total_Rank = B25_Rank*0.7  + CosSim_Rank*0.3 + Header_Rank *0.1 ;
+            Total_Rank = B25_Rank*0.7  + CosSim_Rank*0.3 + Header_Rank  ;
 
             QueryDocRank.put(Total_Rank, entry.getKey());
             B25_Rank = 0 ;

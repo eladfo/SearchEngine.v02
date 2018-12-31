@@ -6,6 +6,8 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -165,5 +167,7 @@
             <Font name="System Bold Italic" size="12.0" />
          </font>
       </Button>
+      <MenuButton fx:id="city_bar" layoutX="334.0" layoutY="469.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="172.0" text="MenuButton">
+      </MenuButton>
    </children>
 </AnchorPane>

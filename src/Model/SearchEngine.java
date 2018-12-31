@@ -118,8 +118,13 @@ public class SearchEngine {
     }
 
     public void partB(String qPath, String postingPath, boolean stemmFlag, boolean semanticFlag, ArrayList<String> cityFilter) throws IOException {
+        for(String s : cityFilter)
+        {
+            System.out.println(s);
+        }
+        System.out.println("================================================================");
         search = new Searcher(cityFilter, semanticFlag, index, postingPath);
-        ArrayList<StringBuilder> queries = rfBeta(qPath);
+        ArrayList<StringBuilder> queries = rfBeta(qPath ,stemmFlag );
         if(semanticFlag)
             queries = addSemantic(queries);
         String[] arr;
@@ -127,7 +132,6 @@ public class SearchEngine {
         {
             arr = split(entry.toString(),"~");
             HashMap<String, ArrayList<String[]>> docsMap = search.createBetaMap(arr[1], postingPath);
-            //search.createTermsList(arr[1], postingPath);
             String postPath = updatePath(postingPath, stemmFlag);
             result_qurey= ranker.rankerStart(postPath, arr[0], search.getQueryTerms(), index , docsMap);
         }
@@ -136,14 +140,21 @@ public class SearchEngine {
 
     private ArrayList<StringBuilder> addSemantic(ArrayList<StringBuilder> queries) throws IOException {
         ArrayList<String> semantic = new ArrayList<>();
-        String[] arr;
+        String[] arr , arr_word;
         for(StringBuilder sb : queries)
         {
             arr = split(sb.toString(),"~");
-            //System.out.println();
-            semantic = search.Get_semantica(sb.toString());
-            for(String s : semantic)
-                sb.append(s);
+            arr_word = split(arr[1]," ");
+            for(String s : arr_word)
+            {
+                semantic = search.Get_semantica(s);
+                for (String semanticWord : semantic) {
+                    if (index.finalTermsDic.containsKey(upperCase(semanticWord)))
+                        sb.append(upperCase(semanticWord)).append(" ");
+                    else if (index.finalTermsDic.containsKey(lowerCase(semanticWord)))
+                        sb.append(lowerCase(semanticWord)).append(" ");
+                }
+            }
         }
         return queries;
     }
@@ -156,7 +167,7 @@ public class SearchEngine {
         ranker.rankerStart(postPath ,"007" ,search.getQueryTerms(), index, docsMap);
     }
 
-    public ArrayList<StringBuilder> rfBeta(String qPath) throws IOException {   //function that Readfile Query file!!!
+    public ArrayList<StringBuilder> rfBeta(String qPath,boolean stemmFlag) throws IOException {   //function that Readfile Query file!!!
         ArrayList<StringBuilder> res = new ArrayList<>();
         BufferedReader br = new BufferedReader(new FileReader(new File(qPath)));
         String line;
@@ -172,7 +183,8 @@ public class SearchEngine {
             {
                 Doc d = new Doc();
                 d.update(substring(line, 8), 4);
-                ParsedDoc pd = parse.runParser(d,false);
+                System.out.println(stemmFlag);
+                ParsedDoc pd = parse.runParser(d,stemmFlag);
                 StringBuilder sb = new StringBuilder();
                 sb.append(num_query).append("~");
                 for(Map.Entry<String, StringBuilder> entry : pd.getTerms().entrySet())
