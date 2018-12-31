@@ -126,9 +126,11 @@ public class SearchEngine {
         for (StringBuilder entry : queries)
         {
             arr = split(entry.toString(),"~");
-            HashMap<String, ArrayList<String[]>> docsMap = search.createBetaMap(arr[1], arr[2], postingPath);
+            System.out.println(arr[1]);
+            System.out.println(arr[2]);
+            HashMap<String, ArrayList<String[]>> docsTermMap = search.createBetaMap(arr[1], arr[2], postingPath);
             String postPath = updatePath(postingPath, stemmFlag);
-            result_qurey= ranker.rankerStart(postPath, arr[0], search.getQueryTerms(), index , docsMap);
+            result_qurey= ranker.rankerStart(postPath, arr[0], search.getQueryTerms(), index , docsTermMap );
         }
     }
 
@@ -136,7 +138,7 @@ public class SearchEngine {
     {
         search = new Searcher(cityFlag, semanticFlag, index, postingPath);
         String postPath = updatePath(postingPath, stemmFlag);
-        HashMap<String, ArrayList<String[]>> docsMap = search.createBetaMap(query, null, postingPath);
+        HashMap<String, ArrayList<String[]>> docsMap = search.createBetaMap(query, "",null);
         ranker.rankerStart(postPath ,"007" ,search.getQueryTerms(), index, docsMap);
     }
 

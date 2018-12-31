@@ -18,6 +18,7 @@ public class Ranker
     public double k=1.2; // 1.2
     public ArrayList<String> semantic_words;
     public HashMap<String, ArrayList<String[]>> info_map ;
+    public HashMap<String, ArrayList<String[]>> info_map1;
 
     public Ranker ()
     {
@@ -63,7 +64,7 @@ public class Ranker
                 Header_Rank = 1d;
             sqr = Math.sqrt(mechane);
             CosSim_Rank =  mone/sqr;
-            Total_Rank = B25_Rank*0.7  + CosSim_Rank*0.3 + Header_Rank  ;
+            Total_Rank = B25_Rank*0.7  + CosSim_Rank*0.3 + Header_Rank ;
 
             QueryDocRank.put(Total_Rank, entry.getKey());
             B25_Rank = 0 ;
@@ -76,6 +77,7 @@ public class Ranker
         Addres(num_query);
         return result;
     }
+
 
     private double CalculateB25(double tf , double df , String doc) throws IOException {
         double Sum = 0;
