@@ -118,15 +118,9 @@ public class SearchEngine {
     }
 
     public void partB(String qPath, String postingPath, boolean stemmFlag, boolean semanticFlag, ArrayList<String> cityFilter) throws IOException {
-        for(String s : cityFilter)
-        {
-            System.out.println(s);
-        }
-        System.out.println("================================================================");
+
         search = new Searcher(cityFilter, semanticFlag, index, postingPath);
         ArrayList<StringBuilder> queries = rfBeta(qPath ,stemmFlag );
-        if(semanticFlag)
-            queries = addSemantic(queries);
         String[] arr;
         for (StringBuilder entry : queries)
         {
@@ -135,31 +129,7 @@ public class SearchEngine {
             String postPath = updatePath(postingPath, stemmFlag);
             result_qurey= ranker.rankerStart(postPath, arr[0], search.getQueryTerms(), index , docsMap);
         }
-        saveSearchResults();
     }
-
-    private ArrayList<StringBuilder> addSemantic(ArrayList<StringBuilder> queries) throws IOException {
-        ArrayList<String> semantic = new ArrayList<>();
-        String[] arr , arr_word;
-        for(StringBuilder sb : queries)
-        {
-            arr = split(sb.toString(),"~");
-            arr_word = split(arr[1]," ");
-            for(String s : arr_word)
-            {
-                semantic = search.Get_semantica(s);
-                for (String semanticWord : semantic) {
-                    if (index.finalTermsDic.containsKey(upperCase(semanticWord)))
-                        sb.append(upperCase(semanticWord)).append(" ");
-                    else if (index.finalTermsDic.containsKey(lowerCase(semanticWord)))
-                        sb.append(lowerCase(semanticWord)).append(" ");
-                }
-            }
-        }
-        return queries;
-    }
-
-
     public void runSingleQuery(String query, String postingPath, boolean stemmFlag, boolean semanticFlag, ArrayList<String> cityFlag) throws IOException {
         search = new Searcher(cityFlag, semanticFlag, index, postingPath);
         String postPath = updatePath(postingPath, stemmFlag);
@@ -195,8 +165,8 @@ public class SearchEngine {
         return res;
     }
 
-    public void saveSearchResults() throws IOException {
-        ranker.Save_res(postingsPath);
+    public void saveSearchResults(String Path) throws IOException {
+        ranker.Save_res(Path);
     }
 
     public String[] getEntitiesPerDoc(String docID, boolean isStemm) throws IOException {

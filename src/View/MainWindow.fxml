@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="550.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.MainWindow_Controller">
+<AnchorPane prefHeight="550.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.MainWindow_Controller">
    <children>
        <TextField fx:id="txtfld_corpus_path" editable="false" layoutX="199.0" layoutY="69.0" prefHeight="25.0" prefWidth="363.0" />
        <Label layoutX="88.0" layoutY="109.0" prefHeight="25.0" prefWidth="94.0" text="Posting Path">
@@ -128,11 +128,6 @@
          </font>
       </Label>
       <RadioButton fx:id="semanticFlag" layoutX="240.0" layoutY="412.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="84.0" text="Semantic">
-         <font>
-            <Font name="System Bold Italic" size="12.0" />
-         </font>
-      </RadioButton>
-      <RadioButton fx:id="stemmFlag" layoutX="341.0" layoutY="412.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="84.0" text="Stemmer">
          <font>
             <Font name="System Bold Italic" size="12.0" />
          </font>

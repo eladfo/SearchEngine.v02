@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.controlsfx.control.CheckComboBox;
@@ -24,7 +25,7 @@ import java.util.ResourceBundle;
 
 import static org.apache.commons.lang3.StringUtils.split;
 
-public class MainWindow_Controller extends Component implements Initializable {
+public class MainWindow_Controller extends Component {
     public TextField txtfld_corpus_path;
     public TextField txtfld_posting_path;
     public TextField txtfld_stopwords_path;
@@ -32,7 +33,6 @@ public class MainWindow_Controller extends Component implements Initializable {
     public TextField txtfld_singleQuery;
     public CheckBox steam;
     public RadioButton semanticFlag;
-    public RadioButton stemmFlag;
     public Button createInvertedIdx;
     public Button showDic;
     public Button loadDic;
@@ -50,6 +50,7 @@ public class MainWindow_Controller extends Component implements Initializable {
      * Open File chooser to chose the path of Corpus files.
      */
     public void setCorpusPath() {
+
         JFileChooser chooser = new JFileChooser();
         chooser.setCurrentDirectory(new java.io.File("."));
         chooser.setDialogTitle("Corpus Path");
@@ -91,8 +92,8 @@ public class MainWindow_Controller extends Component implements Initializable {
             txtfld_stopwords_path.setText(chooser.getSelectedFile().toString());
         }
         createInvertedIdxCheck();
+
     }
-    //asda
 
     /**
      * Start the createInvertedIdx inverted files process.
@@ -216,8 +217,8 @@ public class MainWindow_Controller extends Component implements Initializable {
     public void runQueriesButton() throws IOException {
         if (!txtfld_queriesFile_path.getText().isEmpty() && loadedDics) {
             ArrayList<String> cityList = getSelectedCity();
-            String path = updatePostingPath(stemmFlag.isSelected());
-            Main.google.partB(txtfld_queriesFile_path.getText(), path, stemmFlag.isSelected(), semanticFlag.isSelected(), cityList);
+            String path = updatePostingPath(steam.isSelected());
+            Main.google.partB(txtfld_queriesFile_path.getText(), path, steam.isSelected(), semanticFlag.isSelected(), cityList);
             Show_res();
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR,"Please choose queries's file path");
@@ -240,8 +241,8 @@ public class MainWindow_Controller extends Component implements Initializable {
     public void runSingle() throws IOException {
         if (!txtfld_singleQuery.getText().isEmpty() && loadedDics) {
             ArrayList<String> cityList = getSelectedCity();
-            String path = updatePostingPath(stemmFlag.isSelected());
-            Main.google.runSingleQuery(txtfld_queriesFile_path.getText(), path, stemmFlag.isSelected(), semanticFlag.isSelected(), cityList);
+            String path = updatePostingPath(steam.isSelected());
+            Main.google.runSingleQuery(txtfld_queriesFile_path.getText(), path, steam.isSelected(), semanticFlag.isSelected(), cityList);
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR,"Please enter a query");
             alert.showAndWait();
@@ -301,15 +302,4 @@ public class MainWindow_Controller extends Component implements Initializable {
         browseQueryFile.setDisable(true);
     }
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        txtfld_corpus_path.setText("C:\\Users\\e-pc\\IdeaProjects\\corpus\\corpus");
-        txtfld_posting_path.setText("C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\posting");
-        postingPath = txtfld_posting_path.getText();
-        txtfld_stopwords_path.setText("C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\resources\\stop_words.txt");
-        txtfld_queriesFile_path.setText("C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\resources\\queries.txt");
-        createInvertedIdxCheck();
-        runQueryFile.setDisable(false);
-        runSingleQuery.setDisable(false);
-    }
 }

@@ -4,8 +4,11 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
 
+import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 
 import static org.apache.commons.lang3.StringUtils.split;
@@ -36,7 +39,23 @@ public class ShowQueryRes_Controller extends Component {
     }
 
     public void saveResButton() throws IOException {
-        Main.google.saveSearchResults();
+        String path_res="";
+        JFileChooser chooser = new JFileChooser();
+        chooser.setCurrentDirectory(new java.io.File("."));
+        chooser.setDialogTitle("Save Result");
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setAcceptAllFileFilterUsed(false);
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+            path_res = chooser.getSelectedFile().toString();
+
+        if(path_res.equals(""))
+        {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Please enter valid path");
+            alert.showAndWait();
+            return;
+        }
+
+        Main.google.saveSearchResults(path_res);
         Alert alert = new Alert(Alert.AlertType.INFORMATION,"Results successfully saved");
         alert.showAndWait();
     }

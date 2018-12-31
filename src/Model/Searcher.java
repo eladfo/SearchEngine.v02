@@ -87,10 +87,17 @@ public class Searcher {
 
     public HashMap<String, ArrayList<String[]>> createBetaMap(String q, String postingPath) throws IOException {
         betaMap = new HashMap<>();
+        ArrayList<String> querie ;
         query = q;
         String[] tokens = split(query, " ");
-        for (String word : tokens) {
-            System.out.println(word + "    BEFORE  ====");
+
+        if(semanticFlag)
+            querie = addSemantic(tokens);
+        else
+            querie=add_querie(tokens);
+
+
+        for (String word : querie) {
             String docID;
             String termID;
             int termTF;
@@ -119,6 +126,14 @@ public class Searcher {
         return betaMap;
     }
 
+    private ArrayList<String> add_querie(String[] tokens)
+    {
+        ArrayList<String> arr = new ArrayList<>();
+        for(String w : tokens)
+            arr.add(w);
+        return arr;
+    }
+
     private void updateBetaMap(String docID, String termID, int termTF, int termDF, String headerFlag) {
         if(!headerFlag.equals("0"))
             headerFlag = "1";
@@ -145,4 +160,24 @@ public class Searcher {
             brTermPost.readLine();
         return brTermPost.readLine();
     }
+
+    private ArrayList<String> addSemantic(String[] querie) throws IOException {
+        ArrayList<String> semantic = new ArrayList<>();
+        ArrayList<String> res = new ArrayList<>();
+
+        for(String s : querie)
+        {
+                res.add(s);
+                semantic = Get_semantica(s);
+                for (String semanticWord : semantic)
+                {
+                    if (index.finalTermsDic.containsKey(upperCase(semanticWord)))
+                        res.add(upperCase(semanticWord));
+                    else if (index.finalTermsDic.containsKey(lowerCase(semanticWord)))
+                        res.add(lowerCase(semanticWord));
+                }
+        }
+        return res;
+    }
+
 }
