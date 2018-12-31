@@ -85,7 +85,7 @@ public class Searcher {
         return semantic_words;
     }
 
-    public HashMap<String, ArrayList<String[]>> createBetaMap(String q, String postingPath) throws IOException {
+    public HashMap<String, ArrayList<String[]>> createBetaMap(String q, String desc, String postingPath) throws IOException {
         betaMap = new HashMap<>();
         ArrayList<String> querie ;
         query = q;

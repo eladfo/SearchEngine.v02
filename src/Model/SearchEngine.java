@@ -126,37 +126,17 @@ public class SearchEngine {
         for (StringBuilder entry : queries)
         {
             arr = split(entry.toString(),"~");
-            HashMap<String, ArrayList<String[]>> docsMap = search.createBetaMap(arr[1], postingPath);
+            HashMap<String, ArrayList<String[]>> docsMap = search.createBetaMap(arr[1], arr[2], postingPath);
             String postPath = updatePath(postingPath, stemmFlag);
             result_qurey= ranker.rankerStart(postPath, arr[0], search.getQueryTerms(), index , docsMap);
         }
     }
 
-    private ArrayList<StringBuilder> addSemantic(ArrayList<StringBuilder> queries) throws IOException {
-        ArrayList<String> semantic = new ArrayList<>();
-        String[] arr , arr_word;
-        for(StringBuilder sb : queries)
-        {
-            arr = split(sb.toString(),"~");
-            arr_word = split(arr[1]," ");
-            for(String s : arr_word)
-            {
-                semantic = search.Get_semantica(s);
-                for (String semanticWord : semantic) {
-                    if (index.finalTermsDic.containsKey(upperCase(semanticWord)))
-                        sb.append(upperCase(semanticWord)).append(" ");
-                    else if (index.finalTermsDic.containsKey(lowerCase(semanticWord)))
-                        sb.append(lowerCase(semanticWord)).append(" ");
-                }
-            }
-        }
-        return queries;
-    }
-
-    public void runSingleQuery(String query, String postingPath, boolean stemmFlag, boolean semanticFlag, ArrayList<String> cityFlag) throws IOException {
+    public void runSingleQuery(String query, String postingPath, boolean stemmFlag, boolean semanticFlag, ArrayList<String> cityFlag) throws IOException
+    {
         search = new Searcher(cityFlag, semanticFlag, index, postingPath);
         String postPath = updatePath(postingPath, stemmFlag);
-        HashMap<String, ArrayList<String[]>> docsMap = search.createBetaMap(query, postingPath);
+        HashMap<String, ArrayList<String[]>> docsMap = search.createBetaMap(query, null, postingPath);
         ranker.rankerStart(postPath ,"007" ,search.getQueryTerms(), index, docsMap);
     }
 
@@ -187,6 +167,7 @@ public class SearchEngine {
                     sb.append(entry.getKey()).append(" ");
                     tmpQuery.add(entry.getKey());
                 }
+                sb.append("~");
             }
             if(contains(line, "<desc>")){
                 while((line = br.readLine()) != null && !contains(line, "<narr>")){
@@ -263,12 +244,4 @@ public class SearchEngine {
             return path + "\\Without_Stemmer";
     }
 
-    public void testing(String e2) throws IOException {
-        e2 += "\\Without_Stemmer";
-        index.loadDics(e2);
-        search = new Searcher(null, false, index, e2);
-        String query = "mutual fund predictors";
-        HashMap<String, ArrayList<String[]>> test = search.createBetaMap(query, e2);
-        System.out.println("well well");
-    }
 }
