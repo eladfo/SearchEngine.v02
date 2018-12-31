@@ -91,6 +91,7 @@ public class MainWindow_Controller extends Component {
         }
         createInvertedIdxCheck();
     }
+    //asda
 
     /**
      * Start the createInvertedIdx inverted files process.
