@@ -27,19 +27,26 @@ public class Ranker
         semantic_words = new ArrayList<>();
     }
 
-    public ArrayList<String> rankerStart(String path , String num_query, Indexer indexer , HashMap<String, ArrayList<String[]>> map) throws IOException
+    public ArrayList<String> rankerStart(String path , String num_query,String original , Indexer indexer , HashMap<String, ArrayList<String[]>> map) throws IOException
     {
+        ArrayList<String> arr_original = new ArrayList<>();
         double B25_Rank =0  , Total_Rank = 0 ,CosSim_Rank = 0 , Header_Rank=0;
         double mone = 0 , mechane=0 , sqr = 0;
         info_map = map;
         idx = indexer;
         boolean is_header = false;
         Reset();
+        for(String w1 : split(original," "))
+            arr_original.add(w1);
+
         for (Map.Entry<String, ArrayList<String[]>> entry : map.entrySet())
         {
             for(String[] Data : entry.getValue())
             {
-                B25_Rank = B25_Rank + CalculateB25(Double.valueOf(Data[1]) , Double.valueOf(Data[2]) , entry.getKey());
+                if(arr_original.contains(Data[0]))
+                    B25_Rank = B25_Rank + 2d*CalculateB25(Double.valueOf(Data[1]) , Double.valueOf(Data[2]) , entry.getKey());
+                else
+                    B25_Rank = B25_Rank + CalculateB25(Double.valueOf(Data[1]) , Double.valueOf(Data[2]) , entry.getKey());
 
 
                 mone = mone + Double.valueOf(Data[1]);

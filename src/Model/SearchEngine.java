@@ -130,16 +130,18 @@ public class SearchEngine {
             arr = split(entry.toString(),"~");
             HashMap<String, ArrayList<String[]>> docsTermMap = search.createBetaMap(arr[1], arr[2], postingPath);
             String postPath = updatePath(postingPath, stemmFlag);
-            result_qurey= ranker.rankerStart(postPath, arr[0], search.getQueryTerms(), index , docsTermMap );
+            result_qurey= ranker.rankerStart(postPath, arr[0],arr[1], index , docsTermMap );
         }
     }
 
     public void runSingleQuery(String query, String postingPath, boolean stemmFlag, boolean semanticFlag, ArrayList<String> cityFlag) throws IOException
     {
+        System.out.println("sadasd");
+        ranker = new Ranker();
         search = new Searcher(cityFlag, semanticFlag, index, postingPath);
         String postPath = updatePath(postingPath, stemmFlag);
         HashMap<String, ArrayList<String[]>> docsMap = search.createBetaMap(query, "",null);
-        ranker.rankerStart(postPath ,"007" ,search.getQueryTerms(), index, docsMap);
+        result_qurey=ranker.rankerStart(postPath ,"351", query, index, docsMap);
     }
 
     public ArrayList<StringBuilder> rfBeta(String qPath,boolean stemmFlag) throws IOException {   //function that Readfile Query file!!!

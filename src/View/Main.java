@@ -50,9 +50,9 @@ public class Main extends Application {
     public static void main(String[] args) {
         launch(args);
         String a1 = "C:\\Users\\A\\Downloads\\corpus\\corpus";
-        String a2 = "C:\\Users\\A\\Downloads\\Searcher2\\Searcher\\pos_with_header\\Without_Stemmer";
+        String a2 = "C:\\Users\\A\\Desktop\\posting update!!!";
         String a3 = "C:\\Users\\A\\Downloads\\corpus\\stop_words.txt";
-        String a4 = "C:\\Users\\A\\Downloads\\Searcher2\\Searcher\\queries.txt";
+        String a4 = "C:\\Users\\A\\Downloads\\Searcher\\Searcher\\queries.txt";
 //
 //        String e1 = "C:\\Users\\e-pc\\IdeaProjects\\corpus\\corpus";
 //        String e2 = "C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\posting";
