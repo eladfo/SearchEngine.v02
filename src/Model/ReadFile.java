@@ -58,7 +58,7 @@ public class ReadFile {
                 if(contains(st, "<H5>"))
                 {
                     String[] tokens = split(st, "<H5>");
-                    doc.update(tokens[1], 3);
+                    doc.update(tokens[1], 4);
                 }
                 if (st.charAt(0) == '<' || contains(st, "Article Type"))
                     return;

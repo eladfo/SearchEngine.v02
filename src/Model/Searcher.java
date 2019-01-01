@@ -11,7 +11,6 @@ public class Searcher {
     private String query;
     private ArrayList<String> cityFilter;
     private boolean semanticFlag;
-    private ArrayList<Term> queryTerms;
     private Indexer index;
     public ArrayList<String> semantic_words ;
     public ArrayList<String> word;
@@ -19,70 +18,12 @@ public class Searcher {
     public String postPath;
 
     public Searcher(ArrayList<String> cityF, boolean semanticF, Indexer idx, String postPath) {
-        queryTerms = new ArrayList<>();
         cityFilter = cityF;
         semanticFlag = semanticF;
         index = idx;
         semantic_words= new ArrayList<>();
         word = new ArrayList<>();
         this.postPath = postPath;
-    }
-
-    public void setQuery(String query) {
-        this.query = query;
-    }
-
-    public ArrayList<Term> getQueryTerms() {
-        return queryTerms;
-    }
-
-    public ArrayList<String>  Get_semantica (String urlPath,String word) throws IOException {
-        ArrayList<String> res;
-        URL url = new URL(urlPath);
-
-
-//        URL ur2 = new URL("https://api.datamuse.com/words?ml="+word);
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod("GET");
-        InputStreamReader input_stem =  new InputStreamReader(con.getInputStream());
-        BufferedReader in = new BufferedReader(input_stem);
-        String inputLine;
-        StringBuffer content = new StringBuffer();
-        while ((inputLine = in.readLine()) != null)
-        {
-            content.append(inputLine);
-        }
-        res = parse_semantica(content);
-        in.close();
-        con.disconnect();
-        return res;
-    }
-
-
-
-    private ArrayList<String> parse_semantica(StringBuffer content)
-    {
-        try
-        {
-            semantic_words.clear();
-            String[] st = splitByWholeSeparator(content.toString(), "},{");
-            String[] st1;
-            String[] st2;
-            char c;
-            for (int i = 0; i < 1 && i < st.length; i++) {
-                st1 = splitByWholeSeparator(st[i], ",");
-                st2 = splitByWholeSeparator(st1[0], ":");
-                c = '"';
-                st2[1] = replaceChars(st2[1], c, '*');
-                st2[1] = replace(st2[1], "*", "");
-                semantic_words.add(st2[1]);
-            }
-        }
-        catch (ArrayIndexOutOfBoundsException e)
-        {
-            return semantic_words;
-        }
-        return semantic_words;
     }
 
     public HashMap<String, ArrayList<String[]>> createBetaMap(String q,String q1 ,String postingPath) throws IOException
@@ -133,36 +74,8 @@ public class Searcher {
         return betaMap;
     }
 
-    private String top_3(String s)
+    private void updateBetaMap(String docID, String termID, int termTF, int termDF, String headerFlag)
     {
-        TreeMap<Double, String> query;
-        String newQ = "";
-        query = new TreeMap<>();
-
-        String[] tokens = split(s , " ");
-        for(String word : tokens)
-        {
-            if(index.finalTermsDic.containsKey(lowerCase(word)))
-                query.put((double)index.finalTermsDic.get(lowerCase(word))[1] , lowerCase(word));
-            else if(index.finalTermsDic.containsKey(upperCase(word)))
-                query.put((double)index.finalTermsDic.get(lowerCase(word))[1] , upperCase(word));
-        }
-
-        for (Map.Entry<Double, String> entry : query.entrySet())
-            newQ = newQ + entry.getValue() + " ";
-
-        return newQ;
-    }
-
-    private ArrayList<String> add_querie(String[] tokens)
-    {
-        ArrayList<String> arr = new ArrayList<>();
-        for(String w : tokens)
-            arr.add(w);
-        return arr;
-    }
-
-    private void updateBetaMap(String docID, String termID, int termTF, int termDF, String headerFlag) {
         if(!headerFlag.equals("0"))
             headerFlag = "1";
         if(!betaMap.containsKey(docID)){
@@ -186,6 +99,85 @@ public class Searcher {
         for(int i=0; i<termRowPtr-1; i++)
             brTermPost.readLine();
         return brTermPost.readLine();
+    }
+
+
+
+
+    private String top_3(String s)
+    {
+        TreeMap<Double, String> query;
+        String newQ = "";
+        query = new TreeMap<>();
+
+        String[] tokens = split(s , " ");
+        for(String word : tokens)
+        {
+            if(index.finalTermsDic.containsKey(lowerCase(word)))
+                query.put((double)index.finalTermsDic.get(lowerCase(word))[1] , lowerCase(word));
+            else if(index.finalTermsDic.containsKey(upperCase(word)))
+                query.put((double)index.finalTermsDic.get(lowerCase(word))[1] , upperCase(word));
+        }
+
+        for (Map.Entry<Double, String> entry : query.entrySet())
+            newQ = newQ + entry.getValue() + " ";
+
+        return newQ;
+    }
+
+    public ArrayList<String>  Get_semantica (String urlPath,String word) throws IOException
+    {
+        ArrayList<String> res;
+        URL url = new URL(urlPath);
+
+//        URL ur2 = new URL("https://api.datamuse.com/words?ml="+word);
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("GET");
+        InputStreamReader input_stem =  new InputStreamReader(con.getInputStream());
+        BufferedReader in = new BufferedReader(input_stem);
+        String inputLine;
+        StringBuffer content = new StringBuffer();
+        while ((inputLine = in.readLine()) != null)
+        {
+            content.append(inputLine);
+        }
+        res = parse_semantica(content);
+        in.close();
+        con.disconnect();
+        return res;
+    }
+
+    private ArrayList<String> parse_semantica(StringBuffer content)
+    {
+        try
+        {
+            semantic_words.clear();
+            String[] st = splitByWholeSeparator(content.toString(), "},{");
+            String[] st1;
+            String[] st2;
+            char c;
+            for (int i = 0; i < 1 && i < st.length; i++) {
+                st1 = splitByWholeSeparator(st[i], ",");
+                st2 = splitByWholeSeparator(st1[0], ":");
+                c = '"';
+                st2[1] = replaceChars(st2[1], c, '*');
+                st2[1] = replace(st2[1], "*", "");
+                semantic_words.add(st2[1]);
+            }
+        }
+        catch (ArrayIndexOutOfBoundsException e)
+        {
+            return semantic_words;
+        }
+        return semantic_words;
+    }
+
+    private ArrayList<String> add_querie(String[] tokens)
+    {
+        ArrayList<String> arr = new ArrayList<>();
+        for(String w : tokens)
+            arr.add(w);
+        return arr;
     }
 
     private ArrayList<String> addSemantic(String[] querie) throws IOException {
