@@ -3,9 +3,7 @@ package Model;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.TreeMap;
+import java.util.*;
 
 import static View.MainWindow_Controller.postingPath;
 import static java.lang.Character.isUpperCase;
@@ -23,8 +21,7 @@ public class Searcher {
     public HashMap<String, ArrayList<String[]>> betaMap;
     public String postPath;
 
-    public Searcher(ArrayList<String> cityF, boolean semanticF, Indexer idx, String postPath)
-    {
+    public Searcher(ArrayList<String> cityF, boolean semanticF, Indexer idx, String postPath) {
         queryTerms = new ArrayList<>();
         cityFilter = cityF;
         semanticFlag = semanticF;
@@ -89,6 +86,7 @@ public class Searcher {
 
     public HashMap<String, ArrayList<String[]>> createBetaMap(String q, String desc, String postingPath) throws IOException
     {
+    public HashMap<String, ArrayList<String[]>> createBetaMap(String q,String q1 ,String postingPath) throws IOException {
         betaMap = new HashMap<>();
         ArrayList<String> querie ;
         query = q;
@@ -96,12 +94,13 @@ public class Searcher {
         if(cityFilter.size() > 0)
             docCityList = createDocsCityList(cityFilter);
 
+        query = q + top_3(q1);
+        System.out.println(q);
         String[] tokens = split(query, " ");
         if(semanticFlag)
             querie = addSemantic(tokens);
         else
             querie=add_querie(tokens);
-
 
         for (String word : querie) {
             String docID;
@@ -162,6 +161,27 @@ public class Searcher {
     {
 
         return true;
+    }
+
+    private String top_3(String s)
+    {
+        TreeMap<Double, String> query;
+        String newQ = "";
+        query = new TreeMap<>();
+
+        String[] tokens = split(s , " ");
+        for(String word : tokens)
+        {
+            if(index.finalTermsDic.containsKey(lowerCase(word)))
+                query.put((double)index.finalTermsDic.get(lowerCase(word))[1] , lowerCase(word));
+            else if(index.finalTermsDic.containsKey(upperCase(word)))
+                query.put((double)index.finalTermsDic.get(lowerCase(word))[1] , upperCase(word));
+        }
+
+        for (Map.Entry<Double, String> entry : query.entrySet())
+            newQ = newQ + entry.getValue() + " ";
+        return newQ;
+
     }
 
     private ArrayList<String> add_querie(String[] tokens)
