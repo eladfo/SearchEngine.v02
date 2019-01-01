@@ -217,7 +217,7 @@ public class MainWindow_Controller extends Component implements Initializable {
         if (!txtfld_queriesFile_path.getText().isEmpty() && loadedDics) {
             ArrayList<String> cityList = getSelectedCity();
             String path = updatePostingPath(stemmFlag.isSelected());
-            Main.google.partB(txtfld_queriesFile_path.getText(), path, stemmFlag.isSelected(), semanticFlag.isSelected(), cityList);
+            Main.google.runQueriesFile(txtfld_queriesFile_path.getText(), path, stemmFlag.isSelected(), semanticFlag.isSelected(), cityList);
             Show_res();
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR,"Please choose queries's file path");
@@ -304,9 +304,9 @@ public class MainWindow_Controller extends Component implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        txtfld_posting_path.setText("C:\\Users\\A\\Desktop\\posting update!!!");
+        txtfld_posting_path.setText("C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\posting");
         postingPath = txtfld_posting_path.getText();
-        txtfld_queriesFile_path.setText("C:\\Users\\A\\Downloads\\Searcher\\Searcher\\queries.txt");
+        txtfld_queriesFile_path.setText("C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\resources\\queries.txt");
         runQueryFile.setDisable(false);
     }
 }

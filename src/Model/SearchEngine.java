@@ -1,6 +1,4 @@
 package Model;
-import com.sun.javafx.geom.TransformedShape;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.io.*;
 import java.util.*;
@@ -10,7 +8,6 @@ import static org.apache.commons.lang3.StringUtils.contains;
 import static org.apache.commons.lang3.StringUtils.split;
 import static org.apache.commons.lang3.StringUtils.substring;
 import static org.apache.commons.lang3.StringUtils.*;
-
 
 public class SearchEngine {
     ReadFile rf;
@@ -118,33 +115,31 @@ public class SearchEngine {
         }
     }
 
-
-
-    public void partB(String qPath, String postingPath, boolean stemmFlag, boolean semanticFlag, ArrayList<String> cityFilter) throws IOException {
-
+    public void runQueriesFile(String qPath, String postingPath, boolean stemmFlag, boolean semanticFlag, ArrayList<String> cityFilter) throws IOException
+    {
+        ranker = new Ranker();
         search = new Searcher(cityFilter, semanticFlag, index, postingPath);
         ArrayList<StringBuilder> queries = rfBeta(qPath ,stemmFlag );
         String[] arr;
         for (StringBuilder entry : queries)
         {
             arr = split(entry.toString(),"~");
-            HashMap<String, ArrayList<String[]>> docsTermMap = search.createBetaMap(arr[1], arr[2], postingPath);
+            HashMap<String, ArrayList<String[]>> docsTermMap = search.createBetaMap(arr[1], arr[2]);
             String postPath = updatePath(postingPath, stemmFlag);
-            result_qurey= ranker.rankerStart(postPath, arr[0],arr[1], index , docsTermMap );
+            result_qurey= ranker.rankerStart(postPath, arr[0], arr[1], index , docsTermMap );
         }
     }
 
     public void runSingleQuery(String query, String postingPath, boolean stemmFlag, boolean semanticFlag, ArrayList<String> cityFlag) throws IOException
     {
-        System.out.println("sadasd");
         ranker = new Ranker();
         search = new Searcher(cityFlag, semanticFlag, index, postingPath);
         String postPath = updatePath(postingPath, stemmFlag);
-        HashMap<String, ArrayList<String[]>> docsMap = search.createBetaMap(query, "",null);
+        HashMap<String, ArrayList<String[]>> docsMap = search.createBetaMap(query, "");
         result_qurey=ranker.rankerStart(postPath ,"351", query, index, docsMap);
     }
 
-    public ArrayList<StringBuilder> rfBeta(String qPath,boolean stemmFlag) throws IOException {   //function that Readfile Query file!!!
+    public ArrayList<StringBuilder> rfBeta(String qPath, boolean stemmFlag) throws IOException {   //function that Readfile Query file!!!
         ArrayList<StringBuilder> res = new ArrayList<>();
         BufferedReader br = new BufferedReader(new FileReader(new File(qPath)));
         String line;
@@ -166,7 +161,7 @@ public class SearchEngine {
             {
                 Doc d = new Doc();
                 d.update(substring(line, 8), 4);
-                ParsedDoc pd = parse.runParser(d,stemmFlag);
+                ParsedDoc pd = parse.runParser(d, stemmFlag);
                 for(Map.Entry<String, StringBuilder> entry : pd.getTerms().entrySet()) {
                     sb.append(entry.getKey()).append(" ");
                     tmpQuery.add(entry.getKey());
@@ -175,7 +170,7 @@ public class SearchEngine {
             }
             if(contains(line, "<desc>")){
                 while((line = br.readLine()) != null && !contains(line, "<narr>")){
-                    StringBuilder desc = parseDesc(line, tmpQuery, trash);
+                    StringBuilder desc = parseQueryDesc(line, tmpQuery, trash, stemmFlag);
                     if(desc != null)
                         sb.append(desc).append(" ");
                 }
@@ -186,7 +181,7 @@ public class SearchEngine {
         return res;
     }
 
-    private StringBuilder parseDesc(String line, ArrayList<String> tmpQuery, ArrayList<String> trash) {
+    private StringBuilder parseQueryDesc(String line, ArrayList<String> tmpQuery, ArrayList<String> trash, boolean stemmFlag) {
         StringBuilder res = new StringBuilder();
         HashSet<String> stopWords = parse.stopWords;
         char x = '"';
@@ -196,6 +191,8 @@ public class SearchEngine {
                 s = upperCase(s);
            if( trash.contains(s) || tmpQuery.contains(s) || stopWords.contains(lowerCase(s)))
                continue;
+           if(stemmFlag)
+               s = parse.stemmer.stem(s);
            if(s.length()>1)
                res.append(s).append(" ");
         }

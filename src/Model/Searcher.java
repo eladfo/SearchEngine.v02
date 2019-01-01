@@ -8,7 +8,6 @@ import static org.apache.commons.lang3.StringUtils.*;
 
 public class Searcher {
 
-    private String query;
     private ArrayList<String> cityFilter;
     private boolean semanticFlag;
     private Indexer index;
@@ -26,12 +25,15 @@ public class Searcher {
         this.postPath = postPath;
     }
 
-    public HashMap<String, ArrayList<String[]>> createBetaMap(String q,String q1 ,String postingPath) throws IOException
+    public HashMap<String, ArrayList<String[]>> createBetaMap(String query, String desciption) throws IOException
     {
         betaMap = new HashMap<>();
         ArrayList<String> querie ;
-        query = q + top_3(q1);
-        System.out.println(q);
+        ArrayList<String> docCityList = new ArrayList<>();
+        if(cityFilter.size() > 0)
+            docCityList = createDocsCityList(cityFilter);
+        query = query + top_3(desciption);
+        System.out.println(query);
         String[] tokens = split(query, " ");
 
         if(semanticFlag)
@@ -55,20 +57,17 @@ public class Searcher {
             termDF = termDicData[0];
             int termRowPtr = termDicData[2] + 1;
             String termData = "";
-            try {
-                termData = getTermData(termID, termRowPtr);
-                if (termData == null || termData.isEmpty())
-                    continue;
-            } catch (NullPointerException e)
-            {
-                System.out.println("SEMEK");
-            }
+            termData = getTermData(termID, termRowPtr);
+            if (termData == null || termData.isEmpty())
+                continue;
             String[] docs = split(termData, "~");
             for(String d : docs) {
                 String[] tmp = split(d, ",");
-                termTF = tmp.length - 1;
                 docID = tmp[0];
-                updateBetaMap(docID, termID, termTF, termDF, tmp[tmp.length-1]);
+                if (docCityList.contains(docID) || docCityList.size() == 0) {
+                    termTF = tmp.length - 1;
+                    updateBetaMap(docID, termID, termTF, termDF, tmp[tmp.length - 1]);
+                }
             }
         }
         return betaMap;
@@ -101,8 +100,28 @@ public class Searcher {
         return brTermPost.readLine();
     }
 
-
-
+    private ArrayList<String> createDocsCityList(ArrayList<String> cityFilter) throws IOException
+    {
+        ArrayList<String> res = new ArrayList<>();
+        File cityPost = new File(postPath + "\\mergedCityPosting");
+        BufferedReader br = new BufferedReader(new FileReader(cityPost));
+        for (String cityID : cityFilter) {
+            int cityPtr = index.finalCitiesDic.get(cityID);
+            String line;
+            int idx = 0;
+            while ((line = br.readLine()) != null && idx != cityPtr)
+                idx++;
+            if(line.charAt(0) == ';')
+                br.readLine();
+            while ((line = br.readLine()) != null && line.charAt(0) != '*') {
+                String[] tokens = split(line, " ");
+                for (String s : tokens) {
+                    res.add(substringBefore(s, ":"));
+                }
+            }
+        }
+        return res;
+    }
 
     private String top_3(String s)
     {

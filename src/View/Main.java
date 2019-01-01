@@ -64,7 +64,7 @@ public class Main extends Application {
             //google.runSearchEngine();
 //            google.testing(e2);
             google.index.loadDics(a2);
-            google.partB(a4, a2, false,false , new ArrayList<>());
+            google.runQueriesFile(a4, a2, false,false , new ArrayList<>());
            exit();
        } catch (IOException e) {
             e.printStackTrace();

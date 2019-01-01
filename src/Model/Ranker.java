@@ -43,9 +43,9 @@ public class Ranker
         {
             for(String[] Data : entry.getValue())
             {
-                if(arr_original.contains(Data[0]))
-                    B25_Rank = B25_Rank + 2d*CalculateB25(Double.valueOf(Data[1]) , Double.valueOf(Data[2]) , entry.getKey());
-                else
+//                if(arr_original.contains(Data[0]))
+//                    B25_Rank = B25_Rank + 2d*CalculateB25(Double.valueOf(Data[1]) , Double.valueOf(Data[2]) , entry.getKey());
+//                else
                     B25_Rank = B25_Rank + CalculateB25(Double.valueOf(Data[1]) , Double.valueOf(Data[2]) , entry.getKey());
 
 
@@ -62,7 +62,7 @@ public class Ranker
             }
             sqr = Math.sqrt(mechane);
             CosSim_Rank =  mone/sqr;
-            Total_Rank = B25_Rank*Header_Rank+ CosSim_Rank*0  ;
+            Total_Rank = B25_Rank + Header_Rank + CosSim_Rank*0  ;
 
             QueryDocRank.put(Total_Rank, entry.getKey());
             B25_Rank = 0 ;
@@ -83,7 +83,7 @@ public class Ranker
 
         if(tf != 0)
         {
-            logExp = Math.log( (num_docs_crorpus - df + 0.5)/(df+0.5));
+            logExp = Math.log((num_docs_crorpus - df + 0.5)/(df+0.5));
             // sizde doc + 1 ==> num of docs in corpus + 1
             Sum = Sum + Exp_Calculate_BM25(tf,doc) * logExp ;
         }
