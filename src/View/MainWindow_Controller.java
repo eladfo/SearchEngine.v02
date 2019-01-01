@@ -11,10 +11,9 @@ import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
-import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.controlsfx.control.CheckComboBox;
+
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
@@ -25,13 +24,13 @@ import java.util.ResourceBundle;
 
 import static org.apache.commons.lang3.StringUtils.split;
 
-public class MainWindow_Controller extends Component {
+public class MainWindow_Controller extends Component implements Initializable {
     public TextField txtfld_corpus_path;
     public TextField txtfld_posting_path;
     public TextField txtfld_stopwords_path;
     public TextField txtfld_queriesFile_path;
     public TextField txtfld_singleQuery;
-    public CheckBox steam;
+    public CheckBox stemmFlag;
     public RadioButton semanticFlag;
     public Button createInvertedIdx;
     public Button showDic;
@@ -100,12 +99,12 @@ public class MainWindow_Controller extends Component {
      */
     public void startButton() throws IOException {
             Main.google = new SearchEngine(txtfld_corpus_path.getText(), txtfld_posting_path.getText()
-                    , steam.isSelected(), txtfld_stopwords_path.getText());
+                    , stemmFlag.isSelected(), txtfld_stopwords_path.getText());
             Main.google.runSearchEngine();
             openDetailsWindow();
             loadedDics = true;
             enableBottuns();
-            String updatePath = updatePostingPath(steam.isSelected());
+            String updatePath = updatePostingPath(stemmFlag.isSelected());
             Main.google.index.loadDics(updatePath);
     }
 
@@ -140,7 +139,7 @@ public class MainWindow_Controller extends Component {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Please choose posting's path");
             alert.showAndWait();
         } else {
-            isStemm = steam.isSelected();
+            isStemm = stemmFlag.isSelected();
             Stage stage = new Stage();
             FXMLLoader fxmlLoader = new FXMLLoader();
             Parent root = fxmlLoader.load(getClass().getResource("Show_Dic.fxml").openStream());
@@ -178,7 +177,7 @@ public class MainWindow_Controller extends Component {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Please choose posting's path");
             alert.showAndWait();
         } else {
-            String updatePath = updatePostingPath(steam.isSelected());
+            String updatePath = updatePostingPath(stemmFlag.isSelected());
             Main.google.setPostingsPath(postingPath);
             Boolean res = Main.google.index.loadDics(updatePath);
             if(res) {
@@ -217,8 +216,8 @@ public class MainWindow_Controller extends Component {
     public void runQueriesButton() throws IOException {
         if (!txtfld_queriesFile_path.getText().isEmpty() && loadedDics) {
             ArrayList<String> cityList = getSelectedCity();
-            String path = updatePostingPath(steam.isSelected());
-            Main.google.partB(txtfld_queriesFile_path.getText(), path, steam.isSelected(), semanticFlag.isSelected(), cityList);
+            String path = updatePostingPath(stemmFlag.isSelected());
+            Main.google.partB(txtfld_queriesFile_path.getText(), path, stemmFlag.isSelected(), semanticFlag.isSelected(), cityList);
             Show_res();
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR,"Please choose queries's file path");
@@ -241,8 +240,8 @@ public class MainWindow_Controller extends Component {
     public void runSingle() throws IOException {
         if (!txtfld_singleQuery.getText().isEmpty()) {
             ArrayList<String> cityList = getSelectedCity();
-            String path = updatePostingPath(steam.isSelected());
-            Main.google.runSingleQuery(txtfld_queriesFile_path.getText(), path, steam.isSelected(), semanticFlag.isSelected(), cityList);
+            String path = updatePostingPath(stemmFlag.isSelected());
+            Main.google.runSingleQuery(txtfld_queriesFile_path.getText(), path, stemmFlag.isSelected(), semanticFlag.isSelected(), cityList);
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR,"Please enter a query");
             alert.showAndWait();
@@ -251,7 +250,7 @@ public class MainWindow_Controller extends Component {
 
     public void initializeCityFilter() throws IOException {
         ObservableList<String> strings = FXCollections.observableArrayList();
-        String upPath = updatePostingPath(steam.isSelected());
+        String upPath = updatePostingPath(stemmFlag.isSelected());
         File file = new File(upPath + "\\Final_Cities_Dic");
         String st;
         String[] arr_str;
@@ -302,4 +301,11 @@ public class MainWindow_Controller extends Component {
         browseQueryFile.setDisable(true);
     }
 
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        txtfld_posting_path.setText("C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\posting");
+        postingPath = txtfld_posting_path.getText();
+        txtfld_queriesFile_path.setText("C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\resources\\queries.txt");
+        runQueryFile.setDisable(false);
+    }
 }

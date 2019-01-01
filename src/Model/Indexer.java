@@ -52,7 +52,7 @@ public class Indexer {
         tmpDocsDic.clear();
         createFinalTermsPostings();
         createFinalTermsDic();
-        //deleteTmpFiles();
+        deleteTmpFiles();
     }
 
     /**
@@ -395,7 +395,7 @@ public class Indexer {
             String termID = entry.getKey();
             int[] termData = entry.getValue();
             try {
-                /**  if(termData[0] > 1)
+                /**  if(getTermData[0] > 1)
                  *
                  */
                      bw.write(termID + ";" + termData[0] + ";" + termData[1] + ";" + termData[2] + "\n");

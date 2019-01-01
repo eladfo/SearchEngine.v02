@@ -78,6 +78,11 @@ public class Parse
     }
 
     public void addTermToParsedDoc(StringBuilder sb, int pos) {
+        if(sb.toString().length()==0)
+            return;
+        char c = sb.toString().charAt(0);
+        if(c == '$' || c =='%')
+            return;
         if(isStem)
             parsedDoc.addTerm(stemmer.stem(sb.toString()), pos);
         else

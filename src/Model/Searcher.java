@@ -4,9 +4,6 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
-
-import static View.MainWindow_Controller.postingPath;
-import static java.lang.Character.isUpperCase;
 import static org.apache.commons.lang3.StringUtils.*;
 
 public class Searcher {
@@ -39,10 +36,12 @@ public class Searcher {
         return queryTerms;
     }
 
-    public ArrayList<String> Get_semantica (String word) throws IOException
-    {
+    public ArrayList<String>  Get_semantica (String urlPath,String word) throws IOException {
         ArrayList<String> res;
-        URL url = new URL("https://api.datamuse.com/words?ml="+word);
+        URL url = new URL(urlPath);
+
+
+//        URL ur2 = new URL("https://api.datamuse.com/words?ml="+word);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
         InputStreamReader input_stem =  new InputStreamReader(con.getInputStream());
@@ -58,6 +57,8 @@ public class Searcher {
         con.disconnect();
         return res;
     }
+
+
 
     private ArrayList<String> parse_semantica(StringBuffer content)
     {
@@ -84,18 +85,14 @@ public class Searcher {
         return semantic_words;
     }
 
-    public HashMap<String, ArrayList<String[]>> createBetaMap(String q, String q1 ,String postingPath) throws IOException
+    public HashMap<String, ArrayList<String[]>> createBetaMap(String q,String q1 ,String postingPath) throws IOException
     {
         betaMap = new HashMap<>();
         ArrayList<String> querie ;
-        query = q;
-        ArrayList<String> docCityList = new ArrayList<>();
-        if(cityFilter.size() > 0)
-            docCityList = createDocsCityList(cityFilter);
-
         query = q + top_3(q1);
         System.out.println(q);
         String[] tokens = split(query, " ");
+
         if(semanticFlag)
             querie = addSemantic(tokens);
         else
@@ -116,50 +113,24 @@ public class Searcher {
                 continue;
             termDF = termDicData[0];
             int termRowPtr = termDicData[2] + 1;
-            String termData = termData(termID, termRowPtr);
-            if(termData.isEmpty())
-                continue;
+            String termData = "";
+            try {
+                termData = getTermData(termID, termRowPtr);
+                if (termData == null || termData.isEmpty())
+                    continue;
+            } catch (NullPointerException e)
+            {
+                System.out.println("SEMEK");
+            }
             String[] docs = split(termData, "~");
             for(String d : docs) {
                 String[] tmp = split(d, ",");
+                termTF = tmp.length - 1;
                 docID = tmp[0];
-                if (docCityList.contains(docID) || docCityList.size() == 0) {
-                    termTF = tmp.length - 1;
-                    updateBetaMap(docID, termID, termTF, termDF, tmp[tmp.length - 1]);
-                }
+                updateBetaMap(docID, termID, termTF, termDF, tmp[tmp.length-1]);
             }
         }
         return betaMap;
-    }
-
-    private ArrayList<String> createDocsCityList(ArrayList<String> cityFilter) throws IOException
-    {
-        ArrayList<String> res = new ArrayList<>();
-        File cityPost = new File
-                (postPath + "\\mergedCityPosting");
-        BufferedReader br = new BufferedReader(new FileReader(cityPost));
-        for(String cityID : cityFilter){
-            int cityPtr = index.finalCitiesDic.get(cityID);
-            String line;
-            int idx = 0;
-            while((line = br.readLine()) != null){
-                if(idx == cityPtr)
-                {
-                    String[] tokens = split(line, " ");
-                    for(String s : tokens){
-                        res.add(substringBefore(s, ":"));
-                    }
-                }
-                idx++;
-            }
-        }
-        return res;
-    }
-
-    private boolean checkDocCity(String docID)
-    {
-
-        return true;
     }
 
     private String top_3(String s)
@@ -179,8 +150,8 @@ public class Searcher {
 
         for (Map.Entry<Double, String> entry : query.entrySet())
             newQ = newQ + entry.getValue() + " ";
-        return newQ;
 
+        return newQ;
     }
 
     private ArrayList<String> add_querie(String[] tokens)
@@ -191,8 +162,7 @@ public class Searcher {
         return arr;
     }
 
-    private void updateBetaMap(String docID, String termID, int termTF, int termDF, String headerFlag)
-    {
+    private void updateBetaMap(String docID, String termID, int termTF, int termDF, String headerFlag) {
         if(!headerFlag.equals("0"))
             headerFlag = "1";
         if(!betaMap.containsKey(docID)){
@@ -206,9 +176,8 @@ public class Searcher {
         }
     }
 
-    public String termData(String termID, int termRowPtr) throws IOException
+    public String getTermData(String termID, int termRowPtr) throws IOException
     {
-        System.out.println(postPath);
         File termPost = new File
                 (postPath + "\\" + (upperCase(Character.toString(termID.charAt(0)))));
         if(!termPost.exists())
@@ -219,15 +188,14 @@ public class Searcher {
         return brTermPost.readLine();
     }
 
-    private ArrayList<String> addSemantic(String[] querie) throws IOException
-    {
+    private ArrayList<String> addSemantic(String[] querie) throws IOException {
         ArrayList<String> semantic = new ArrayList<>();
         ArrayList<String> res = new ArrayList<>();
 
         for(String s : querie)
         {
                 res.add(s);
-                semantic = Get_semantica(s);
+                semantic = Get_semantica("https://api.datamuse.com/words?rel_trg=",s);
                 for (String semanticWord : semantic)
                 {
                     if (index.finalTermsDic.containsKey(upperCase(semanticWord)))
@@ -235,6 +203,14 @@ public class Searcher {
                     else if (index.finalTermsDic.containsKey(lowerCase(semanticWord)))
                         res.add(lowerCase(semanticWord));
                 }
+            semantic = Get_semantica("https://api.datamuse.com/words?ml=",s);
+            for (String semanticWord : semantic)
+            {
+                if (index.finalTermsDic.containsKey(upperCase(semanticWord)))
+                    res.add(upperCase(semanticWord));
+                else if (index.finalTermsDic.containsKey(lowerCase(semanticWord)))
+                    res.add(lowerCase(semanticWord));
+            }
         }
         return res;
     }

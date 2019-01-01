@@ -37,11 +37,7 @@ public class ParsedDoc {
      */
     public void addTerm(String str, int position){
         String tmp;
-        if(str.length()==0)
-            return;
         char c = str.charAt(0);
-        if(c == '$')
-            return;
         if( (c <= '0' || c >= '9') && isUpperCase(c) )
             tmp = upperCase(str);
         else

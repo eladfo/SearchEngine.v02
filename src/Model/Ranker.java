@@ -8,27 +8,20 @@ public class Ranker
 {
     public Indexer idx ;
     public ArrayList<Term> query;
-    public double avgDocLength = 443.4632;
+    public double avgDocLength = 443.4832;
+//    public double avgDocLength = 220;
     public double num_docs_crorpus= 472525;
     public ArrayList<String> queryDoc;
     public ArrayList<String> result;
-    public ArrayList<String> result_tmp ;
     public TreeMap<Double, String> QueryDocRank;
     public double b=0.38; //0.38
     public double k=1.2; // 1.2
     public ArrayList<String> semantic_words;
     public HashMap<String, ArrayList<String[]>> info_map ;
-    public HashMap<String, ArrayList<String[]>> info_map1;
 
     public Ranker ()
     {
-        result_tmp = new ArrayList<>();
-        QueryDocRank = new TreeMap<>(new Comparator<Double>() {
-            @Override
-            public int compare(Double o1, Double o2) {
-                return o2.compareTo(o1);
-            }
-        });
+        QueryDocRank = new TreeMap<>(Comparator.reverseOrder());
         result = new ArrayList<>();
         queryDoc = new ArrayList<>();
         semantic_words = new ArrayList<>();
@@ -42,8 +35,6 @@ public class Ranker
         idx = indexer;
         query = qList;
         boolean is_header = false;
-
-
         Reset();
         for (Map.Entry<String, ArrayList<String[]>> entry : map.entrySet())
         {
@@ -56,15 +47,16 @@ public class Ranker
                 mechane = mechane + Math.pow(Double.valueOf(Data[1]),2);
 
                 if(Data[3].equalsIgnoreCase("0")) {
+//                    System.out.println("********" + Data[0]);
                     is_header = true;
                 }
-
             }
-            if(is_header)
-                Header_Rank = 1d;
+            if(is_header){
+                Header_Rank = 10d;
+            }
             sqr = Math.sqrt(mechane);
             CosSim_Rank =  mone/sqr;
-            Total_Rank = B25_Rank*0.7  + CosSim_Rank*0.3 + Header_Rank ;
+            Total_Rank = B25_Rank*Header_Rank+ CosSim_Rank*0  ;
 
             QueryDocRank.put(Total_Rank, entry.getKey());
             B25_Rank = 0 ;
@@ -85,7 +77,7 @@ public class Ranker
 
         if(tf != 0)
         {
-            logExp = Math.log10( (num_docs_crorpus +1)/(df));
+            logExp = Math.log( (num_docs_crorpus - df + 0.5)/(df+0.5));
             // sizde doc + 1 ==> num of docs in corpus + 1
             Sum = Sum + Exp_Calculate_BM25(tf,doc) * logExp ;
         }
@@ -130,21 +122,16 @@ public class Ranker
     private void Addres(String numqurey)
     {
         int index=0;
-        int good = 0;
         for (Map.Entry<Double, String> entry : QueryDocRank.entrySet())
         {
             if(index<50)
             {
-                System.out.println(numqurey+"~"+entry.getValue());
                 result.add(numqurey+"~"+entry.getValue());
-                if(result_tmp.contains(entry.getValue()))
-                    good++;
             }
             else
                 break;
             index++;
         }
-        System.out.println(good +  "   hhh") ;
     }
 
     public void Reset()

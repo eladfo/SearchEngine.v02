@@ -1,16 +1,12 @@
 package Model;
-import com.sun.javafx.geom.TransformedShape;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.io.*;
 import java.util.*;
-
 import static java.lang.Character.isUpperCase;
 import static org.apache.commons.lang3.StringUtils.contains;
 import static org.apache.commons.lang3.StringUtils.split;
 import static org.apache.commons.lang3.StringUtils.substring;
 import static org.apache.commons.lang3.StringUtils.*;
-
 
 public class SearchEngine {
     ReadFile rf;
@@ -35,8 +31,8 @@ public class SearchEngine {
     {
         rf = new ReadFile(corpusPath);
         this.postingsPath = updatePath(postPath, isStemm);
-        //partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
-        partiotions=6;
+        partiotions = (int) Math.ceil(rf.getListOfFilesSize()/50.0);
+        //partiotions=6;
         stemmFlag = isStemm;
         index = new Indexer(postingsPath, partiotions);
         parse = new Parse(stemmFlag, stopwordsPath);
@@ -118,16 +114,15 @@ public class SearchEngine {
         }
     }
 
-    public void partB(String qPath, String postingPath, boolean stemmFlag, boolean semanticFlag, ArrayList<String> cityFilter) throws IOException {
-
+    public void partB(String qPath, String postingPath, boolean stemmFlag, boolean semanticFlag, ArrayList<String> cityFilter) throws IOException
+    {
+        ranker = new Ranker();
         search = new Searcher(cityFilter, semanticFlag, index, postingPath);
         ArrayList<StringBuilder> queries = rfBeta(qPath ,stemmFlag );
         String[] arr;
         for (StringBuilder entry : queries)
         {
             arr = split(entry.toString(),"~");
-            System.out.println(arr[1]);
-            System.out.println(arr[2]);
             HashMap<String, ArrayList<String[]>> docsTermMap = search.createBetaMap(arr[1], arr[2], postingPath);
             String postPath = updatePath(postingPath, stemmFlag);
             result_qurey= ranker.rankerStart(postPath, arr[0], search.getQueryTerms(), index , docsTermMap );
@@ -142,7 +137,7 @@ public class SearchEngine {
         ranker.rankerStart(postPath ,"007" ,search.getQueryTerms(), index, docsMap);
     }
 
-    public ArrayList<StringBuilder> rfBeta(String qPath,boolean stemmFlag) throws IOException {   //function that Readfile Query file!!!
+    public ArrayList<StringBuilder> rfBeta(String qPath, boolean stemmFlag) throws IOException {   //function that Readfile Query file!!!
         ArrayList<StringBuilder> res = new ArrayList<>();
         BufferedReader br = new BufferedReader(new FileReader(new File(qPath)));
         String line;
@@ -173,7 +168,7 @@ public class SearchEngine {
             }
             if(contains(line, "<desc>")){
                 while((line = br.readLine()) != null && !contains(line, "<narr>")){
-                    StringBuilder desc = parseDesc(line, tmpQuery, trash);
+                    StringBuilder desc = parseDesc(line, tmpQuery, trash, stemmFlag);
                     if(desc != null)
                         sb.append(desc).append(" ");
                 }
@@ -184,16 +179,19 @@ public class SearchEngine {
         return res;
     }
 
-    private StringBuilder parseDesc(String line, ArrayList<String> tmpQuery, ArrayList<String> trash) {
+    private StringBuilder parseDesc(String line, ArrayList<String> tmpQuery, ArrayList<String> trash, boolean stemmFlag) {
         StringBuilder res = new StringBuilder();
         HashSet<String> stopWords = parse.stopWords;
         char x = '"';
         String [] tokens = split(line, x + " `'_*&#+/<>|~\\,;][:^@.()?{}!�");
         for(String s : tokens){
-            if(isUpperCase(s.charAt(0)))
+           if(isUpperCase(s.charAt(0)))
                 s = upperCase(s);
            if( trash.contains(s) || tmpQuery.contains(s) || stopWords.contains(lowerCase(s)))
                continue;
+            System.out.println(stemmFlag + "     ggggg");
+           if(stemmFlag) //
+                s = parse.stemmer.stem(s);
            if(s.length()>1)
                res.append(s).append(" ");
         }
