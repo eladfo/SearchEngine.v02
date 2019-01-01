@@ -23,7 +23,8 @@ public class Searcher {
     public HashMap<String, ArrayList<String[]>> betaMap;
     public String postPath;
 
-    public Searcher(ArrayList<String> cityF, boolean semanticF, Indexer idx, String postPath) {
+    public Searcher(ArrayList<String> cityF, boolean semanticF, Indexer idx, String postPath)
+    {
         queryTerms = new ArrayList<>();
         cityFilter = cityF;
         semanticFlag = semanticF;
@@ -41,7 +42,8 @@ public class Searcher {
         return queryTerms;
     }
 
-    public ArrayList<String>  Get_semantica (String word) throws IOException {
+    public ArrayList<String> Get_semantica (String word) throws IOException
+    {
         ArrayList<String> res;
         URL url = new URL("https://api.datamuse.com/words?ml="+word);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -85,12 +87,16 @@ public class Searcher {
         return semantic_words;
     }
 
-    public HashMap<String, ArrayList<String[]>> createBetaMap(String q, String desc, String postingPath) throws IOException {
+    public HashMap<String, ArrayList<String[]>> createBetaMap(String q, String desc, String postingPath) throws IOException
+    {
         betaMap = new HashMap<>();
         ArrayList<String> querie ;
         query = q;
-        String[] tokens = split(query, " ");
+        ArrayList<String> docCityList = new ArrayList<>();
+        if(cityFilter.size() > 0)
+            docCityList = createDocsCityList(cityFilter);
 
+        String[] tokens = split(query, " ");
         if(semanticFlag)
             querie = addSemantic(tokens);
         else
@@ -118,12 +124,44 @@ public class Searcher {
             String[] docs = split(termData, "~");
             for(String d : docs) {
                 String[] tmp = split(d, ",");
-                termTF = tmp.length - 1;
                 docID = tmp[0];
-                updateBetaMap(docID, termID, termTF, termDF, tmp[tmp.length-1]);
+                if (docCityList.contains(docID)) {
+                    termTF = tmp.length - 1;
+                    updateBetaMap(docID, termID, termTF, termDF, tmp[tmp.length - 1]);
+                }
             }
         }
         return betaMap;
+    }
+
+    private ArrayList<String> createDocsCityList(ArrayList<String> cityFilter) throws IOException
+    {
+        ArrayList<String> res = new ArrayList<>();
+        File cityPost = new File
+                (postPath + "\\mergedCityPosting");
+        BufferedReader br = new BufferedReader(new FileReader(cityPost));
+        for(String cityID : cityFilter){
+            int cityPtr = index.finalCitiesDic.get(cityID);
+            String line;
+            int idx = 0;
+            while((line = br.readLine()) != null){
+                if(idx == cityPtr)
+                {
+                    String[] tokens = split(line, " ");
+                    for(String s : tokens){
+                        res.add(substringBefore(s, ":"));
+                    }
+                }
+                idx++;
+            }
+        }
+        return res;
+    }
+
+    private boolean checkDocCity(String docID)
+    {
+
+        return true;
     }
 
     private ArrayList<String> add_querie(String[] tokens)
@@ -134,7 +172,8 @@ public class Searcher {
         return arr;
     }
 
-    private void updateBetaMap(String docID, String termID, int termTF, int termDF, String headerFlag) {
+    private void updateBetaMap(String docID, String termID, int termTF, int termDF, String headerFlag)
+    {
         if(!headerFlag.equals("0"))
             headerFlag = "1";
         if(!betaMap.containsKey(docID)){
@@ -161,7 +200,8 @@ public class Searcher {
         return brTermPost.readLine();
     }
 
-    private ArrayList<String> addSemantic(String[] querie) throws IOException {
+    private ArrayList<String> addSemantic(String[] querie) throws IOException
+    {
         ArrayList<String> semantic = new ArrayList<>();
         ArrayList<String> res = new ArrayList<>();
 
