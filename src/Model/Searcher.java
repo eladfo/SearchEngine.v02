@@ -187,7 +187,7 @@ public class Searcher {
             brTermPost.readLine();
         return brTermPost.readLine();
     }
-
+//jhghjgjhg
     private ArrayList<String> addSemantic(String[] querie) throws IOException {
         ArrayList<String> semantic = new ArrayList<>();
         ArrayList<String> res = new ArrayList<>();
