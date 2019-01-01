@@ -27,13 +27,12 @@ public class Ranker
         semantic_words = new ArrayList<>();
     }
 
-    public ArrayList<String> rankerStart(String path , String num_query, ArrayList<Term> qList , Indexer indexer , HashMap<String, ArrayList<String[]>> map) throws IOException
+    public ArrayList<String> rankerStart(String path , String num_query, Indexer indexer , HashMap<String, ArrayList<String[]>> map) throws IOException
     {
         double B25_Rank =0  , Total_Rank = 0 ,CosSim_Rank = 0 , Header_Rank=0;
         double mone = 0 , mechane=0 , sqr = 0;
         info_map = map;
         idx = indexer;
-        query = qList;
         boolean is_header = false;
         Reset();
         for (Map.Entry<String, ArrayList<String[]>> entry : map.entrySet())
