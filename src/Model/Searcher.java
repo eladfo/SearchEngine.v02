@@ -84,9 +84,8 @@ public class Searcher {
         return semantic_words;
     }
 
-    public HashMap<String, ArrayList<String[]>> createBetaMap(String q, String desc, String postingPath) throws IOException
+    public HashMap<String, ArrayList<String[]>> createBetaMap(String q, String q1 ,String postingPath) throws IOException
     {
-    public HashMap<String, ArrayList<String[]>> createBetaMap(String q,String q1 ,String postingPath) throws IOException {
         betaMap = new HashMap<>();
         ArrayList<String> querie ;
         query = q;
@@ -124,7 +123,7 @@ public class Searcher {
             for(String d : docs) {
                 String[] tmp = split(d, ",");
                 docID = tmp[0];
-                if (docCityList.contains(docID)) {
+                if (docCityList.contains(docID) || docCityList.size() == 0) {
                     termTF = tmp.length - 1;
                     updateBetaMap(docID, termID, termTF, termDF, tmp[tmp.length - 1]);
                 }
