@@ -547,6 +547,11 @@ public class Indexer {
         bwDic.close();
     }
 
+    /**
+     * Calculate top five entities per doc.
+     * @param line
+     * @return Top five entities.
+     */
     private StringBuilder calcTopFive(String line) {
         StringBuilder res = new StringBuilder(" ");
         String[] entities = split(line, ",");
@@ -562,9 +567,4 @@ public class Indexer {
         }
         return res;
     }
-
-//    public void createFinalDocsDic(BufferedWriter bwDic, String[] tokens, int pointer) throws IOException {
-//        String[] tokens = split(line, "~");
-//        bwDic.write(tokens[0] + ";" + pointer + "\n");
-//    }
 }

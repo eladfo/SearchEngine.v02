@@ -118,6 +118,10 @@ public class ReadFile {
         }
     }
 
+    /**
+     * Extract the doc title from between the <TI></TI> tags.
+     * @param s Line that contain <TI></TI>
+     */
     private void findDocTitle(String s){
         if(contains(s, "</TI>")) {
             String[] tokens = split(s, "<");

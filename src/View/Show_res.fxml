@@ -7,17 +7,17 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="634.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.ShowQueryRes_Controller">
+<AnchorPane prefHeight="634.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.ShowQueryRes_Controller">
    <children>
-      <TextArea fx:id="results_txtArea" layoutX="99.0" layoutY="65.0" prefHeight="252.0" prefWidth="253.0" />
-      <TextArea fx:id="entities_txtArea" layoutX="99.0" layoutY="430.0" prefHeight="100.0" prefWidth="253.0" />
-      <Label layoutX="166.0" layoutY="30.0" prefHeight="27.0" prefWidth="118.0" text="Query Results" textAlignment="CENTER">
+      <TextArea fx:id="results_txtArea" layoutX="99.0" layoutY="65.0" prefHeight="287.0" prefWidth="253.0" />
+      <TextArea fx:id="entities_txtArea" layoutX="99.0" layoutY="490.0" prefHeight="100.0" prefWidth="253.0" />
+      <Label layoutX="166.0" layoutY="20.0" prefHeight="27.0" prefWidth="118.0" text="Query Results" textAlignment="CENTER">
          <font>
             <Font name="System Bold Italic" size="18.0" />
          </font>
       </Label>
-      <Button fx:id="saveResults_Button" layoutX="177.0" layoutY="328.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="98.0" onAction="#saveResButton" text="Save result" />
-      <Button fx:id="searchEnt_Button" layoutX="285.0" layoutY="388.0" mnemonicParsing="false" onAction="#showEntitiesButton" text="Search entities" />
-      <TextField fx:id="docID_txtfld" layoutX="74.0" layoutY="386.0" prefHeight="25.0" prefWidth="197.0" />
+      <Button fx:id="saveResults_Button" layoutX="177.0" layoutY="378.0" mnemonicParsing="false" onAction="#saveResButton" prefHeight="25.0" prefWidth="98.0" text="Save result" />
+      <Button fx:id="searchEnt_Button" layoutX="285.0" layoutY="448.0" mnemonicParsing="false" onAction="#showEntitiesButton" text="Search entities" />
+      <TextField fx:id="docID_txtfld" layoutX="74.0" layoutY="446.0" prefHeight="25.0" prefWidth="197.0" />
    </children>
 </AnchorPane>

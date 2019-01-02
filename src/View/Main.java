@@ -6,11 +6,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
 import java.io.IOException;
-import java.util.ArrayList;
-
-import static javafx.application.Platform.exit;
 
 public class Main extends Application {
     /**
@@ -49,28 +45,5 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
-        String a1 = "C:\\Users\\A\\Downloads\\corpus\\corpus";
-        String a2 = "C:\\Users\\A\\Desktop\\posting update!!!";
-        String a3 = "C:\\Users\\A\\Downloads\\corpus\\stop_words.txt";
-        String a4 = "C:\\Users\\A\\Downloads\\Searcher\\Searcher\\queries.txt";
-//
-//        String e1 = "C:\\Users\\e-pc\\IdeaProjects\\corpus\\corpus";
-//        String e2 = "C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\posting";
-//        String e3 = "C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\resources\\stop_words.txt";
-//        String e4 = "C:\\Users\\A\\Downloads\\Searcher2\\Searcher\\queries.txt";
-        /*
-        try {
-            SearchEngine google = new SearchEngine(a1, a2, false, a3);
-            //google.runSearchEngine();
-//            google.testing(e2);
-            google.index.loadDics(a2);
-            google.runQueriesFile(a4, a2, false,false , new ArrayList<>());
-           exit();
-       } catch (IOException e) {
-            e.printStackTrace();
-        }
-        */
     }
-
-
 }

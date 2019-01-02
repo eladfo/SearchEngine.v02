@@ -1,4 +1,5 @@
 package Model;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -37,7 +38,7 @@ public class Parse
                 stopWords.add(lowerCase(initialParse(st)));
         }
         capitalCityAPI = new TreeMap<>();
-//        createCityMap();
+        createCityMap();
         stemmer = new Stemmer();
     }
 

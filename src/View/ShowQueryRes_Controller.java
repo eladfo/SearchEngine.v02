@@ -4,11 +4,9 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.stage.FileChooser;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 
 import static org.apache.commons.lang3.StringUtils.split;
@@ -27,7 +25,7 @@ public class ShowQueryRes_Controller extends Component {
         String[] arr;
         StringBuilder s = new StringBuilder();
             s.append("Num_query").append("          ").append("Doc_id\n");
-            for (String line : Main.google.result_qurey)
+            for (String line : Main.google.queryResults)
             {
                 arr = split(line , "~");
                 s.append(arr[0]).append("                       ").append(arr[1]).append("\n");

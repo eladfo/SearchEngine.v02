@@ -24,7 +24,7 @@ import java.util.ResourceBundle;
 
 import static org.apache.commons.lang3.StringUtils.split;
 
-public class MainWindow_Controller extends Component implements Initializable {
+public class MainWindow_Controller extends Component {
     public TextField txtfld_corpus_path;
     public TextField txtfld_posting_path;
     public TextField txtfld_stopwords_path;
@@ -302,11 +302,4 @@ public class MainWindow_Controller extends Component implements Initializable {
         browseQueryFile.setDisable(true);
     }
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        txtfld_posting_path.setText("C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\posting");
-        postingPath = txtfld_posting_path.getText();
-        txtfld_queriesFile_path.setText("C:\\Users\\e-pc\\IdeaProjects\\SearchEngine.v02\\resources\\queries.txt");
-        runQueryFile.setDisable(false);
-    }
 }
